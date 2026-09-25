@@ -1,0 +1,70 @@
+[versions]
+# Core
+agp = "8.5.0" # Ajusta según tu versión de Android Studio
+kotlin = "2.1.20"
+ksp = "2.1.20-1.0.31"
+coreKtx = "1.13.1"
+lifecycle = "2.8.3"
+activityCompose = "1.9.0"
+composeBom = "2024.06.00"
+
+# Navegación y Arquitectura
+navigationCompose = "2.7.7"
+hilt = "2.51.1" # Para Inyección de Dependencias (muy recomendado)
+hiltNavigationCompose = "1.2.0"
+
+# Firebase
+googleServices = "4.4.2"
+firebaseBom = "33.1.1"
+
+# ARCore / SceneView
+sceneview = "2.2.1" # Verifica la última versión en GitHub
+arcore = "1.44.0"
+
+# Coil (para imágenes)
+coil = "2.6.0"
+
+[libraries]
+# Core
+androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycle" }
+androidx-lifecycle-viewmodel-compose = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "lifecycle" }
+androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
+
+# Compose
+androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
+androidx-ui = { group = "androidx.compose.ui", name = "ui" }
+androidx-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
+androidx-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
+androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
+androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
+androidx-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
+
+# Navegación
+androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
+
+# Hilt (Inyección de Dependencias)
+hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
+hilt-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hilt" }
+androidx-hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
+
+# Firebase
+firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
+firebase-auth = { group = "com.google.firebase", name = "firebase-auth-ktx" }
+firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore-ktx" }
+firebase-storage = { group = "com.google.firebase", name = "firebase-storage-ktx" }
+
+# AR
+sceneview-ar = { group = "io.github.sceneview", name = "arsceneview", version.ref = "sceneview" }
+arcore = { group = "com.google.ar", name = "core", version.ref = "arcore" }
+
+# Imágenes
+coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }
+hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }

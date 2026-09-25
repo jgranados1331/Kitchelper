@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "592569369605",
+    "project_id": "kitchelper",
+    "storage_bucket": "kitchelper.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:592569369605:android:db3517f714c1055080086c",
+        "android_client_info": {
+          "package_name": "com.example.kitchelper"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBO3-OfZZRx5AhkLm5L6JR72zVL8Bt5XzE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
