@@ -1,6 +1,7 @@
 package com.example.kitchelper.ui.theme.auth
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
@@ -10,18 +11,22 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import com.example.kitchelper.R
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -78,122 +83,187 @@ fun RegisterScreen(
         )
     }
 
+    // ===== FONDO CON IMAGEN =====
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFFFDF6EC)) // Fondo crema
+        modifier = Modifier.fillMaxSize()
     ) {
-        // Header con logo y flecha atrás
-        Column(modifier = Modifier.fillMaxSize()) {
-            // Header
-            Row(
+        Image(
+            painter = painterResource(id = R.drawable.fondo_inicio),
+            contentDescription = null,
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop
+        )
+
+        // Capa oscura semitransparente para mejor legibilidad
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.4f))
+        )
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .systemBarsPadding()
+        ) {
+            // ===== HEADER (transparente sobre el fondo) =====
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically
+                    .padding(horizontal = 16.dp, vertical = 20.dp),
+                contentAlignment = Alignment.Center
             ) {
-                IconButton(onClick = {
-                    if (pagerState.currentPage > 0) {
-                        scope.launch { pagerState.animateScrollToPage(pagerState.currentPage - 1) }
-                    } else {
-                        navController.popBackStack()
-                    }
-                }) {
-                    Icon(
-                        Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Atrás",
-                        tint = Color(0xFF4A4A4A)
-                    )
-                }
-                Spacer(modifier = Modifier.weight(1f))
-                // Aquí iría el logo pequeño de kitchenper
+                // Logo centrado y más grande con la imagen real
                 Surface(
-                    shape = RoundedCornerShape(12.dp),
+                    shape = RoundedCornerShape(20.dp),
                     color = Color.White,
-                    modifier = Modifier.size(48.dp)
+                    modifier = Modifier.size(110.dp)
                 ) {
                     Box(contentAlignment = Alignment.Center) {
-                        Text("👨‍🍳", fontSize = 24.sp)
+                        Image(
+                            painter = painterResource(id = R.drawable.logo_kitchelper),
+                            contentDescription = "Logo Kitchelper",
+                            modifier = Modifier.size(110.dp),
+                            contentScale = ContentScale.Fit
+                        )
+                    }
+                }
+
+                // Botón atrás alineado a la izquierda
+                Surface(
+                    shape = CircleShape,
+                    color = Color.White,
+                    modifier = Modifier
+                        .size(48.dp)
+                        .align(Alignment.CenterStart)
+                ) {
+                    IconButton(onClick = {
+                        if (pagerState.currentPage > 0) {
+                            scope.launch { pagerState.animateScrollToPage(pagerState.currentPage - 1) }
+                        } else {
+                            navController.popBackStack()
+                        }
+                    }) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Atrás",
+                            tint = Color(0xFF4A4A4A)
+                        )
                     }
                 }
             }
 
-            // Pager con los pasos
-            HorizontalPager(
-                state = pagerState,
-                modifier = Modifier.weight(1f),
-                userScrollEnabled = false // Evita que el usuario deslice sin validar
-            ) { page ->
-                when (page) {
-                    0 -> Paso1Nombre(
-                        nombre = nombre,
-                        onNombreChange = { nombre = it },
-                        onNext = { scope.launch { pagerState.animateScrollToPage(1) } }
-                    )
-                    1 -> Paso2Apellido(
-                        apellido = apellido,
-                        onApellidoChange = { apellido = it },
-                        onNext = { scope.launch { pagerState.animateScrollToPage(2) } }
-                    )
-                    2 -> Paso3EmailPassword(
-                        email = email,
-                        password = password,
-                        confirmPassword = confirmPassword,
-                        onEmailChange = { email = it },
-                        onPasswordChange = { password = it },
-                        onConfirmChange = { confirmPassword = it },
-                        onNext = { scope.launch { pagerState.animateScrollToPage(3) } }
-                    )
-                    3 -> Paso4FechaNacimiento(
-                        dia = dia, mes = mes, anio = anio,
-                        onDiaChange = { dia = it },
-                        onMesChange = { mes = it },
-                        onAnioChange = { anio = it },
-                        onNext = { scope.launch { pagerState.animateScrollToPage(4) } }
-                    )
-                    4 -> Paso5Experticia(
-                        experticia = experticia,
-                        onExperticiaChange = { experticia = it },
-                        onNext = { scope.launch { pagerState.animateScrollToPage(5) } }
-                    )
-                    5 -> Paso6Confirmacion(
-                        onFinish = {
-                            val fechaNacimiento = "$dia/$mes/$anio"
-                            viewModel.register(
-                                RegisterData(
-                                    nombre = nombre,
-                                    apellido = apellido,
-                                    email = email,
-                                    password = password,
-                                    confirmPassword = confirmPassword,
-                                    fechaNacimiento = fechaNacimiento,
-                                    experticia = experticia,
-                                )
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // ===== TARJETA BLANCA CON EL PAGER =====
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f), // Ocupa el resto de la pantalla
+                color = Color.White,
+                shadowElevation = 8.dp
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 24.dp, vertical = 24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+
+                    // Pager con los pasos
+                    HorizontalPager(
+                        state = pagerState,
+                        modifier = Modifier.weight(1f),
+                        userScrollEnabled = false
+                    ) { page ->
+                        when (page) {
+                            0 -> Paso1Nombre(
+                                nombre = nombre,
+                                onNombreChange = { nombre = it },
+                                onNext = { scope.launch { pagerState.animateScrollToPage(1) } }
+                            )
+                            1 -> Paso2Apellido(
+                                apellido = apellido,
+                                onApellidoChange = { apellido = it },
+                                onNext = { scope.launch { pagerState.animateScrollToPage(2) } }
+                            )
+                            2 -> Paso3EmailPassword(
+                                email = email,
+                                password = password,
+                                confirmPassword = confirmPassword,
+                                onEmailChange = { email = it },
+                                onPasswordChange = { password = it },
+                                onConfirmChange = { confirmPassword = it },
+                                onNext = { scope.launch { pagerState.animateScrollToPage(3) } }
+                            )
+                            3 -> Paso4FechaNacimiento(
+                                dia = dia, mes = mes, anio = anio,
+                                onDiaChange = { dia = it },
+                                onMesChange = { mes = it },
+                                onAnioChange = { anio = it },
+                                onNext = { scope.launch { pagerState.animateScrollToPage(4) } }
+                            )
+                            4 -> Paso5Experticia(
+                                experticia = experticia,
+                                onExperticiaChange = { experticia = it },
+                                onNext = { scope.launch { pagerState.animateScrollToPage(5) } }
+                            )
+                            5 -> Paso6Confirmacion(
+                                onFinish = {
+                                    val fechaNacimiento = "$dia/$mes/$anio"
+                                    viewModel.register(
+                                        RegisterData(
+                                            nombre = nombre,
+                                            apellido = apellido,
+                                            email = email,
+                                            password = password,
+                                            confirmPassword = confirmPassword,
+                                            fechaNacimiento = fechaNacimiento,
+                                            experticia = experticia
+                                        )
+                                    )
+                                }
                             )
                         }
-                    )
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Indicador de pasos (puntitos)
+                    Row(
+                        horizontalArrangement = Arrangement.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        repeat(TOTAL_PASOS) { index ->
+                            Box(
+                                modifier = Modifier
+                                    .padding(4.dp)
+                                    .size(if (index == pagerState.currentPage) 12.dp else 8.dp)
+                                    .background(
+                                        color = if (index == pagerState.currentPage)
+                                            Color(0xFFC5D86D)
+                                        else
+                                            Color.Gray.copy(alpha = 0.3f),
+                                        shape = CircleShape
+                                    )
+                            )
+                        }
+                    }
                 }
             }
 
-            // Indicador de pasos (puntitos)
-            Row(
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Texto de derechos reservados
+            Text(
+                "Derechos reservados©2026",
+                color = Color.White.copy(alpha = 0.5f),
+                fontSize = 11.sp,
+                textAlign = TextAlign.Center,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.Center
-            ) {
-                repeat(TOTAL_PASOS) { index ->
-                    Box(
-                        modifier = Modifier
-                            .padding(4.dp)
-                            .size(if (index == pagerState.currentPage) 12.dp else 8.dp)
-                            .background(
-                                color = if (index == pagerState.currentPage) Color(0xFFC5D86D) else Color.Gray.copy(alpha = 0.3f),
-                                shape = CircleShape
-                            )
-                    )
-                }
-            }
+                    .padding(bottom = 8.dp)
+            )
         }
     }
 }
@@ -240,9 +310,7 @@ fun Paso3EmailPassword(
     onNext: () -> Unit
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 32.dp),
+        modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -250,16 +318,16 @@ fun Paso3EmailPassword(
             Icons.Default.Email,
             contentDescription = null,
             tint = Color(0xFF4A4A4A),
-            modifier = Modifier.size(64.dp)
+            modifier = Modifier.size(56.dp)
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
             "Datos de acceso",
-            fontSize = 24.sp,
+            fontSize = 22.sp,
             fontWeight = FontWeight.Bold,
             color = Color(0xFF4A4A4A)
         )
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
         CampoRegistro(
             valor = email,
@@ -288,7 +356,8 @@ fun Paso3EmailPassword(
             imeAction = ImeAction.Done,
             isPassword = true
         )
-        Spacer(modifier = Modifier.height(32.dp))
+
+        Spacer(modifier = Modifier.height(24.dp))
 
         BotonFlecha(
             enabled = email.isNotBlank() && password.isNotBlank() && confirmPassword.isNotBlank(),
@@ -307,9 +376,7 @@ fun Paso4FechaNacimiento(
     onNext: () -> Unit
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 32.dp),
+        modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -317,16 +384,16 @@ fun Paso4FechaNacimiento(
             Icons.Default.DateRange,
             contentDescription = null,
             tint = Color(0xFF4A4A4A),
-            modifier = Modifier.size(64.dp)
+            modifier = Modifier.size(56.dp)
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
             "Fecha de nacimiento",
-            fontSize = 24.sp,
+            fontSize = 22.sp,
             fontWeight = FontWeight.Bold,
             color = Color(0xFF4A4A4A)
         )
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             CampoRegistro(
@@ -352,7 +419,7 @@ fun Paso4FechaNacimiento(
             )
         }
 
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
         BotonFlecha(
             enabled = dia.isNotBlank() && mes.isNotBlank() && anio.length == 4,
@@ -371,9 +438,7 @@ fun Paso5Experticia(
     val opciones = listOf("Principiante", "Intermedio", "Avanzado")
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 32.dp),
+        modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -381,23 +446,23 @@ fun Paso5Experticia(
             Icons.Default.Restaurant,
             contentDescription = null,
             tint = Color(0xFF4A4A4A),
-            modifier = Modifier.size(64.dp)
+            modifier = Modifier.size(56.dp)
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
             "Tu nivel de cocina",
-            fontSize = 24.sp,
+            fontSize = 22.sp,
             fontWeight = FontWeight.Bold,
             color = Color(0xFF4A4A4A),
             textAlign = TextAlign.Center
         )
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
         opciones.forEach { opcion ->
             Card(
                 onClick = { onExperticiaChange(opcion) },
                 colors = CardDefaults.cardColors(
-                    containerColor = if (experticia == opcion) Color(0xFFC5D86D) else Color.White
+                    containerColor = if (experticia == opcion) Color(0xFFC5D86D) else Color(0xFFF5F5F5)
                 ),
                 shape = RoundedCornerShape(16.dp),
                 modifier = Modifier
@@ -416,7 +481,7 @@ fun Paso5Experticia(
             }
         }
 
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
         BotonFlecha(enabled = true, onClick = onNext)
     }
@@ -426,30 +491,28 @@ fun Paso5Experticia(
 @Composable
 fun Paso6Confirmacion(onFinish: () -> Unit) {
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 32.dp),
+        modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
         Surface(
             shape = CircleShape,
             color = Color(0xFFC5D86D),
-            modifier = Modifier.size(120.dp)
+            modifier = Modifier.size(110.dp)
         ) {
             Box(contentAlignment = Alignment.Center) {
                 Icon(
                     Icons.Default.Check,
                     contentDescription = null,
                     tint = Color.White,
-                    modifier = Modifier.size(64.dp)
+                    modifier = Modifier.size(60.dp)
                 )
             }
         }
         Spacer(modifier = Modifier.height(24.dp))
         Text(
             "Registro Exitoso",
-            fontSize = 28.sp,
+            fontSize = 26.sp,
             fontWeight = FontWeight.Bold,
             color = Color(0xFF4A4A4A)
         )
@@ -478,9 +541,7 @@ fun PasoBase(
     nextEnabled: Boolean
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 32.dp),
+        modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -488,12 +549,12 @@ fun PasoBase(
             icono,
             contentDescription = null,
             tint = Color(0xFF4A4A4A),
-            modifier = Modifier.size(64.dp)
+            modifier = Modifier.size(56.dp)
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
             titulo,
-            fontSize = 24.sp,
+            fontSize = 22.sp,
             fontWeight = FontWeight.Bold,
             color = Color(0xFF4A4A4A),
             textAlign = TextAlign.Center
@@ -505,7 +566,7 @@ fun PasoBase(
             color = Color.Gray,
             textAlign = TextAlign.Center
         )
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
         CampoRegistro(
             valor = campoValor,
@@ -536,12 +597,12 @@ fun CampoRegistro(
         onValueChange = onValorChange,
         placeholder = { Text(placeholder, color = Color.Gray) },
         shape = RoundedCornerShape(24.dp),
-        visualTransformation = if (isPassword) PasswordVisualTransformation() else androidx.compose.ui.text.input.VisualTransformation.None,
+        visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
         colors = OutlinedTextFieldDefaults.colors(
-            focusedContainerColor = Color.White,
-            unfocusedContainerColor = Color.White,
+            focusedContainerColor = Color(0xFFF5F5F5),
+            unfocusedContainerColor = Color(0xFFF5F5F5),
             focusedBorderColor = Color(0xFFC5D86D),
-            unfocusedBorderColor = Color.Transparent,
+            unfocusedBorderColor = Color(0xFFE0E0E0),
             focusedTextColor = Color.Black,
             unfocusedTextColor = Color.Black
         ),
@@ -565,7 +626,7 @@ fun BotonFlecha(enabled: Boolean, onClick: () -> Unit) {
         contentPadding = PaddingValues(0.dp)
     ) {
         Icon(
-            Icons.Default.ArrowForward,
+            Icons.AutoMirrored.Filled.ArrowForward,
             contentDescription = "Siguiente",
             tint = if (enabled) Color(0xFF4A4A4A) else Color.White
         )

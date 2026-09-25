@@ -100,7 +100,7 @@ fun LoginScreen(
                     Image(
                         painter = painterResource(id = R.drawable.logo_kitchelper),
                         contentDescription = "Logo Kitchelper",
-                        modifier = Modifier.size(100.dp),
+                        modifier = Modifier.size(120.dp),
                         contentScale = ContentScale.Fit
                     )
                 }
@@ -172,14 +172,14 @@ fun LoginScreen(
                     Text(
                         "Olvidé mi contraseña →",
                         color = Color.White,
-                        fontSize = 13.sp
+                        fontSize = 18.sp
                     )
                 }
                 TextButton(onClick = { navController.navigate(Routes.REGISTER) }) {
                     Text(
                         "Registrarse →",
                         color = Color.White,
-                        fontSize = 13.sp
+                        fontSize = 18.sp
                     )
                 }
             }
