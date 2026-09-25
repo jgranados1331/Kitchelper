@@ -55,14 +55,10 @@ fun LoginScreen(
 
     // Efecto: mostrar errores en un AlertDialog
     if (state.errorMessage != null) {
-        AlertDialog(
-            onDismissRequest = { viewModel.clearMessages() },
-            title = { Text("Error") },
-            text = { Text(state.errorMessage!!) },
-            confirmButton = {
-                TextButton(onClick = { viewModel.clearMessages() }) {
-                    Text("OK")
-                }
+        AuthError(
+            message = state.errorMessage!!,
+            onDismiss = {
+                viewModel.clearMessages()
             }
         )
     }
