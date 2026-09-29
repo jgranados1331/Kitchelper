@@ -14,8 +14,10 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.kitchelper.ui.theme.auth.ForgotPasswordScreen
 import com.example.kitchelper.ui.theme.auth.LoginScreen
 import com.example.kitchelper.ui.theme.auth.RegisterScreen
+import com.example.kitchelper.ui.theme.auth.SplashScreen
 import com.example.kitchelper.ui.theme.navigation.Routes
 import com.example.kitchelper.ui.theme.KitchelperTheme
 
@@ -41,8 +43,11 @@ fun AppNavigation() {
 
     NavHost(
         navController = navController,
-        startDestination = Routes.LOGIN
+        startDestination = Routes.SPLASH
     ) {
+        composable(Routes.SPLASH) {
+            SplashScreen(navController = navController)
+        }
         composable(Routes.LOGIN) {
             LoginScreen(navController = navController)
         }
@@ -50,8 +55,7 @@ fun AppNavigation() {
             RegisterScreen(navController = navController)
         }
         composable(Routes.FORGOT_PASSWORD) {
-            // TODO: ForgotPasswordScreen(navController)
-            PlaceholderScreen("Olvidé mi contraseña")
+            ForgotPasswordScreen(navController = navController)
         }
         composable(Routes.HOME) {
             // TODO: HomeScreen()

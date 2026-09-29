@@ -53,6 +53,10 @@ fun LoginScreen(
         }
     }
 
+    if (state.isLoading) {
+        AuthLoadingDialog(message = state.loadingMessage)
+    }
+
     // Efecto: mostrar errores en un AlertDialog
     if (state.errorMessage != null) {
         AuthError(
@@ -209,20 +213,12 @@ fun LoginScreen(
                 modifier = Modifier.size(70.dp),
                 contentPadding = PaddingValues(0.dp)
             ) {
-                if (state.isLoading) {
-                    CircularProgressIndicator(
-                        color = Color.Black,
-                        modifier = Modifier.size(28.dp),
-                        strokeWidth = 3.dp
-                    )
-                } else {
-                    Icon(
-                        Icons.Default.ArrowForward,
-                        contentDescription = "Ingresar",
-                        tint = Color.Black,
-                        modifier = Modifier.size(32.dp)
-                    )
-                }
+                Icon(
+                    Icons.Default.ArrowForward,
+                    contentDescription = "Ingresar",
+                    tint = Color.Black,
+                    modifier = Modifier.size(32.dp)
+                )
             }
 
             Spacer(modifier = Modifier.weight(1f))
@@ -235,6 +231,10 @@ fun LoginScreen(
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(bottom = 16.dp)
             )
+        }
+
+        if (state.showNoInternet) {
+            NoInternetBanner(onDismiss = { viewModel.dismissNoInternet() })
         }
     }
 }

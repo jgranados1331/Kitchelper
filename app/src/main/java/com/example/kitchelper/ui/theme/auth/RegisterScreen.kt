@@ -71,14 +71,25 @@ fun RegisterScreen(
         }
     }
 
-    // AlertDialog para errores
+    if (state.isLoading) {
+        AuthLoadingDialog(message = state.loadingMessage)
+    }
+
     if (state.errorMessage != null) {
-        AlertDialog(
-            onDismissRequest = { viewModel.clearMessages() },
-            title = { Text("Error") },
-            text = { Text(state.errorMessage!!) },
-            confirmButton = {
-                TextButton(onClick = { viewModel.clearMessages() }) { Text("OK") }
+        AuthError(
+            message = state.errorMessage!!,
+            onDismiss = { viewModel.clearMessages() }
+        )
+    }
+
+    if (state.successMessage != null) {
+        AuthVerificationDialog(
+            message = state.successMessage!!,
+            onDismiss = {
+                viewModel.clearMessages()
+                navController.navigate(Routes.LOGIN) {
+                    popUpTo(Routes.REGISTER) { inclusive = true }
+                }
             }
         )
     }
@@ -117,13 +128,13 @@ fun RegisterScreen(
                 Surface(
                     shape = RoundedCornerShape(20.dp),
                     color = Color.White,
-                    modifier = Modifier.size(110.dp)
+                    modifier = Modifier.size(80.dp)
                 ) {
                     Box(contentAlignment = Alignment.Center) {
                         Image(
                             painter = painterResource(id = R.drawable.logo_kitchelper),
                             contentDescription = "Logo Kitchelper",
-                            modifier = Modifier.size(110.dp),
+                            modifier = Modifier.size(64.dp),
                             contentScale = ContentScale.Fit
                         )
                     }
@@ -180,12 +191,20 @@ fun RegisterScreen(
                             0 -> Paso1Nombre(
                                 nombre = nombre,
                                 onNombreChange = { nombre = it },
-                                onNext = { scope.launch { pagerState.animateScrollToPage(1) } }
+                                onNext = {
+                                    if (viewModel.validateStep0(nombre)) {
+                                        scope.launch { pagerState.animateScrollToPage(1) }
+                                    }
+                                }
                             )
                             1 -> Paso2Apellido(
                                 apellido = apellido,
                                 onApellidoChange = { apellido = it },
-                                onNext = { scope.launch { pagerState.animateScrollToPage(2) } }
+                                onNext = {
+                                    if (viewModel.validateStep1(apellido)) {
+                                        scope.launch { pagerState.animateScrollToPage(2) }
+                                    }
+                                }
                             )
                             2 -> Paso3EmailPassword(
                                 email = email,
@@ -194,21 +213,29 @@ fun RegisterScreen(
                                 onEmailChange = { email = it },
                                 onPasswordChange = { password = it },
                                 onConfirmChange = { confirmPassword = it },
-                                onNext = { scope.launch { pagerState.animateScrollToPage(3) } }
+                                onNext = {
+                                    if (viewModel.validateStep2(email, password, confirmPassword)) {
+                                        scope.launch { pagerState.animateScrollToPage(3) }
+                                    }
+                                }
                             )
                             3 -> Paso4FechaNacimiento(
                                 dia = dia, mes = mes, anio = anio,
                                 onDiaChange = { dia = it },
                                 onMesChange = { mes = it },
                                 onAnioChange = { anio = it },
-                                onNext = { scope.launch { pagerState.animateScrollToPage(4) } }
+                                onNext = {
+                                    if (viewModel.validateStep3(dia, mes, anio)) {
+                                        scope.launch { pagerState.animateScrollToPage(4) }
+                                    }
+                                }
                             )
                             4 -> Paso5Experticia(
                                 experticia = experticia,
                                 onExperticiaChange = { experticia = it },
                                 onNext = { scope.launch { pagerState.animateScrollToPage(5) } }
                             )
-                            5 -> Paso6Confirmacion(
+                            5 -> Paso6Finalizar(
                                 onFinish = {
                                     val fechaNacimiento = "$dia/$mes/$anio"
                                     viewModel.register(
@@ -264,6 +291,10 @@ fun RegisterScreen(
                     .fillMaxWidth()
                     .padding(bottom = 8.dp)
             )
+        }
+
+        if (state.showNoInternet) {
+            NoInternetBanner(onDismiss = { viewModel.dismissNoInternet() })
         }
     }
 }
@@ -487,9 +518,9 @@ fun Paso5Experticia(
     }
 }
 
-// ============ PASO 6: CONFIRMACIÓN ============
+// ============ PASO 6: FINALIZAR ============
 @Composable
-fun Paso6Confirmacion(onFinish: () -> Unit) {
+fun Paso6Finalizar(onFinish: () -> Unit) {
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -502,7 +533,7 @@ fun Paso6Confirmacion(onFinish: () -> Unit) {
         ) {
             Box(contentAlignment = Alignment.Center) {
                 Icon(
-                    Icons.Default.Check,
+                    Icons.Default.Restaurant,
                     contentDescription = null,
                     tint = Color.White,
                     modifier = Modifier.size(60.dp)
@@ -511,16 +542,18 @@ fun Paso6Confirmacion(onFinish: () -> Unit) {
         }
         Spacer(modifier = Modifier.height(24.dp))
         Text(
-            "Registro Exitoso",
-            fontSize = 26.sp,
+            "¡Todo listo para cocinar!",
+            fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
-            color = Color(0xFF4A4A4A)
+            color = Color(0xFF4A4A4A),
+            textAlign = TextAlign.Center
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            "Presiona para continuar",
+            "Presiona para crear tu cuenta de chef",
             fontSize = 14.sp,
-            color = Color.Gray
+            color = Color.Gray,
+            textAlign = TextAlign.Center
         )
         Spacer(modifier = Modifier.height(32.dp))
         BotonFlecha(enabled = true, onClick = onFinish)

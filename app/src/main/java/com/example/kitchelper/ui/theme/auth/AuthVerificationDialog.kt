@@ -8,7 +8,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.HourglassEmpty
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
@@ -24,7 +24,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 
 @Composable
-fun AuthError(
+fun AuthVerificationDialog(
     message: String,
     onDismiss: () -> Unit
 ) {
@@ -49,33 +49,42 @@ fun AuthError(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Círculo rojo con la X blanca
+                // Círculo con el reloj de arena
                 Box(
                     modifier = Modifier
                         .size(80.dp)
                         .background(
-                            color = Color(0xFFFF4038),
+                            color = Color(0xFFC5D86D),
                             shape = CircleShape
                         ),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Close,
-                        contentDescription = "Error",
-                        tint = Color.White,
-                        modifier = Modifier.size(50.dp)
+                        imageVector = Icons.Default.HourglassEmpty,
+                        contentDescription = "Verificación",
+                        tint = Color(0xFF4A4A4A),
+                        modifier = Modifier.size(45.dp)
                     )
                 }
 
                 Spacer(modifier = Modifier.height(20.dp))
 
-                // Mensaje de error
+                // Texto principal requerido
+                Text(
+                    text = "Verifica tu correo e inicia sesión",
+                    textAlign = TextAlign.Center,
+                    fontSize = 22.sp,
+                    color = Color.Black,
+                    fontWeight = FontWeight.Bold
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
                 Text(
                     text = message,
                     textAlign = TextAlign.Center,
-                    fontSize = 20.sp,
-                    color = Color.Black,
-                    fontWeight = FontWeight.Medium
+                    fontSize = 14.sp,
+                    color = Color.Gray
                 )
 
                 Spacer(modifier = Modifier.height(28.dp))
