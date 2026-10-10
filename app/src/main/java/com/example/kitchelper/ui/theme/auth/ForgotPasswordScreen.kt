@@ -28,7 +28,6 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.kitchelper.R
-import com.example.kitchenper.ui.auth.AuthViewModel
 
 @Composable
 fun ForgotPasswordScreen(

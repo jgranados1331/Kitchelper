@@ -33,8 +33,6 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.kitchelper.ui.theme.navigation.Routes
-import com.example.kitchenper.ui.auth.AuthViewModel
-import com.example.kitchenper.ui.auth.RegisterData
 import kotlinx.coroutines.launch
 
 // Número total de pasos

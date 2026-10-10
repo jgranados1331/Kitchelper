@@ -10,7 +10,7 @@ plugins {
 
 android {
     namespace = "com.example.kitchelper"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.example.kitchelper"
@@ -60,7 +60,6 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.material.icons.extended)
-    implementation("androidx.compose.foundation:foundation:1.6.8") // o la versión que uses
 
     // Navegación
     implementation(libs.androidx.navigation.compose)

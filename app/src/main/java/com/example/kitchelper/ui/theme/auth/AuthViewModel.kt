@@ -1,4 +1,4 @@
-package com.example.kitchenper.ui.auth
+package com.example.kitchelper.ui.theme.auth
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

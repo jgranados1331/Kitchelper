@@ -1,6 +1,6 @@
 [versions]
 # Core
-agp = "8.5.0" # Ajusta según tu versión de Android Studio
+agp = "8.13.2" # Ajusta según tu versión de Android Studio
 kotlin = "2.1.20"
 ksp = "2.1.20-1.0.31"
 coreKtx = "1.13.1"

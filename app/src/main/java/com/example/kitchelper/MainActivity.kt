@@ -17,7 +17,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.kitchelper.ui.theme.auth.ForgotPasswordScreen
 import com.example.kitchelper.ui.theme.auth.LoginScreen
 import com.example.kitchelper.ui.theme.auth.RegisterScreen
-import com.example.kitchelper.ui.theme.auth.SplashScreen
+import com.example.kitchelper.ui.theme.home.HomeScreen
 import com.example.kitchelper.ui.theme.navigation.Routes
 import com.example.kitchelper.ui.theme.KitchelperTheme
 
@@ -43,11 +43,9 @@ fun AppNavigation() {
 
     NavHost(
         navController = navController,
-        startDestination = Routes.SPLASH
+        startDestination = Routes.LOGIN
     ) {
-        composable(Routes.SPLASH) {
-            SplashScreen(navController = navController)
-        }
+        // ===== MÓDULO 1: AUTENTICACIÓN =====
         composable(Routes.LOGIN) {
             LoginScreen(navController = navController)
         }
@@ -57,14 +55,71 @@ fun AppNavigation() {
         composable(Routes.FORGOT_PASSWORD) {
             ForgotPasswordScreen(navController = navController)
         }
+
+        // ===== MÓDULO 2: HOME =====
         composable(Routes.HOME) {
-            // TODO: HomeScreen()
-            PlaceholderScreen("¡Bienvenido al Home!")
+            HomeScreen(navController = navController)
+        }
+
+        // ===== MÓDULO 3: PERFIL (Pendiente) =====
+        composable(Routes.PROFILE) {
+            PlaceholderScreen("Perfil - Próximamente")
+        }
+
+        // ===== MÓDULO 4: RECETAS (Pendiente) =====
+        composable(Routes.RECIPES) {
+            PlaceholderScreen("Recetas - Próximamente")
+        }
+        composable(Routes.FAVORITOS) {
+            PlaceholderScreen("Guardados - Próximamente")
+        }
+        composable(
+            route = Routes.RECIPE_DETAIL,
+            arguments = listOf(androidx.navigation.navArgument("recetaId") {})
+        ) { backStackEntry ->
+            val recetaId = backStackEntry.arguments?.getString("recetaId") ?: ""
+            PlaceholderScreen("Receta: $recetaId")
+        }
+
+        // ===== MÓDULO 5: PRÁCTICAS (Pendiente) =====
+        composable(
+            route = Routes.PRACTICE_DETAIL,
+            arguments = listOf(androidx.navigation.navArgument("practicaId") {})
+        ) { backStackEntry ->
+            val practicaId = backStackEntry.arguments?.getString("practicaId") ?: ""
+            PlaceholderScreen("Práctica: $practicaId")
+        }
+
+        // ===== MÓDULO 6: AR (Pendiente) =====
+        composable(Routes.AR_GUIDE) {
+            PlaceholderScreen("Guía AR - Próximamente")
+        }
+        composable(
+            route = Routes.AR_RECIPE,
+            arguments = listOf(androidx.navigation.navArgument("recetaId") {})
+        ) { backStackEntry ->
+            val recetaId = backStackEntry.arguments?.getString("recetaId") ?: ""
+            PlaceholderScreen("AR Receta: $recetaId")
+        }
+        composable(
+            route = Routes.AR_PRACTICE,
+            arguments = listOf(androidx.navigation.navArgument("practicaId") {})
+        ) { backStackEntry ->
+            val practicaId = backStackEntry.arguments?.getString("practicaId") ?: ""
+            PlaceholderScreen("AR Práctica: $practicaId")
+        }
+
+        // ===== MÓDULO 7: CREAR RECETA (Pendiente) =====
+        composable(Routes.CREATE_RECIPE) {
+            PlaceholderScreen("Crear Receta - Próximamente")
         }
     }
 }
 
-// Pantalla temporal para probar la navegación
+/**
+ * Pantalla temporal que se muestra mientras se construyen los módulos restantes.
+ * Se eliminará cuando todas las pantallas estén implementadas.
+ */
 @Composable
 fun PlaceholderScreen(title: String) {
     Box(
