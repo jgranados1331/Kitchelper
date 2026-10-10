@@ -18,6 +18,8 @@ import com.example.kitchelper.ui.theme.auth.ForgotPasswordScreen
 import com.example.kitchelper.ui.theme.auth.LoginScreen
 import com.example.kitchelper.ui.theme.auth.RegisterScreen
 import com.example.kitchelper.ui.theme.home.HomeScreen
+import com.example.kitchelper.ui.theme.recipes.RecipesScreen
+import com.example.kitchelper.ui.theme.recipes.RecipeDetailScreen
 import com.example.kitchelper.ui.theme.navigation.Routes
 import com.example.kitchelper.ui.theme.KitchelperTheme
 
@@ -66,9 +68,9 @@ fun AppNavigation() {
             PlaceholderScreen("Perfil - Próximamente")
         }
 
-        // ===== MÓDULO 4: RECETAS (Pendiente) =====
+        // ===== MÓDULO 4: RECETAS =====
         composable(Routes.RECIPES) {
-            PlaceholderScreen("Recetas - Próximamente")
+            RecipesScreen(navController = navController)
         }
         composable(Routes.FAVORITOS) {
             PlaceholderScreen("Guardados - Próximamente")
@@ -78,7 +80,7 @@ fun AppNavigation() {
             arguments = listOf(androidx.navigation.navArgument("recetaId") {})
         ) { backStackEntry ->
             val recetaId = backStackEntry.arguments?.getString("recetaId") ?: ""
-            PlaceholderScreen("Receta: $recetaId")
+            RecipeDetailScreen(recetaId = recetaId, navController = navController)
         }
 
         // ===== MÓDULO 5: PRÁCTICAS (Pendiente) =====

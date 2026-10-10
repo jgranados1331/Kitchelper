@@ -9,7 +9,9 @@ class PracticeRepository(private val db: FirebaseFirestore = FirebaseFirestore.g
     suspend fun obtenerPracticas(): Result<List<PracticaBasica>> {
         return try {
             val snapshot = db.collection("practicas_basicas").get().await()
-            val practicas = snapshot.toObjects(PracticaBasica::class.java)
+            val practicas = snapshot.documents.mapNotNull { doc ->
+                doc.toObject(PracticaBasica::class.java)?.copy(id = doc.id)
+            }
             Result.success(practicas)
         } catch (e: Exception) {
             Result.failure(e)
@@ -19,7 +21,7 @@ class PracticeRepository(private val db: FirebaseFirestore = FirebaseFirestore.g
     suspend fun obtenerPractica(practicaId: String): Result<PracticaBasica?> {
         return try {
             val doc = db.collection("practicas_basicas").document(practicaId).get().await()
-            val practica = doc.toObject(PracticaBasica::class.java)
+            val practica = doc.toObject(PracticaBasica::class.java)?.copy(id = doc.id)
             Result.success(practica)
         } catch (e: Exception) {
             Result.failure(e)

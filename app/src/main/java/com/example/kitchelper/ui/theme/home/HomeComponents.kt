@@ -21,18 +21,23 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.kitchelper.data.model.PracticaBasica
 import com.example.kitchelper.data.model.Receta
+import com.example.kitchelper.ui.theme.FrauncesFamily
+import com.example.kitchelper.ui.theme.InterFamily
+import com.example.kitchelper.ui.theme.InriaSerifFamily
 
 // ============ HEADER CON MENÚ DESPLEGABLE ============
 @Composable
 fun HeaderHome(
     nombreUsuario: String,
+    nivelUsuario: String,
     menuExpandido: Boolean,
     onToggleMenu: () -> Unit,
     onPerfilClick: () -> Unit,
+    onPuntosClick: () -> Unit,
     onConfiguracionClick: () -> Unit,
     onCerrarSesionClick: () -> Unit
 ) {
-    Box {
+    Box(modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -41,19 +46,21 @@ fun HeaderHome(
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    "Nivel - Principiante",
+                    "Nivel - $nivelUsuario",
+                    fontFamily = InterFamily,
                     fontSize = 12.sp,
                     color = Color.Gray
                 )
                 Text(
-                    "KITCHENPER",
-                    fontSize = 20.sp,
+                    "KITCHELPER",
+                    fontFamily = FrauncesFamily,
+                    fontSize = 22.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF4A4A4A)
                 )
             }
 
-            // Avatar con menú desplegable
+            // Avatar con inicial y menú desplegable
             Box {
                 Surface(
                     shape = CircleShape,
@@ -64,7 +71,8 @@ fun HeaderHome(
                 ) {
                     Box(contentAlignment = Alignment.Center) {
                         Text(
-                            nombreUsuario.firstOrNull()?.uppercase() ?: "U",
+                            nombreUsuario.firstOrNull()?.uppercase() ?: "E",
+                            fontFamily = FrauncesFamily,
                             color = Color.White,
                             fontWeight = FontWeight.Bold,
                             fontSize = 20.sp
@@ -72,35 +80,45 @@ fun HeaderHome(
                     }
                 }
 
-                // Menú desplegable
+                // Menú desplegable solicitado: PERFIL, PUNTOS, CONFIGURACIÓN, CERRAR SESIÓN
                 DropdownMenu(
                     expanded = menuExpandido,
                     onDismissRequest = onToggleMenu,
                     modifier = Modifier.background(Color.White)
                 ) {
                     DropdownMenuItem(
-                        text = { Text("Perfil") },
+                        text = { Text("PERFIL", fontFamily = InterFamily, fontWeight = FontWeight.Bold) },
                         onClick = {
                             onToggleMenu()
                             onPerfilClick()
                         },
                         leadingIcon = {
-                            Icon(Icons.Default.Person, contentDescription = null)
+                            Icon(Icons.Default.Person, contentDescription = null, tint = Color(0xFF4A6B4A))
                         }
                     )
                     DropdownMenuItem(
-                        text = { Text("Configuración") },
+                        text = { Text("PUNTOS", fontFamily = InterFamily, fontWeight = FontWeight.Bold) },
+                        onClick = {
+                            onToggleMenu()
+                            onPuntosClick()
+                        },
+                        leadingIcon = {
+                            Icon(Icons.Default.Star, contentDescription = null, tint = Color(0xFF4A6B4A))
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = { Text("CONFIGURACIÓN", fontFamily = InterFamily, fontWeight = FontWeight.Bold) },
                         onClick = {
                             onToggleMenu()
                             onConfiguracionClick()
                         },
                         leadingIcon = {
-                            Icon(Icons.Default.Settings, contentDescription = null)
+                            Icon(Icons.Default.Settings, contentDescription = null, tint = Color(0xFF4A6B4A))
                         }
                     )
                     HorizontalDivider()
                     DropdownMenuItem(
-                        text = { Text("Cerrar sesión", color = Color.Red) },
+                        text = { Text("CERRAR SESIÓN", fontFamily = InterFamily, fontWeight = FontWeight.Bold, color = Color.Red) },
                         onClick = {
                             onToggleMenu()
                             onCerrarSesionClick()
@@ -122,7 +140,7 @@ fun AvisoCompletarPerfil(onCompletarClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp),
-        shape = RoundedCornerShape(16.dp),
+        shape = RoundedCornerShape(20.dp),
         color = Color.White,
         shadowElevation = 2.dp
     ) {
@@ -130,33 +148,44 @@ fun AvisoCompletarPerfil(onCompletarClick: () -> Unit) {
             modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                Icons.Default.AccountCircle,
-                contentDescription = null,
-                tint = Color(0xFFC5D86D),
-                modifier = Modifier.size(40.dp)
-            )
+            Surface(
+                shape = CircleShape,
+                color = Color(0xFFE8F0D6),
+                modifier = Modifier.size(44.dp)
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(
+                        Icons.Default.Settings,
+                        contentDescription = null,
+                        tint = Color(0xFF4A6B4A),
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+            }
             Spacer(modifier = Modifier.width(12.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     "Completa tu perfil",
+                    fontFamily = FrauncesFamily,
                     fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp,
                     color = Color(0xFF4A4A4A)
                 )
                 Text(
                     "Queremos estar listos para completar tu información para saber tus gustos y alergias",
+                    fontFamily = InterFamily,
                     fontSize = 12.sp,
                     color = Color.Gray
                 )
             }
             TextButton(onClick = onCompletarClick) {
-                Text("Completar", color = Color(0xFFC5D86D), fontWeight = FontWeight.Bold)
+                Text("Completar", fontFamily = InterFamily, color = Color(0xFF4A6B4A), fontWeight = FontWeight.Bold)
             }
         }
     }
 }
 
-// ============ RECETA DESTACADA ============
+// ============ RECETA DESTACADA (CON INRIA SERIF) ============
 @Composable
 fun RecetaDestacada(receta: Receta, onEmpezar: () -> Unit) {
     Surface(
@@ -164,16 +193,17 @@ fun RecetaDestacada(receta: Receta, onEmpezar: () -> Unit) {
             .fillMaxWidth()
             .padding(16.dp),
         shape = RoundedCornerShape(24.dp),
-        color = Color(0xFF4A4A4A)
+        color = Color(0xFF4A4A4A),
+        shadowElevation = 4.dp
     ) {
-        Box(modifier = Modifier.height(220.dp)) {
-            // Imagen de fondo (placeholder por ahora)
+        Box(modifier = Modifier.height(240.dp)) {
+            // Fondo oscuro / imagen
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(
                         Brush.verticalGradient(
-                            colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.8f))
+                            colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.85f))
                         )
                     )
             )
@@ -181,44 +211,51 @@ fun RecetaDestacada(receta: Receta, onEmpezar: () -> Unit) {
             Column(
                 modifier = Modifier
                     .align(Alignment.BottomStart)
-                    .padding(16.dp)
+                    .padding(20.dp)
             ) {
                 Text(
-                    "RECETA DESTACADA · ${receta.tiempoMinutos} MIN",
-                    fontSize = 10.sp,
+                    "RECETA DESTACADA - ${receta.tiempoMinutos} MIN",
+                    fontFamily = InterFamily,
+                    fontSize = 11.sp,
                     color = Color(0xFFC5D86D),
                     fontWeight = FontWeight.Bold
                 )
+                Spacer(modifier = Modifier.height(4.dp))
+                // Nombre exacto de la receta usando Inria Serif
                 Text(
-                    receta.titulo,
+                    receta.titulo.ifEmpty { "La perfecta Aglio e Olio" },
+                    fontFamily = InriaSerifFamily,
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.White
                 )
+                Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    receta.descripcion,
+                    receta.descripcion.ifEmpty { "Aprende a emulsionar aceite y agua de aceite de pasta en 15 minutos." },
+                    fontFamily = InterFamily,
                     fontSize = 12.sp,
-                    color = Color.White.copy(alpha = 0.8f)
+                    color = Color.White.copy(alpha = 0.85f)
                 )
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(14.dp))
                 Button(
                     onClick = onEmpezar,
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF6B4A)),
                     shape = RoundedCornerShape(20.dp)
                 ) {
-                    Text("EMPEZAR", fontWeight = FontWeight.Bold, color = Color.White)
+                    Text("EMPEZAR", fontFamily = InterFamily, fontWeight = FontWeight.Bold, color = Color.White)
                 }
             }
         }
     }
 }
 
-// ============ GUÍA INTERACTIVA AR ============
+// ============ GUÍA INTERACTIVA EN VR ============
 @Composable
 fun GuiaInteractivaAR(onCalibrarClick: () -> Unit, onVistaARClick: () -> Unit) {
     Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
         Text(
-            "Guía interactiva en AR",
+            "Guía interactiva en VR",
+            fontFamily = FrauncesFamily,
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
             color = Color(0xFF4A4A4A)
@@ -229,30 +266,33 @@ fun GuiaInteractivaAR(onCalibrarClick: () -> Unit, onVistaARClick: () -> Unit) {
             color = Color(0xFF4A6B4A),
             modifier = Modifier.fillMaxWidth()
         ) {
-            Column(modifier = Modifier.padding(16.dp)) {
+            Column(modifier = Modifier.padding(18.dp)) {
                 Text(
                     "PASO 1 - DETECCIÓN",
-                    fontSize = 12.sp,
+                    fontFamily = InterFamily,
+                    fontSize = 11.sp,
                     color = Color.White.copy(alpha = 0.8f),
                     fontWeight = FontWeight.Bold
                 )
+                Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    "Guía para configuración de AR para detectar tu tabla de picar o tu zona de trabajo para poder detectar todos tus cortes",
+                    "Guía para configuración de VR detecta tu tabla de picar o tu zona de trabajo para poder detectar todos tus cortes",
+                    fontFamily = InterFamily,
                     fontSize = 13.sp,
                     color = Color.White
                 )
-                Spacer(modifier = Modifier.height(12.dp))
-                Row {
+                Spacer(modifier = Modifier.height(14.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     Button(
                         onClick = onCalibrarClick,
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFC5D86D)),
                         shape = RoundedCornerShape(20.dp)
                     ) {
-                        Text("● Calibra tu Guía", color = Color(0xFF4A4A4A), fontWeight = FontWeight.Bold)
+                        Text("● Calibra tu Guía", fontFamily = InterFamily, color = Color(0xFF4A4A4A), fontWeight = FontWeight.Bold)
                     }
                     Spacer(modifier = Modifier.width(8.dp))
                     TextButton(onClick = onVistaARClick) {
-                        Text("Vista AR →", color = Color.White)
+                        Text("Vista VR →", fontFamily = InterFamily, color = Color.White, fontWeight = FontWeight.Bold)
                     }
                 }
             }
@@ -260,23 +300,26 @@ fun GuiaInteractivaAR(onCalibrarClick: () -> Unit, onVistaARClick: () -> Unit) {
     }
 }
 
-// ============ SELECTOR DE NIVEL ============
+// ============ SELECTOR DE NIVEL (CONFIGURACIÓN DE DIFICULTAD) ============
 @Composable
 fun SelectorNivel(nivelSeleccionado: String, onNivelChange: (String) -> Unit) {
-    val niveles = listOf("Principiante", "Fácil", "Medio", "Difícil")
+    val niveles = listOf("Principiante", "Fácil", "Media", "Difícil")
 
     LazyRow(
         contentPadding = PaddingValues(horizontal = 16.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier.padding(vertical = 4.dp)
     ) {
         items(niveles) { nivel ->
             FilterChip(
-                selected = nivelSeleccionado == nivel,
+                selected = nivelSeleccionado.equals(nivel, ignoreCase = true),
                 onClick = { onNivelChange(nivel) },
-                label = { Text(nivel, fontSize = 12.sp) },
+                label = { Text(nivel, fontFamily = InterFamily, fontSize = 12.sp, fontWeight = FontWeight.Medium) },
                 colors = FilterChipDefaults.filterChipColors(
                     selectedContainerColor = Color(0xFF4A6B4A),
-                    selectedLabelColor = Color.White
+                    selectedLabelColor = Color.White,
+                    containerColor = Color.White,
+                    labelColor = Color(0xFF4A4A4A)
                 )
             )
         }
@@ -295,25 +338,38 @@ fun TarjetaReceta(receta: Receta, onClick: () -> Unit) {
             .clickable { onClick() }
     ) {
         Column {
-            // Imagen placeholder
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(100.dp)
+                    .height(110.dp)
                     .background(Color(0xFFE0E0E0), RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
             )
             Column(modifier = Modifier.padding(12.dp)) {
                 Text(
                     receta.titulo,
+                    fontFamily = FrauncesFamily,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF4A4A4A),
-                    fontSize = 14.sp
+                    fontSize = 14.sp,
+                    maxLines = 1
                 )
                 Spacer(modifier = Modifier.height(4.dp))
-                Row {
-                    Text("${receta.tiempoMinutos} min", fontSize = 11.sp, color = Color.Gray)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(receta.dificultad, fontSize = 11.sp, color = Color(0xFFC5D86D))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text("${receta.tiempoMinutos} min", fontFamily = InterFamily, fontSize = 11.sp, color = Color.Gray)
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Surface(
+                        shape = RoundedCornerShape(4.dp),
+                        color = Color(0xFFFFF0EC)
+                    ) {
+                        Text(
+                            "VR",
+                            fontFamily = InterFamily,
+                            fontSize = 9.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFFFF6B4A),
+                            modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp)
+                        )
+                    }
                 }
             }
         }
@@ -345,21 +401,26 @@ fun TarjetaPractica(practica: PracticaBasica, onClick: () -> Unit) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     practica.titulo,
+                    fontFamily = FrauncesFamily,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF4A4A4A)
+                    color = Color(0xFF4A4A4A),
+                    fontSize = 15.sp
                 )
                 Text(
                     practica.descripcion,
+                    fontFamily = InterFamily,
                     fontSize = 12.sp,
-                    color = Color.Gray
+                    color = Color.Gray,
+                    maxLines = 2
                 )
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(6.dp))
                 Surface(
                     shape = RoundedCornerShape(8.dp),
                     color = Color(0xFFF0F0F0)
                 ) {
                     Text(
                         "${practica.tiempoMinutos} min",
+                        fontFamily = InterFamily,
                         fontSize = 10.sp,
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
                         color = Color.Gray
@@ -401,7 +462,7 @@ fun BarraNavegacionInferior(
             ) {
                 NavItem(Icons.Default.Home, "INICIO", Color(0xFFFF6B4A), onInicioClick)
                 NavItem(Icons.Default.Restaurant, "RECETAS", Color.Gray, onRecetasClick)
-                Spacer(modifier = Modifier.width(50.dp)) // Espacio para el botón central
+                Spacer(modifier = Modifier.width(50.dp))
                 NavItem(Icons.Default.Bookmark, "GUARDADOS", Color.Gray, onGuardadosClick)
                 NavItem(Icons.Default.Person, "PERFIL", Color.Gray, onPerfilClick)
             }
@@ -441,6 +502,6 @@ fun NavItem(
         modifier = Modifier.clickable { onClick() }
     ) {
         Icon(icon, contentDescription = label, tint = color, modifier = Modifier.size(22.dp))
-        Text(label, fontSize = 9.sp, color = color, fontWeight = FontWeight.Bold)
+        Text(label, fontFamily = InterFamily, fontSize = 9.sp, color = color, fontWeight = FontWeight.Bold)
     }
 }

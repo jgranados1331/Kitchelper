@@ -2,6 +2,9 @@ package com.example.kitchelper.data.repository
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.firestore.FirebaseFirestore
+import com.example.kitchelper.data.model.InfoCulinaria
+import com.example.kitchelper.data.model.Usuario
 import kotlinx.coroutines.tasks.await
 
 class AuthRepository(private val auth: FirebaseAuth = FirebaseAuth.getInstance()) {
@@ -27,11 +30,35 @@ class AuthRepository(private val auth: FirebaseAuth = FirebaseAuth.getInstance()
         }
     }
 
-    // Función para registrar un nuevo usuario y enviar correo de verificación
-    suspend fun register(email: String, pass: String): Result<FirebaseUser> {
+    // Función para registrar un nuevo usuario en Auth y crear su documento en Firestore
+    suspend fun register(
+        email: String,
+        pass: String,
+        nombre: String,
+        apellido: String,
+        fechaNacimiento: String,
+        experticia: String
+    ): Result<FirebaseUser> {
         return try {
             val result = auth.createUserWithEmailAndPassword(email, pass).await()
             val user = result.user!!
+
+            // Crear el documento inicial del usuario en Firestore vinculado por su UID
+            val usuario = Usuario(
+                id = user.uid,
+                email = email.trim(),
+                nombre = nombre.trim(),
+                apellido = apellido.trim(),
+                fechaNacimiento = fechaNacimiento,
+                perfilCompleto = false,
+                informacionCulinaria = InfoCulinaria(experticia = experticia)
+            )
+
+            FirebaseFirestore.getInstance()
+                .collection("usuarios")
+                .document(user.uid)
+                .set(usuario)
+                .await()
             
             // Enviar correo de verificación de Firebase
             user.sendEmailVerification().await()

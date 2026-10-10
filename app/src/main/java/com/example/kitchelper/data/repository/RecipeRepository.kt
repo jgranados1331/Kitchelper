@@ -6,14 +6,13 @@ import kotlinx.coroutines.tasks.await
 
 class RecipeRepository(private val db: FirebaseFirestore = FirebaseFirestore.getInstance()) {
 
-    // Obtener todas las recetas aprobadas
+    // Obtener todas las recetas de Firestore
     suspend fun obtenerRecetas(): Result<List<Receta>> {
         return try {
-            val snapshot = db.collection("recetas")
-                .whereEqualTo("estado", "aprobada")
-                .get()
-                .await()
-            val recetas = snapshot.toObjects(Receta::class.java)
+            val snapshot = db.collection("recetas").get().await()
+            val recetas = snapshot.documents.mapNotNull { doc ->
+                doc.toObject(Receta::class.java)?.copy(id = doc.id)
+            }
             Result.success(recetas)
         } catch (e: Exception) {
             Result.failure(e)
@@ -24,7 +23,7 @@ class RecipeRepository(private val db: FirebaseFirestore = FirebaseFirestore.get
     suspend fun obtenerReceta(recetaId: String): Result<Receta?> {
         return try {
             val doc = db.collection("recetas").document(recetaId).get().await()
-            val receta = doc.toObject(Receta::class.java)
+            val receta = doc.toObject(Receta::class.java)?.copy(id = doc.id)
             Result.success(receta)
         } catch (e: Exception) {
             Result.failure(e)
@@ -36,10 +35,11 @@ class RecipeRepository(private val db: FirebaseFirestore = FirebaseFirestore.get
         return try {
             val snapshot = db.collection("recetas")
                 .whereEqualTo("dificultad", dificultad)
-                .whereEqualTo("estado", "aprobada")
                 .get()
                 .await()
-            val recetas = snapshot.toObjects(Receta::class.java)
+            val recetas = snapshot.documents.mapNotNull { doc ->
+                doc.toObject(Receta::class.java)?.copy(id = doc.id)
+            }
             Result.success(recetas)
         } catch (e: Exception) {
             Result.failure(e)
@@ -51,10 +51,11 @@ class RecipeRepository(private val db: FirebaseFirestore = FirebaseFirestore.get
         return try {
             val snapshot = db.collection("recetas")
                 .whereEqualTo("ar.tieneAR", true)
-                .whereEqualTo("estado", "aprobada")
                 .get()
                 .await()
-            val recetas = snapshot.toObjects(Receta::class.java)
+            val recetas = snapshot.documents.mapNotNull { doc ->
+                doc.toObject(Receta::class.java)?.copy(id = doc.id)
+            }
             Result.success(recetas)
         } catch (e: Exception) {
             Result.failure(e)
@@ -80,7 +81,9 @@ class RecipeRepository(private val db: FirebaseFirestore = FirebaseFirestore.get
                 .whereEqualTo("autorId", userId)
                 .get()
                 .await()
-            val recetas = snapshot.toObjects(Receta::class.java)
+            val recetas = snapshot.documents.mapNotNull { doc ->
+                doc.toObject(Receta::class.java)?.copy(id = doc.id)
+            }
             Result.success(recetas)
         } catch (e: Exception) {
             Result.failure(e)

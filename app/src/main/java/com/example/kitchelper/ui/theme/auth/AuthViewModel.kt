@@ -140,7 +140,14 @@ class AuthViewModel(
 
         viewModelScope.launch {
             _authState.value = AuthState(isLoading = true, loadingMessage = "Creando chef")
-            val result = repository.register(data.email.trim(), data.password)
+            val result = repository.register(
+                email = data.email.trim(),
+                pass = data.password,
+                nombre = data.nombre,
+                apellido = data.apellido,
+                fechaNacimiento = data.fechaNacimiento,
+                experticia = data.experticia
+            )
             result.onSuccess { user ->
                 // Éxito: se creó el usuario y se envió el correo de verificación.
                 // Informamos al usuario que debe verificar su correo antes de iniciar sesión.

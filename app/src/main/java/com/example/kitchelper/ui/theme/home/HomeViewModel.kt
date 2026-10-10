@@ -58,9 +58,12 @@ class HomeViewModel(
             // 4. Seleccionar receta destacada (aleatoria o personalizada)
             val recetaDestacada = seleccionarRecetaDestacada(recetas, usuario)
 
-            // 5. Filtrar recetas por nivel
-            val nivel = usuario?.informacionCulinaria?.experticia ?: "Principiante"
-            val recetasDelNivel = recetas.filter { it.dificultad == nivel }.take(2)
+            // 5. Filtrar recetas por nivel del usuario (con fallback a cualquier receta si no hay o está vacío)
+            val nivel = usuario?.informacionCulinaria?.experticia?.takeIf { it.isNotBlank() } ?: "Principiante"
+            var recetasDelNivel = recetas.filter { it.dificultad.equals(nivel, ignoreCase = true) }.take(2)
+            if (recetasDelNivel.isEmpty()) {
+                recetasDelNivel = recetas.take(2)
+            }
 
             _state.value = HomeState(
                 isLoading = false,
@@ -76,7 +79,12 @@ class HomeViewModel(
     fun cambiarNivel(nivel: String) {
         viewModelScope.launch {
             val recetasResult = recipeRepo.obtenerRecetasPorDificultad(nivel)
-            val recetas = recetasResult.getOrNull() ?: emptyList()
+            var recetas = recetasResult.getOrNull() ?: emptyList()
+            // Si no hay recetas con esa dificultad, mostrar cualquier receta como fallback
+            if (recetas.isEmpty()) {
+                val todasResult = recipeRepo.obtenerRecetas()
+                recetas = todasResult.getOrNull() ?: emptyList()
+            }
             _state.value = _state.value.copy(
                 nivelSeleccionado = nivel,
                 recetasDelNivel = recetas.take(2)
@@ -120,8 +128,8 @@ class HomeViewModel(
         var puntaje = 0
 
         // Nivel de experticia
-        if (receta.dificultad == usuario.informacionCulinaria.experticia) puntaje += 10
-        if (receta.dificultad == "Fácil" && usuario.informacionCulinaria.experticia == "Principiante") puntaje += 5
+        if (receta.dificultad.equals(usuario.informacionCulinaria.experticia, ignoreCase = true)) puntaje += 10
+        if (receta.dificultad.equals("Fácil", ignoreCase = true) && usuario.informacionCulinaria.experticia.equals("Principiante", ignoreCase = true)) puntaje += 5
 
         // Preferencias de comida
         if (usuario.informacionCulinaria.comidasPreferidas.any { pref ->
@@ -129,7 +137,7 @@ class HomeViewModel(
             }) puntaje += 5
 
         // Tipo de alimentación
-        if (usuario.informacionSalud.tipoAlimentacion == "Fitness" &&
+        if (usuario.informacionSalud.tipoAlimentacion.equals("Fitness", ignoreCase = true) &&
             receta.tags.contains("saludable")) puntaje += 3
 
         return puntaje
