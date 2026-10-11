@@ -15,6 +15,7 @@ data class RecipesState(
     val recetasFiltradas: List<Receta> = emptyList(),
     val searchQuery: String = "",
     val categoriaSeleccionada: String = "Todas",
+    val dificultadSeleccionada: String = "Todas",
     val errorMessage: String? = null
 )
 
@@ -34,10 +35,12 @@ class RecipesViewModel(
             _state.value = _state.value.copy(isLoading = true)
             val result = recipeRepo.obtenerRecetas()
             result.onSuccess { lista ->
-                _state.value = _state.value.copy(
+                val current = _state.value
+                val filtradas = aplicarFiltros(lista, current.searchQuery, current.categoriaSeleccionada, current.dificultadSeleccionada)
+                _state.value = current.copy(
                     isLoading = false,
                     recetas = lista,
-                    recetasFiltradas = lista
+                    recetasFiltradas = filtradas
                 )
             }.onFailure { e ->
                 _state.value = _state.value.copy(
@@ -50,21 +53,46 @@ class RecipesViewModel(
 
     fun buscarRecetas(query: String) {
         val current = _state.value
-        val filtradas = current.recetas.filter {
-            it.titulo.contains(query, ignoreCase = true) ||
-            it.descripcion.contains(query, ignoreCase = true) ||
-            it.tags.any { tag -> tag.contains(query, ignoreCase = true) }
-        }
+        val filtradas = aplicarFiltros(current.recetas, query, current.categoriaSeleccionada, current.dificultadSeleccionada)
         _state.value = current.copy(searchQuery = query, recetasFiltradas = filtradas)
     }
 
     fun filtrarPorCategoria(categoria: String) {
         val current = _state.value
-        val filtradas = if (categoria == "Todas") {
-            current.recetas
-        } else {
-            current.recetas.filter { it.categoria.equals(categoria, ignoreCase = true) }
+        val nuevaCat = if (current.categoriaSeleccionada.equals(categoria, ignoreCase = true)) "Todas" else categoria
+        val filtradas = aplicarFiltros(current.recetas, current.searchQuery, nuevaCat, current.dificultadSeleccionada)
+        _state.value = current.copy(categoriaSeleccionada = nuevaCat, recetasFiltradas = filtradas)
+    }
+
+    fun filtrarPorDificultad(dificultad: String) {
+        val current = _state.value
+        val nuevaDif = if (current.dificultadSeleccionada.equals(dificultad, ignoreCase = true)) "Todas" else dificultad
+        val filtradas = aplicarFiltros(current.recetas, current.searchQuery, current.categoriaSeleccionada, nuevaDif)
+        _state.value = current.copy(dificultadSeleccionada = nuevaDif, recetasFiltradas = filtradas)
+    }
+
+    private fun aplicarFiltros(
+        lista: List<Receta>,
+        query: String,
+        categoria: String,
+        dificultad: String
+    ): List<Receta> {
+        return lista.filter { receta ->
+            val coincideQuery = query.isBlank() ||
+                    receta.titulo.contains(query, ignoreCase = true) ||
+                    receta.descripcion.contains(query, ignoreCase = true) ||
+                    receta.tags.any { tag -> tag.contains(query, ignoreCase = true) }
+
+            val coincideCategoria = categoria.equals("Todas", ignoreCase = true) ||
+                    receta.categoria.contains(categoria, ignoreCase = true) ||
+                    receta.categoria.equals(categoria, ignoreCase = true)
+
+            val coincideDificultad = dificultad.equals("Todas", ignoreCase = true) ||
+                    receta.dificultad.equals(dificultad, ignoreCase = true) ||
+                    (dificultad.equals("Medio", ignoreCase = true) && (receta.dificultad.equals("Media", ignoreCase = true) || receta.dificultad.equals("Intermedio", ignoreCase = true))) ||
+                    (dificultad.equals("Fácil", ignoreCase = true) && receta.dificultad.equals("Principiante", ignoreCase = true))
+
+            coincideQuery && coincideCategoria && coincideDificultad
         }
-        _state.value = current.copy(categoriaSeleccionada = categoria, recetasFiltradas = filtradas)
     }
 }

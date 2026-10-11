@@ -17,6 +17,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.kitchelper.ui.theme.FrauncesFamily
 import com.example.kitchelper.ui.theme.InterFamily
+import com.example.kitchelper.ui.theme.components.BarraNavegacionInferior
 import com.example.kitchelper.ui.theme.navigation.Routes
 
 @Composable
@@ -83,6 +84,7 @@ fun HomeScreen(
 
             item {
                 SelectorNivel(
+                    nivelUsuario = state.usuario?.informacionCulinaria?.experticia ?: "Principiante",
                     nivelSeleccionado = state.nivelSeleccionado,
                     onNivelChange = { viewModel.cambiarNivel(it) }
                 )
@@ -97,8 +99,9 @@ fun HomeScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    val nivelUsuario = state.usuario?.informacionCulinaria?.experticia?.takeIf { it.isNotBlank() } ?: "Principiante"
                     Text(
-                        "Recetas de hoy",
+                        "Recetas de hoy - $nivelUsuario",
                         fontFamily = FrauncesFamily,
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
@@ -165,13 +168,15 @@ fun HomeScreen(
         }
 
         // Barra de navegación inferior flotante
+
         BarraNavegacionInferior(
             modifier = Modifier.align(Alignment.BottomCenter),
+            rutaActual = "home",
             onInicioClick = { /* Ya estamos en Home */ },
             onRecetasClick = { navController.navigate(Routes.RECIPES) },
             onGuardadosClick = { navController.navigate(Routes.FAVORITOS) },
             onPerfilClick = { navController.navigate(Routes.PROFILE) },
-            onFlechaClick = { viewModel.cargarHome() }
+            onFlechaClick = { navController.navigate(Routes.CREATE_RECIPE) }
         )
     }
 }

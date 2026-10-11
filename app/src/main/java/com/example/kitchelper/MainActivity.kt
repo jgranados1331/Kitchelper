@@ -18,8 +18,11 @@ import com.example.kitchelper.ui.theme.auth.ForgotPasswordScreen
 import com.example.kitchelper.ui.theme.auth.LoginScreen
 import com.example.kitchelper.ui.theme.auth.RegisterScreen
 import com.example.kitchelper.ui.theme.home.HomeScreen
+import com.example.kitchelper.ui.theme.profile.ProfileScreen
+import com.example.kitchelper.ui.theme.favorites.FavoritesScreen
 import com.example.kitchelper.ui.theme.recipes.RecipesScreen
 import com.example.kitchelper.ui.theme.recipes.RecipeDetailScreen
+import com.example.kitchelper.ui.theme.recipes.CreateRecipeScreen
 import com.example.kitchelper.ui.theme.navigation.Routes
 import com.example.kitchelper.ui.theme.KitchelperTheme
 
@@ -63,9 +66,9 @@ fun AppNavigation() {
             HomeScreen(navController = navController)
         }
 
-        // ===== MÓDULO 3: PERFIL (Pendiente) =====
+        // ===== MÓDULO 3: PERFIL =====
         composable(Routes.PROFILE) {
-            PlaceholderScreen("Perfil - Próximamente")
+            ProfileScreen(navController = navController)
         }
 
         // ===== MÓDULO 4: RECETAS =====
@@ -73,7 +76,7 @@ fun AppNavigation() {
             RecipesScreen(navController = navController)
         }
         composable(Routes.FAVORITOS) {
-            PlaceholderScreen("Guardados - Próximamente")
+            FavoritesScreen(navController = navController)
         }
         composable(
             route = Routes.RECIPE_DETAIL,
@@ -111,9 +114,9 @@ fun AppNavigation() {
             PlaceholderScreen("AR Práctica: $practicaId")
         }
 
-        // ===== MÓDULO 7: CREAR RECETA (Pendiente) =====
+        // ===== MÓDULO 7: CREAR RECETA =====
         composable(Routes.CREATE_RECIPE) {
-            PlaceholderScreen("Crear Receta - Próximamente")
+            CreateRecipeScreen(navController = navController)
         }
     }
 }

@@ -7,9 +7,9 @@ data class Receta(
     val id: String = "",
     val titulo: String = "",
     val descripcion: String = "",
-    val dificultad: String = "", // Fácil, Media, Difícil
+    val dificultad: String = "", // Principiante, Fácil, Intermedio, Media, Difícil, Avanzado
     val tiempoMinutos: Int = 0,
-    val categoria: String = "", // Desayuno, Almuerzo, Cena
+    val categoria: String = "", // Desayuno, Almuerzo, Cena, Postre, Bebida, Entrada
     val imagenUrl: String = "",
     val videoUrl: String = "",
     val ingredientes: List<Ingrediente> = emptyList(),
@@ -17,26 +17,30 @@ data class Receta(
     val tags: List<String> = emptyList(),
     val autorId: String = "sistema",
     val autorNombre: String = "KitchenPer",
-    val esOficial: Boolean = true,
+    val esOficial: Boolean = false,
     val estado: String = "aprobada",
-    val fechaCreacion: Long = 0,
+    val fechaCreacion: Long = System.currentTimeMillis(),
     val likes: Int = 0,
     val ar: ARData? = null
 )
 
 data class Ingrediente(
     val nombre: String = "",
-    val cantidad: String = ""
+    val cantidad: String = "",
+    val imagenUrl: String = "" // Imagen opcional por ingrediente (ImageKit.io)
 )
 
 data class Paso(
     val orden: Int = 0,
     val descripcion: String = "",
-    val imagenUrl: String = ""
+    val imagenUrl: String = "", // Imagen opcional por paso (ImageKit.io)
+    val videoUrl: String = ""  // Video opcional por paso
 )
 
 data class ARData(
     val tieneAR: Boolean = false,
+    val instruccionAR: String = "",
+    val modelo3DUrl: String = "", // Modelo 3D (.glb / .gltf) subido a ImageKit.io
     val pasosAR: List<PasoAR> = emptyList()
 )
 

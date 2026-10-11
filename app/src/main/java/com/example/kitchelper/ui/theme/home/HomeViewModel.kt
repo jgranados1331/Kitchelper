@@ -60,7 +60,10 @@ class HomeViewModel(
 
             // 5. Filtrar recetas por nivel del usuario (con fallback a cualquier receta si no hay o está vacío)
             val nivel = usuario?.informacionCulinaria?.experticia?.takeIf { it.isNotBlank() } ?: "Principiante"
-            var recetasDelNivel = recetas.filter { it.dificultad.equals(nivel, ignoreCase = true) }.take(2)
+            var recetasDelNivel = recetas.filter { receta ->
+                receta.dificultad.equals(nivel, ignoreCase = true) ||
+                (nivel.equals("Intermedio", ignoreCase = true) && (receta.dificultad.equals("Fácil", ignoreCase = true) || receta.dificultad.equals("Media", ignoreCase = true)))
+            }.take(2)
             if (recetasDelNivel.isEmpty()) {
                 recetasDelNivel = recetas.take(2)
             }
@@ -78,12 +81,14 @@ class HomeViewModel(
 
     fun cambiarNivel(nivel: String) {
         viewModelScope.launch {
-            val recetasResult = recipeRepo.obtenerRecetasPorDificultad(nivel)
-            var recetas = recetasResult.getOrNull() ?: emptyList()
-            // Si no hay recetas con esa dificultad, mostrar cualquier receta como fallback
+            val todasResult = recipeRepo.obtenerRecetas()
+            val todas = todasResult.getOrNull() ?: emptyList()
+            var recetas = todas.filter { receta ->
+                receta.dificultad.equals(nivel, ignoreCase = true) ||
+                (nivel.equals("Intermedio", ignoreCase = true) && (receta.dificultad.equals("Fácil", ignoreCase = true) || receta.dificultad.equals("Media", ignoreCase = true)))
+            }
             if (recetas.isEmpty()) {
-                val todasResult = recipeRepo.obtenerRecetas()
-                recetas = todasResult.getOrNull() ?: emptyList()
+                recetas = todas
             }
             _state.value = _state.value.copy(
                 nivelSeleccionado = nivel,
@@ -132,8 +137,9 @@ class HomeViewModel(
         if (receta.dificultad.equals("Fácil", ignoreCase = true) && usuario.informacionCulinaria.experticia.equals("Principiante", ignoreCase = true)) puntaje += 5
 
         // Preferencias de comida
-        if (usuario.informacionCulinaria.comidasPreferidas.any { pref ->
-                receta.tags.any { tag -> tag.contains(pref, ignoreCase = true) }
+        if (receta.tags.any { tag ->
+                tag.contains(usuario.informacionCulinaria.preferenciaComida, ignoreCase = true) ||
+                tag.contains(usuario.informacionCulinaria.tipoComida, ignoreCase = true)
             }) puntaje += 5
 
         // Tipo de alimentación

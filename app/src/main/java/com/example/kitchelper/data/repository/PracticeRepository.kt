@@ -27,4 +27,15 @@ class PracticeRepository(private val db: FirebaseFirestore = FirebaseFirestore.g
             Result.failure(e)
         }
     }
+
+    suspend fun crearPractica(practica: PracticaBasica): Result<String> {
+        return try {
+            val docRef = db.collection("practicas_basicas").document()
+            val practicaConId = practica.copy(id = docRef.id)
+            docRef.set(practicaConId).await()
+            Result.success(docRef.id)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 }

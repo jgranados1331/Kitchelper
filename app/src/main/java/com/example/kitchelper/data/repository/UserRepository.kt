@@ -1,13 +1,11 @@
 package com.example.kitchelper.data.repository
 
-
 import com.google.firebase.firestore.FirebaseFirestore
 import com.example.kitchelper.data.model.Usuario
 import kotlinx.coroutines.tasks.await
 
 class UserRepository(private val db: FirebaseFirestore = FirebaseFirestore.getInstance()) {
 
-    // Guardar perfil de usuario
     suspend fun guardarUsuario(usuario: Usuario): Result<Unit> {
         return try {
             db.collection("usuarios")
@@ -20,7 +18,6 @@ class UserRepository(private val db: FirebaseFirestore = FirebaseFirestore.getIn
         }
     }
 
-    // Obtener perfil de usuario por ID
     suspend fun obtenerUsuario(userId: String): Result<Usuario?> {
         return try {
             val doc = db.collection("usuarios").document(userId).get().await()
@@ -31,21 +28,14 @@ class UserRepository(private val db: FirebaseFirestore = FirebaseFirestore.getIn
         }
     }
 
-    // Actualizar campos específicos (ej. perfilCompleto)
-    suspend fun actualizarPerfilCompleto(userId: String, completo: Boolean): Result<Unit> {
-        return try {
-            db.collection("usuarios")
-                .document(userId)
-                .update(
-                    mapOf(
-                        "perfilCompleto" to completo,
-                        "ultimaActualizacion" to System.currentTimeMillis()
-                    )
-                )
-                .await()
-            Result.success(Unit)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+    /**
+     * Verifica si el perfil está completo basándose en campos obligatorios.
+     * Se usa para actualizar la bandera `perfilCompleto` automáticamente.
+     */
+    fun esPerfilCompleto(usuario: Usuario): Boolean {
+        return usuario.nombre.isNotBlank() &&
+                usuario.apellido.isNotBlank() &&
+                usuario.telefono.isNotBlank() &&
+                usuario.fechaNacimiento.isNotBlank()
     }
 }

@@ -4,6 +4,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
 import com.example.kitchelper.data.model.InfoCulinaria
+import com.example.kitchelper.data.model.InfoSalud
 import com.example.kitchelper.data.model.Usuario
 import kotlinx.coroutines.tasks.await
 
@@ -43,15 +44,19 @@ class AuthRepository(private val auth: FirebaseAuth = FirebaseAuth.getInstance()
             val result = auth.createUserWithEmailAndPassword(email, pass).await()
             val user = result.user!!
 
-            // Crear el documento inicial del usuario en Firestore vinculado por su UID
+            // Crear el documento inicial del usuario en Firestore con configuraciones vacías
             val usuario = Usuario(
                 id = user.uid,
                 email = email.trim(),
                 nombre = nombre.trim(),
                 apellido = apellido.trim(),
                 fechaNacimiento = fechaNacimiento,
+                telefono = "",
                 perfilCompleto = false,
-                informacionCulinaria = InfoCulinaria(experticia = experticia)
+                informacionCulinaria = InfoCulinaria(
+                    experticia = experticia.ifBlank { "Principiante" }
+                ), // Guarda el nivel de experticia seleccionado en el registro
+                informacionSalud = InfoSalud() // Demás variables vacías hasta completar perfil
             )
 
             FirebaseFirestore.getInstance()

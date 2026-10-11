@@ -11,6 +11,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -19,11 +20,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.layout.ContentScale
+import coil.compose.AsyncImage
 import com.example.kitchelper.data.model.PracticaBasica
 import com.example.kitchelper.data.model.Receta
 import com.example.kitchelper.ui.theme.FrauncesFamily
 import com.example.kitchelper.ui.theme.InterFamily
 import com.example.kitchelper.ui.theme.InriaSerifFamily
+import com.example.kitchelper.ui.theme.components.BarraNavegacionInferior
 
 // ============ HEADER CON MENÚ DESPLEGABLE ============
 @Composable
@@ -185,7 +189,7 @@ fun AvisoCompletarPerfil(onCompletarClick: () -> Unit) {
     }
 }
 
-// ============ RECETA DESTACADA (CON INRIA SERIF) ============
+// ============ RECETA DESTACADA (CON INRIA SERIF E IMAGEN CON GRADIENTE DEDIFUMINADO) ============
 @Composable
 fun RecetaDestacada(receta: Receta, onEmpezar: () -> Unit) {
     Surface(
@@ -196,18 +200,58 @@ fun RecetaDestacada(receta: Receta, onEmpezar: () -> Unit) {
         color = Color(0xFF4A4A4A),
         shadowElevation = 4.dp
     ) {
-        Box(modifier = Modifier.height(240.dp)) {
-            // Fondo oscuro / imagen
+        Box(modifier = Modifier.height(250.dp)) {
+            // 1. Imagen de fondo desde Firestore / ImageKit
+            if (receta.imagenUrl.isNotBlank()) {
+                AsyncImage(
+                    model = receta.imagenUrl,
+                    contentDescription = receta.titulo,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+            } else {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color(0xFF4A4A4A))
+                )
+            }
+
+            // 2. Capa superior difuminada de transparente en la parte superior a negro en la base
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(
                         Brush.verticalGradient(
-                            colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.85f))
+                            colors = listOf(
+                                Color.Transparent,
+                                Color.Black.copy(alpha = 0.4f),
+                                Color.Black.copy(alpha = 0.92f)
+                            )
                         )
                     )
             )
 
+            // 3. Ícono de estrella en la esquina superior derecha
+            Surface(
+                shape = CircleShape,
+                color = Color.Black.copy(alpha = 0.3f),
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(16.dp)
+                    .size(36.dp)
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(
+                        Icons.Default.StarBorder,
+                        contentDescription = "Favorito",
+                        tint = Color.White,
+                        modifier = Modifier.size(22.dp)
+                    )
+                }
+            }
+
+            // 4. Información de la receta
             Column(
                 modifier = Modifier
                     .align(Alignment.BottomStart)
@@ -221,20 +265,22 @@ fun RecetaDestacada(receta: Receta, onEmpezar: () -> Unit) {
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.height(4.dp))
-                // Nombre exacto de la receta usando Inria Serif
+                // Título en Inria Serif
                 Text(
-                    receta.titulo.ifEmpty { "La perfecta Aglio e Olio" },
+                    receta.titulo.ifBlank { "Receta Destacada" },
                     fontFamily = InriaSerifFamily,
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.White
                 )
                 Spacer(modifier = Modifier.height(4.dp))
+                // Descripción corta obtenida directamente de Firestore
                 Text(
-                    receta.descripcion.ifEmpty { "Aprende a emulsionar aceite y agua de aceite de pasta en 15 minutos." },
+                    receta.descripcion.ifBlank { "Deliciosa receta lista para cocinar en pocos minutos." },
                     fontFamily = InterFamily,
                     fontSize = 12.sp,
-                    color = Color.White.copy(alpha = 0.85f)
+                    color = Color.White.copy(alpha = 0.9f),
+                    maxLines = 2
                 )
                 Spacer(modifier = Modifier.height(14.dp))
                 Button(
@@ -302,8 +348,15 @@ fun GuiaInteractivaAR(onCalibrarClick: () -> Unit, onVistaARClick: () -> Unit) {
 
 // ============ SELECTOR DE NIVEL (CONFIGURACIÓN DE DIFICULTAD) ============
 @Composable
-fun SelectorNivel(nivelSeleccionado: String, onNivelChange: (String) -> Unit) {
-    val niveles = listOf("Principiante", "Fácil", "Media", "Difícil")
+fun SelectorNivel(
+    nivelUsuario: String = "Principiante",
+    nivelSeleccionado: String,
+    onNivelChange: (String) -> Unit
+) {
+    val userLevel = nivelUsuario.ifBlank { "Principiante" }
+    val niveles = remember(userLevel) {
+        listOf(userLevel, "Fácil", "Medio", "Difícil").distinct()
+    }
 
     LazyRow(
         contentPadding = PaddingValues(horizontal = 16.dp),
@@ -342,8 +395,24 @@ fun TarjetaReceta(receta: Receta, onClick: () -> Unit) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(110.dp)
-                    .background(Color(0xFFE0E0E0), RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
-            )
+            ) {
+                if (receta.imagenUrl.isNotBlank()) {
+                    AsyncImage(
+                        model = receta.imagenUrl,
+                        contentDescription = receta.titulo,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
+                    )
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color(0xFFE0E0E0), RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
+                    )
+                }
+            }
             Column(modifier = Modifier.padding(12.dp)) {
                 Text(
                     receta.titulo,
@@ -392,11 +461,22 @@ fun TarjetaPractica(practica: PracticaBasica, onClick: () -> Unit) {
             modifier = Modifier.padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Box(
-                modifier = Modifier
-                    .size(60.dp)
-                    .background(Color(0xFFE0E0E0), RoundedCornerShape(12.dp))
-            )
+            if (practica.imagenUrl.isNotBlank()) {
+                AsyncImage(
+                    model = practica.imagenUrl,
+                    contentDescription = practica.titulo,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .size(60.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                )
+            } else {
+                Box(
+                    modifier = Modifier
+                        .size(60.dp)
+                        .background(Color(0xFFE0E0E0), RoundedCornerShape(12.dp))
+                )
+            }
             Spacer(modifier = Modifier.width(12.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
@@ -431,77 +511,4 @@ fun TarjetaPractica(practica: PracticaBasica, onClick: () -> Unit) {
     }
 }
 
-// ============ BARRA DE NAVEGACIÓN INFERIOR ============
-@Composable
-fun BarraNavegacionInferior(
-    modifier: Modifier = Modifier,
-    onInicioClick: () -> Unit,
-    onRecetasClick: () -> Unit,
-    onGuardadosClick: () -> Unit,
-    onPerfilClick: () -> Unit,
-    onFlechaClick: () -> Unit
-) {
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Surface(
-            shape = RoundedCornerShape(30.dp),
-            color = Color.White,
-            shadowElevation = 8.dp,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(70.dp)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxSize(),
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                NavItem(Icons.Default.Home, "INICIO", Color(0xFFFF6B4A), onInicioClick)
-                NavItem(Icons.Default.Restaurant, "RECETAS", Color.Gray, onRecetasClick)
-                Spacer(modifier = Modifier.width(50.dp))
-                NavItem(Icons.Default.Bookmark, "GUARDADOS", Color.Gray, onGuardadosClick)
-                NavItem(Icons.Default.Person, "PERFIL", Color.Gray, onPerfilClick)
-            }
-        }
 
-        // Botón central flotante
-        Surface(
-            shape = CircleShape,
-            color = Color(0xFF4A6B4A),
-            shadowElevation = 8.dp,
-            modifier = Modifier
-                .size(70.dp)
-                .offset(y = (-20).dp)
-                .clickable { onFlechaClick() }
-        ) {
-            Box(contentAlignment = Alignment.Center) {
-                Icon(
-                    Icons.Default.ArrowUpward,
-                    contentDescription = "Cargar receta",
-                    tint = Color.White,
-                    modifier = Modifier.size(32.dp)
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun NavItem(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    label: String,
-    color: Color,
-    onClick: () -> Unit
-) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.clickable { onClick() }
-    ) {
-        Icon(icon, contentDescription = label, tint = color, modifier = Modifier.size(22.dp))
-        Text(label, fontFamily = InterFamily, fontSize = 9.sp, color = color, fontWeight = FontWeight.Bold)
-    }
-}
