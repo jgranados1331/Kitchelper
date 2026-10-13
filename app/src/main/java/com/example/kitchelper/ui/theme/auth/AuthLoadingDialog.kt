@@ -3,10 +3,8 @@ package com.example.kitchelper.ui.theme.auth
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Surface
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -19,9 +17,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
 import com.example.kitchelper.R
+import com.example.kitchelper.ui.theme.InterFamily
 
+/**
+ * Pantalla de carga a pantalla completa (Full Screen) en fondo blanco.
+ * Muestra el logo de Kitchelper animado en el centro, indicador de carga y mensaje explicativo.
+ */
 @Composable
 fun AuthLoadingDialog(
     message: String
@@ -38,52 +40,54 @@ fun AuthLoadingDialog(
         label = "scale"
     )
 
-    Dialog(onDismissRequest = {}) {
-        Surface(
-            shape = RoundedCornerShape(32.dp),
-            color = Color.White,
-            shadowElevation = 10.dp,
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
             modifier = Modifier
-                .width(280.dp)
-                .border(
-                    width = 4.dp,
-                    color = Color(0xFFC5D86D),
-                    shape = RoundedCornerShape(32.dp)
-                )
+                .fillMaxSize()
+                .padding(32.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
-            Column(
+            // Logo animado en el centro
+            Box(
                 modifier = Modifier
-                    .padding(24.dp)
-                    .fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+                    .size(130.dp)
+                    .scale(scale),
+                contentAlignment = Alignment.Center
             ) {
-                // Logo animado
-                Box(
-                    modifier = Modifier
-                        .size(100.dp)
-                        .scale(scale),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.logo_kitchelper),
-                        contentDescription = "Logo",
-                        modifier = Modifier.size(90.dp),
-                        contentScale = ContentScale.Fit
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(20.dp))
-
-                // Mensaje dinámico ("Entrando a la cocina", "Creando chef", "Nunca la olvides, ni la compartas")
-                Text(
-                    text = message,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF4A4A4A),
-                    textAlign = TextAlign.Center
+                Image(
+                    painter = painterResource(id = R.drawable.logo_kitchelper),
+                    contentDescription = "Logo Kitchelper",
+                    modifier = Modifier.size(120.dp),
+                    contentScale = ContentScale.Fit
                 )
             }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Ícono de carga circular
+            CircularProgressIndicator(
+                color = Color(0xFF4A6B4A),
+                strokeWidth = 3.dp,
+                modifier = Modifier.size(36.dp)
+            )
+
+            Spacer(modifier = Modifier.height(18.dp))
+
+            // Mensaje explicativo en el centro
+            Text(
+                text = message,
+                fontFamily = InterFamily,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF4A4A4A),
+                textAlign = TextAlign.Center
+            )
         }
     }
 }

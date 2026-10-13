@@ -17,12 +17,15 @@ import androidx.navigation.compose.rememberNavController
 import com.example.kitchelper.ui.theme.auth.ForgotPasswordScreen
 import com.example.kitchelper.ui.theme.auth.LoginScreen
 import com.example.kitchelper.ui.theme.auth.RegisterScreen
+import com.example.kitchelper.ui.theme.auth.SplashScreen
 import com.example.kitchelper.ui.theme.home.HomeScreen
 import com.example.kitchelper.ui.theme.profile.ProfileScreen
 import com.example.kitchelper.ui.theme.favorites.FavoritesScreen
 import com.example.kitchelper.ui.theme.recipes.RecipesScreen
 import com.example.kitchelper.ui.theme.recipes.RecipeDetailScreen
 import com.example.kitchelper.ui.theme.recipes.CreateRecipeScreen
+import com.example.kitchelper.ui.theme.practices.PracticesScreen
+import com.example.kitchelper.ui.theme.practices.PracticeDetailScreen
 import com.example.kitchelper.ui.theme.navigation.Routes
 import com.example.kitchelper.ui.theme.KitchelperTheme
 
@@ -48,8 +51,12 @@ fun AppNavigation() {
 
     NavHost(
         navController = navController,
-        startDestination = Routes.LOGIN
+        startDestination = Routes.SPLASH
     ) {
+        composable(Routes.SPLASH) {
+            SplashScreen(navController = navController)
+        }
+
         // ===== MÓDULO 1: AUTENTICACIÓN =====
         composable(Routes.LOGIN) {
             LoginScreen(navController = navController)
@@ -86,13 +93,17 @@ fun AppNavigation() {
             RecipeDetailScreen(recetaId = recetaId, navController = navController)
         }
 
-        // ===== MÓDULO 5: PRÁCTICAS (Pendiente) =====
+        composable(Routes.PRACTICES) {
+            PracticesScreen(navController = navController)
+        }
+
+        // ===== MÓDULO 5: PRÁCTICAS =====
         composable(
             route = Routes.PRACTICE_DETAIL,
             arguments = listOf(androidx.navigation.navArgument("practicaId") {})
         ) { backStackEntry ->
             val practicaId = backStackEntry.arguments?.getString("practicaId") ?: ""
-            PlaceholderScreen("Práctica: $practicaId")
+            PracticeDetailScreen(practicaId = practicaId, navController = navController)
         }
 
         // ===== MÓDULO 6: AR (Pendiente) =====

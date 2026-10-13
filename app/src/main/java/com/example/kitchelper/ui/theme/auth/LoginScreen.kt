@@ -52,24 +52,23 @@ fun LoginScreen(
         }
     }
 
-    if (state.isLoading) {
-        AuthLoadingDialog(message = state.loadingMessage)
-    }
+    if (state.isLoading || state.isSuccess) {
+        AuthLoadingDialog(message = if (state.loadingMessage.isNotBlank()) state.loadingMessage else "Entrando a la cocina...")
+    } else {
+        // Efecto: mostrar errores en un AlertDialog
+        if (state.errorMessage != null) {
+            AuthError(
+                message = state.errorMessage!!,
+                onDismiss = {
+                    viewModel.clearMessages()
+                }
+            )
+        }
 
-    // Efecto: mostrar errores en un AlertDialog
-    if (state.errorMessage != null) {
-        AuthError(
-            message = state.errorMessage!!,
-            onDismiss = {
-                viewModel.clearMessages()
-            }
-        )
-    }
-
-    // Fondo con imagen
-    Box(
-        modifier = Modifier.fillMaxSize()
-    ) {
+        // Fondo con imagen e interfaz de Login
+        Box(
+            modifier = Modifier.fillMaxSize()
+        ) {
         Image(
             painter = painterResource(id = R.drawable.fondo_inicio),
             contentDescription = null,
@@ -236,6 +235,7 @@ fun LoginScreen(
             NoInternetBanner(onDismiss = { viewModel.dismissNoInternet() })
         }
     }
+}
 }
 
 // Composable auxiliar para los botones de redes sociales

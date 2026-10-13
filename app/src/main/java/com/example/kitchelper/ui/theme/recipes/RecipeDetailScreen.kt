@@ -78,11 +78,22 @@ fun RecipeDetailScreen(recetaId: String, navController: NavController) {
     }
 
     fun toggleFavorito() {
-        if (userId.isBlank()) return
-        val nuevoEstado = !esFavorito
-        esFavorito = nuevoEstado
+        if (userId.isBlank()) {
+            android.widget.Toast.makeText(context, "Debes iniciar sesión para guardar favoritos", android.widget.Toast.LENGTH_SHORT).show()
+            return
+        }
+        val estadoPrevio = esFavorito
+        esFavorito = !esFavorito
         scope.launch {
-            FavoriteRepository().toggleFavorito(userId, recetaId)
+            val result = FavoriteRepository().toggleFavorito(userId, recetaId)
+            result.onSuccess { estadoFinal ->
+                esFavorito = estadoFinal
+                val msg = if (estadoFinal) "¡Agregado a tus favoritos!" else "Eliminado de tus favoritos"
+                android.widget.Toast.makeText(context, msg, android.widget.Toast.LENGTH_SHORT).show()
+            }.onFailure { err ->
+                esFavorito = estadoPrevio
+                android.widget.Toast.makeText(context, "Error al actualizar favorito: ${err.message}", android.widget.Toast.LENGTH_LONG).show()
+            }
         }
     }
 

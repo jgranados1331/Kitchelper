@@ -20,6 +20,8 @@ data class ProfileState(
     val showDialogSalirIncompleto: Boolean = false,
     val showDialogCambiosSinGuardar: Boolean = false,
     val showDialogConfirmarGuardar: Boolean = false,
+    val showDialogConfirmarEliminarCuenta: Boolean = false,
+    val cuentaEliminadaExitosamente: Boolean = false,
     val pendingNavigationRoute: String? = null,
     val debeNavegar: Boolean = false
 ) {
@@ -101,19 +103,16 @@ class ProfileViewModel(
     fun solicitarSalida(rutaDestino: String? = null) {
         val currentState = _state.value
         if (!currentState.usuario.perfilCompleto) {
-            // Alerta 1: Perfil incompleto
             _state.value = currentState.copy(
                 showDialogSalirIncompleto = true,
                 pendingNavigationRoute = rutaDestino
             )
         } else if (currentState.hayCambiosSinGuardar) {
-            // Alerta 2: Perfil completo pero con cambios sin guardar
             _state.value = currentState.copy(
                 showDialogCambiosSinGuardar = true,
                 pendingNavigationRoute = rutaDestino
             )
         } else {
-            // Salir directamente sin alerta
             _state.value = currentState.copy(
                 pendingNavigationRoute = rutaDestino,
                 debeNavegar = true
@@ -149,6 +148,40 @@ class ProfileViewModel(
         _state.value = _state.value.copy(showDialogConfirmarGuardar = false)
     }
 
+    // ===== Diálogos y Acción de Eliminar Cuenta =====
+
+    fun solicitarEliminarCuenta() {
+        _state.value = _state.value.copy(showDialogConfirmarEliminarCuenta = true)
+    }
+
+    fun cancelarEliminarCuenta() {
+        _state.value = _state.value.copy(showDialogConfirmarEliminarCuenta = false)
+    }
+
+    fun eliminarCuenta() {
+        val uid = userId ?: return
+        viewModelScope.launch {
+            _state.value = _state.value.copy(
+                isLoading = true,
+                showDialogConfirmarEliminarCuenta = false
+            )
+
+            val result = userRepo.eliminarCuentaUsuario(uid)
+            result.onSuccess {
+                _state.value = _state.value.copy(
+                    isLoading = false,
+                    cuentaEliminadaExitosamente = true,
+                    mensaje = "Tu cuenta ha sido eliminada con éxito."
+                )
+            }.onFailure { err ->
+                _state.value = _state.value.copy(
+                    isLoading = false,
+                    errorMessage = err.message ?: "Error al eliminar la cuenta"
+                )
+            }
+        }
+    }
+
     // ===== Guardar perfil =====
 
     fun guardarPerfil() {
@@ -158,7 +191,6 @@ class ProfileViewModel(
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true, showDialogConfirmarGuardar = false)
 
-            // Verificar si el perfil está completo
             val perfilCompleto = userRepo.esPerfilCompleto(usuarioActual)
             val usuarioFinal = usuarioActual.copy(
                 perfilCompleto = perfilCompleto,

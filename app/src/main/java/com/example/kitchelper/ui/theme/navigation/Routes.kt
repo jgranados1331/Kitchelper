@@ -8,6 +8,7 @@ object Routes {
     const val PROFILE = "profile"
     const val CREATE_RECIPE = "create_recipe"
     const val RECIPES = "recipes"
+    const val PRACTICES = "practices"
     const val FAVORITOS = "favoritos"
     const val RECIPE_DETAIL = "recipe_detail/{recetaId}"
     const val PRACTICE_DETAIL = "practice_detail/{practicaId}"

@@ -1,6 +1,8 @@
 package com.example.kitchelper.ui.theme.profile
 
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -10,11 +12,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -33,13 +37,24 @@ fun ProfileScreen(
     viewModel: ProfileViewModel = viewModel()
 ) {
     val state by viewModel.state.collectAsState()
+    val context = LocalContext.current
 
     // Interceptar el botón físico/gesto de atrás en Android
     BackHandler {
         viewModel.solicitarSalida(rutaDestino = null)
     }
 
-    // Efecto para procesar navegación tras confirmaciones en alertas
+    // Efecto para navegar cuando la cuenta se elimina con éxito
+    LaunchedEffect(state.cuentaEliminadaExitosamente) {
+        if (state.cuentaEliminadaExitosamente) {
+            Toast.makeText(context, "Tu cuenta ha sido eliminada con éxito.", Toast.LENGTH_LONG).show()
+            navController.navigate(Routes.LOGIN) {
+                popUpTo(0) { inclusive = true }
+            }
+        }
+    }
+
+    // Efecto para procesar navegación tras confirmaciones en alertas de salida
     LaunchedEffect(state.debeNavegar) {
         if (state.debeNavegar) {
             viewModel.resetNavegacion()
@@ -54,7 +69,7 @@ fun ProfileScreen(
         }
     }
 
-    // Snackbar para mensajes
+    // Snackbar para mensajes de alerta / estado
     val snackbarHostState = remember { SnackbarHostState() }
     LaunchedEffect(state.mensaje) {
         state.mensaje?.let {
@@ -231,7 +246,6 @@ fun ProfileScreen(
                 TarjetaSeccion(titulo = "Información de Salud") {
                     val salud = state.usuario.informacionSalud
 
-                    // 4. OPCIONES DESPLEGABLES PARA ALERGIAS, PROBLEMAS DE SALUD Y RESTRICCIONES
                     ListaDinamicaDesplegable(
                         label = "Alergias",
                         items = salud.alergias,
@@ -315,6 +329,36 @@ fun ProfileScreen(
                             fontSize = 16.sp
                         )
                     }
+                }
+
+                Spacer(modifier = Modifier.height(14.dp))
+
+                // ===== BOTÓN ELIMINAR CUENTA =====
+                OutlinedButton(
+                    onClick = { viewModel.solicitarEliminarCuenta() },
+                    enabled = !state.isLoading,
+                    shape = RoundedCornerShape(30.dp),
+                    border = BorderStroke(1.5.dp, Color(0xFFE53935)),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFFE53935)),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                        .height(52.dp)
+                ) {
+                    Icon(
+                        Icons.Default.DeleteForever,
+                        contentDescription = "Eliminar Cuenta",
+                        tint = Color(0xFFE53935),
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        "Eliminar Cuenta",
+                        fontFamily = InterFamily,
+                        color = Color(0xFFE53935),
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 15.sp
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -434,6 +478,46 @@ fun ProfileScreen(
                         onClick = { viewModel.cancelarGuardar() }
                     ) {
                         Text("Volver", fontFamily = InterFamily, color = Color.Gray)
+                    }
+                },
+                shape = RoundedCornerShape(20.dp),
+                containerColor = Color.White
+            )
+        }
+
+        // ===== 4. ALERTA: CONFIRMAR ELIMINAR CUENTA =====
+        if (state.showDialogConfirmarEliminarCuenta) {
+            AlertDialog(
+                onDismissRequest = { viewModel.cancelarEliminarCuenta() },
+                title = {
+                    Text(
+                        "Eliminar Cuenta",
+                        fontFamily = FrauncesFamily,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFFE53935)
+                    )
+                },
+                text = {
+                    Text(
+                        "¿Estás seguro de que deseas eliminar tu cuenta? Esta acción borrará permanentemente toda tu información, perfil y favoritos, y no se podrá deshacer.",
+                        fontFamily = InterFamily,
+                        fontSize = 14.sp,
+                        color = GRIS_TEXTO
+                    )
+                },
+                confirmButton = {
+                    Button(
+                        onClick = { viewModel.eliminarCuenta() },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE53935))
+                    ) {
+                        Text("Eliminar", fontFamily = InterFamily, color = Color.White, fontWeight = FontWeight.Bold)
+                    }
+                },
+                dismissButton = {
+                    OutlinedButton(
+                        onClick = { viewModel.cancelarEliminarCuenta() }
+                    ) {
+                        Text("Cancelar", fontFamily = InterFamily, color = Color.Gray)
                     }
                 },
                 shape = RoundedCornerShape(20.dp),

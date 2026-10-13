@@ -105,28 +105,32 @@ class HomeViewModel(
     private fun seleccionarRecetaDestacada(recetas: List<Receta>, usuario: Usuario?): Receta? {
         if (recetas.isEmpty()) return null
 
-        // Si el perfil está incompleto o no hay usuario, devolver aleatoria
+        // Si el perfil está incompleto o no hay usuario, devolver aleatoria entre todas
         if (usuario == null || !usuario.perfilCompleto) {
-            return recetas.random()
+            return recetas.shuffled().firstOrNull()
         }
 
         // Filtrar recetas que no tengan alérgenos del usuario
         val recetasSeguras = recetas.filter { receta ->
             receta.ingredientes.none { ingrediente ->
                 usuario.informacionSalud.alergias.any { alergia ->
-                    ingrediente.nombre.contains(alergia, ignoreCase = true)
+                    alergia.isNotBlank() && ingrediente.nombre.contains(alergia, ignoreCase = true)
                 }
             }
         }
 
-        if (recetasSeguras.isEmpty()) return recetas.random()
+        if (recetasSeguras.isEmpty()) return recetas.shuffled().firstOrNull()
 
-        // Calcular puntaje y ordenar
+        // Calcular puntaje para cada receta segura
         val recetaConPuntaje = recetasSeguras.map { receta ->
             receta to calcularPuntaje(receta, usuario)
-        }.sortedByDescending { it.second }
+        }
 
-        return recetaConPuntaje.firstOrNull()?.first
+        // Obtener el puntaje máximo y elegir aleatoriamente entre las recetas con mejor puntaje
+        val maxScore = recetaConPuntaje.maxOfOrNull { it.second } ?: 0
+        val mejoresRecetas = recetaConPuntaje.filter { it.second == maxScore }.map { it.first }
+
+        return mejoresRecetas.shuffled().firstOrNull() ?: recetasSeguras.shuffled().firstOrNull()
     }
 
     private fun calcularPuntaje(receta: Receta, usuario: Usuario): Int {

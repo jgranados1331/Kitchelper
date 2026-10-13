@@ -9,27 +9,37 @@ class FavoriteRepository(private val db: FirebaseFirestore = FirebaseFirestore.g
 
     /**
      * Alternar estado de favorito para un usuario y receta.
-     * Devuelve `true` si se agregó a favoritos, o `false` si se removió.
+     * Guarda la información dentro del árbol del usuario (`usuarios/{userId}/favoritos/{recetaId}`)
+     * para garantizar los permisos de Firestore sin errores de "Acceso Denegado".
      */
     suspend fun toggleFavorito(userId: String, recetaId: String): Result<Boolean> {
         return try {
-            val docId = "${userId}_${recetaId}"
-            val docRef = db.collection("favoritos").document(docId)
-            val snapshot = docRef.get().await()
+            val userFavRef = db.collection("usuarios")
+                .document(userId)
+                .collection("favoritos")
+                .document(recetaId)
+
+            val snapshot = userFavRef.get().await()
 
             if (snapshot.exists()) {
-                // Ya existe -> Eliminar de favoritos
-                docRef.delete().await()
+                // Ya existe en los favoritos del usuario -> Eliminar
+                userFavRef.delete().await()
+                try {
+                    db.collection("favoritos").document("${userId}_${recetaId}").delete().await()
+                } catch (_: Exception) {}
                 Result.success(false)
             } else {
-                // No existe -> Agregar a favoritos
+                // No existe -> Agregar a los favoritos del usuario
                 val favorito = Favorito(
-                    id = docId,
+                    id = recetaId,
                     userId = userId,
                     recetaId = recetaId,
                     fechaAgregado = System.currentTimeMillis()
                 )
-                docRef.set(favorito).await()
+                userFavRef.set(favorito).await()
+                try {
+                    db.collection("favoritos").document("${userId}_${recetaId}").set(favorito).await()
+                } catch (_: Exception) {}
                 Result.success(true)
             }
         } catch (e: Exception) {
@@ -42,11 +52,22 @@ class FavoriteRepository(private val db: FirebaseFirestore = FirebaseFirestore.g
      */
     suspend fun obtenerIdsFavoritos(userId: String): Result<Set<String>> {
         return try {
-            val snapshot = db.collection("favoritos")
-                .whereEqualTo("userId", userId)
+            val userFavs = db.collection("usuarios")
+                .document(userId)
+                .collection("favoritos")
                 .get()
                 .await()
-            val ids = snapshot.documents.mapNotNull { it.getString("recetaId") }.toSet()
+
+            val ids = userFavs.documents.map { it.id }.toMutableSet()
+
+            try {
+                val rootFavs = db.collection("favoritos")
+                    .whereEqualTo("userId", userId)
+                    .get()
+                    .await()
+                rootFavs.documents.mapNotNull { it.getString("recetaId") }.forEach { ids.add(it) }
+            } catch (_: Exception) {}
+
             Result.success(ids)
         } catch (e: Exception) {
             Result.failure(e)
@@ -58,12 +79,8 @@ class FavoriteRepository(private val db: FirebaseFirestore = FirebaseFirestore.g
      */
     suspend fun obtenerRecetasFavoritas(userId: String): Result<List<Receta>> {
         return try {
-            val snapshotFavs = db.collection("favoritos")
-                .whereEqualTo("userId", userId)
-                .get()
-                .await()
-
-            val recetaIds = snapshotFavs.documents.mapNotNull { it.getString("recetaId") }
+            val idsResult = obtenerIdsFavoritos(userId)
+            val recetaIds = idsResult.getOrNull() ?: emptySet()
             if (recetaIds.isEmpty()) {
                 return Result.success(emptyList())
             }

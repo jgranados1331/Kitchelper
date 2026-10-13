@@ -27,6 +27,7 @@ val VERDE_CLARO = Color(0xFFC5D86D)
 val CREMA = Color(0xFFFDF6EC)
 val NARANJA = Color(0xFFE07A5F)
 val GRIS_TEXTO = Color(0xFF4A4A4A)
+val NEGRO_OPCIONES = Color(0xFF1A1A1A) // Color oscuro de alto contraste
 
 // Listas de opciones comunes para salud
 val OPCIONES_ALERGIAS = listOf(
@@ -56,9 +57,9 @@ fun CampoTexto(
         Text(
             label,
             fontFamily = InterFamily,
-            fontSize = 12.sp,
-            color = GRIS_TEXTO,
-            fontWeight = FontWeight.Medium
+            fontSize = 13.sp,
+            color = NEGRO_OPCIONES,
+            fontWeight = FontWeight.Bold
         )
         Spacer(modifier = Modifier.height(4.dp))
         OutlinedTextField(
@@ -71,8 +72,8 @@ fun CampoTexto(
                 unfocusedContainerColor = Color(0xFFEBEBEB),
                 focusedBorderColor = Color.Transparent,
                 unfocusedBorderColor = Color.Transparent,
-                focusedTextColor = GRIS_TEXTO,
-                unfocusedTextColor = GRIS_TEXTO
+                focusedTextColor = NEGRO_OPCIONES,
+                unfocusedTextColor = NEGRO_OPCIONES
             ),
             keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
             modifier = Modifier.fillMaxWidth()
@@ -94,9 +95,9 @@ fun DropdownField(
         Text(
             label,
             fontFamily = InterFamily,
-            fontSize = 12.sp,
-            color = GRIS_TEXTO,
-            fontWeight = FontWeight.Medium
+            fontSize = 13.sp,
+            color = NEGRO_OPCIONES,
+            fontWeight = FontWeight.Bold
         )
         Spacer(modifier = Modifier.height(4.dp))
         Box {
@@ -105,7 +106,7 @@ fun DropdownField(
                 color = Color(0xFFEBEBEB),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(48.dp)
+                    .height(50.dp)
                     .clickable { expandido = true }
             ) {
                 Row(
@@ -115,24 +116,25 @@ fun DropdownField(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        valorSeleccionado.ifBlank { "Selecciona..." },
+                        valorSeleccionado.ifBlank { "Selecciona una opción..." },
                         fontFamily = InterFamily,
-                        color = GRIS_TEXTO,
-                        fontSize = 14.sp,
+                        color = NEGRO_OPCIONES,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 15.sp,
                         modifier = Modifier.weight(1f)
                     )
-                    // Ícono desplegable estilo círculo con flecha hacia abajo
+                    // Ícono desplegable
                     Surface(
                         shape = CircleShape,
                         color = Color.White,
-                        modifier = Modifier.size(24.dp)
+                        modifier = Modifier.size(26.dp)
                     ) {
                         Box(contentAlignment = Alignment.Center) {
                             Icon(
                                 Icons.Default.ArrowDownward,
                                 contentDescription = "Desplegar",
                                 tint = NARANJA,
-                                modifier = Modifier.size(14.dp)
+                                modifier = Modifier.size(16.dp)
                             )
                         }
                     }
@@ -145,7 +147,15 @@ fun DropdownField(
             ) {
                 opciones.forEach { opcion ->
                     DropdownMenuItem(
-                        text = { Text(opcion, fontFamily = InterFamily, fontSize = 14.sp) },
+                        text = {
+                            Text(
+                                opcion,
+                                fontFamily = InterFamily,
+                                fontSize = 15.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = NEGRO_OPCIONES
+                            )
+                        },
                         onClick = {
                             onValorChange(opcion)
                             expandido = false
@@ -169,9 +179,9 @@ fun ChipsSeleccionUnica(
         Text(
             label,
             fontFamily = InterFamily,
-            fontSize = 12.sp,
-            color = GRIS_TEXTO,
-            fontWeight = FontWeight.Medium
+            fontSize = 13.sp,
+            color = NEGRO_OPCIONES,
+            fontWeight = FontWeight.Bold
         )
         Spacer(modifier = Modifier.height(6.dp))
         Row(
@@ -194,8 +204,9 @@ fun ChipsSeleccionUnica(
                     Text(
                         opcion,
                         fontFamily = InterFamily,
-                        fontSize = 13.sp,
-                        color = GRIS_TEXTO
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = NEGRO_OPCIONES
                     )
                 }
             }
@@ -221,18 +232,18 @@ fun ListaDinamicaDesplegable(
             Text(
                 label,
                 fontFamily = InterFamily,
-                fontSize = 12.sp,
-                color = GRIS_TEXTO,
-                fontWeight = FontWeight.Medium
+                fontSize = 13.sp,
+                color = NEGRO_OPCIONES,
+                fontWeight = FontWeight.Bold
             )
             Spacer(modifier = Modifier.width(6.dp))
-            // Botón de más '+' redondo para abrir opciones desplegables
+            // Botón + redondo
             Box {
                 Surface(
                     shape = CircleShape,
                     color = Color(0xFFEBEBEB),
                     modifier = Modifier
-                        .size(24.dp)
+                        .size(26.dp)
                         .clickable { mostrarMenu = true }
                 ) {
                     Box(contentAlignment = Alignment.Center) {
@@ -240,7 +251,7 @@ fun ListaDinamicaDesplegable(
                             Icons.Default.Add,
                             contentDescription = "Agregar $label",
                             tint = NARANJA,
-                            modifier = Modifier.size(16.dp)
+                            modifier = Modifier.size(18.dp)
                         )
                     }
                 }
@@ -252,7 +263,15 @@ fun ListaDinamicaDesplegable(
                 ) {
                     opcionesComunes.forEach { opcion ->
                         DropdownMenuItem(
-                            text = { Text(opcion, fontFamily = InterFamily, fontSize = 14.sp) },
+                            text = {
+                                Text(
+                                    opcion,
+                                    fontFamily = InterFamily,
+                                    fontSize = 15.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = NEGRO_OPCIONES
+                                )
+                            },
                             onClick = {
                                 mostrarMenu = false
                                 if (opcion == "Otra...") {
@@ -279,14 +298,16 @@ fun ListaDinamicaDesplegable(
                 OutlinedTextField(
                     value = otroTexto,
                     onValueChange = { otroTexto = it },
-                    placeholder = { Text("Escribe...", fontFamily = InterFamily, fontSize = 12.sp) },
+                    placeholder = { Text("Escribe...", fontFamily = InterFamily, fontSize = 13.sp) },
                     singleLine = true,
                     shape = RoundedCornerShape(12.dp),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedContainerColor = Color(0xFFEBEBEB),
                         unfocusedContainerColor = Color(0xFFEBEBEB),
                         focusedBorderColor = Color.Transparent,
-                        unfocusedBorderColor = Color.Transparent
+                        unfocusedBorderColor = Color.Transparent,
+                        focusedTextColor = NEGRO_OPCIONES,
+                        unfocusedTextColor = NEGRO_OPCIONES
                     ),
                     modifier = Modifier.weight(1f)
                 )
@@ -309,20 +330,20 @@ fun ListaDinamicaDesplegable(
 
         Spacer(modifier = Modifier.height(6.dp))
 
-        // Lista de chips con su botón '-'
+        // Lista de chips agregados
         items.forEach { item ->
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 2.dp)
+                    .padding(vertical = 3.dp)
             ) {
                 Text(
                     item,
                     fontFamily = InterFamily,
                     color = NARANJA,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Medium,
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(start = 8.dp)
                 )
                 Spacer(modifier = Modifier.width(6.dp))
@@ -330,7 +351,7 @@ fun ListaDinamicaDesplegable(
                     shape = CircleShape,
                     color = Color(0xFFEBEBEB),
                     modifier = Modifier
-                        .size(20.dp)
+                        .size(22.dp)
                         .clickable { onEliminar(item) }
                 ) {
                     Box(contentAlignment = Alignment.Center) {
@@ -338,7 +359,7 @@ fun ListaDinamicaDesplegable(
                             Icons.Default.Remove,
                             contentDescription = "Eliminar",
                             tint = Color.Gray,
-                            modifier = Modifier.size(12.dp)
+                            modifier = Modifier.size(14.dp)
                         )
                     }
                 }

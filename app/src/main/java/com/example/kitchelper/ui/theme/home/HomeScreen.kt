@@ -17,6 +17,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.kitchelper.ui.theme.FrauncesFamily
 import com.example.kitchelper.ui.theme.InterFamily
+import com.example.kitchelper.ui.theme.auth.AuthLoadingDialog
 import com.example.kitchelper.ui.theme.components.BarraNavegacionInferior
 import com.example.kitchelper.ui.theme.navigation.Routes
 
@@ -28,11 +29,14 @@ fun HomeScreen(
     val state by viewModel.state.collectAsState()
     var menuExpandido by remember { mutableStateOf(false) }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFFFDF6EC))
-    ) {
+    if (state.isLoading) {
+        AuthLoadingDialog(message = "Entrando a la cocina y preparando tus recetas...")
+    } else {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color(0xFFFDF6EC))
+        ) {
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(bottom = 110.dp)
@@ -148,7 +152,7 @@ fun HomeScreen(
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF4A4A4A)
                     )
-                    TextButton(onClick = { navController.navigate(Routes.RECIPES) }) {
+                    TextButton(onClick = { navController.navigate(Routes.PRACTICES) }) {
                         Text(
                             "VER TODO",
                             fontFamily = InterFamily,
@@ -169,7 +173,7 @@ fun HomeScreen(
 
         // Barra de navegación inferior flotante
 
-        BarraNavegacionInferior(
+         BarraNavegacionInferior(
             modifier = Modifier.align(Alignment.BottomCenter),
             rutaActual = "home",
             onInicioClick = { /* Ya estamos en Home */ },
@@ -179,4 +183,5 @@ fun HomeScreen(
             onFlechaClick = { navController.navigate(Routes.CREATE_RECIPE) }
         )
     }
+}
 }
