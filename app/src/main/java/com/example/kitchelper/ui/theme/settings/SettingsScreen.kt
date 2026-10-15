@@ -45,7 +45,7 @@ fun SettingsScreen(navController: NavController) {
     val context = LocalContext.current
 
     var idiomaSeleccionado by remember { mutableStateOf("Español") }
-    var modoOscuroActivo by remember { mutableStateOf(false) }
+    val modoOscuroActivo by com.example.kitchelper.ui.theme.ThemeManager.isDarkTheme.collectAsState()
     var notificacionesActivas by remember { mutableStateOf(true) }
 
     var showTerminosDialog by remember { mutableStateOf(false) }
@@ -159,7 +159,7 @@ fun SettingsScreen(navController: NavController) {
                     Switch(
                         checked = modoOscuroActivo,
                         onCheckedChange = {
-                            modoOscuroActivo = it
+                            com.example.kitchelper.ui.theme.ThemeManager.setDarkTheme(it)
                             Toast.makeText(context, if (it) "Modo Oscuro activado" else "Modo Claro activado", Toast.LENGTH_SHORT).show()
                         },
                         colors = SwitchDefaults.colors(checkedThumbColor = Color.White, checkedTrackColor = VERDE_KITCHEN)

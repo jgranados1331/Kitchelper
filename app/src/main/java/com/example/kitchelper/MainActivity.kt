@@ -30,13 +30,17 @@ import com.example.kitchelper.ui.theme.recipes.CreateRecipeScreen
 import com.example.kitchelper.ui.theme.practices.PracticesScreen
 import com.example.kitchelper.ui.theme.practices.PracticeDetailScreen
 import com.example.kitchelper.ui.theme.navigation.Routes
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import com.example.kitchelper.ui.theme.ThemeManager
 import com.example.kitchelper.ui.theme.KitchelperTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            KitchelperTheme {
+            val isDark by ThemeManager.isDarkTheme.collectAsState()
+            KitchelperTheme(darkTheme = isDark) {
                 Surface(
                     color = MaterialTheme.colorScheme.background,
                     modifier = Modifier.fillMaxSize()

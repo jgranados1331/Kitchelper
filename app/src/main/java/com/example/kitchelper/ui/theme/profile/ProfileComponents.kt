@@ -22,13 +22,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.kitchelper.ui.theme.InterFamily
 
-// Colores del tema
-val VERDE_KITCHEN = Color(0xFF4A6B4A)
-val VERDE_CLARO = Color(0xFFC5D86D)
-val CREMA = Color(0xFFFDF6EC)
-val NARANJA = Color(0xFFE07A5F)
-val GRIS_TEXTO = Color(0xFF4A4A4A)
-val NEGRO_OPCIONES = Color(0xFF1A1A1A) // Color oscuro de alto contraste
+// Colores dinámicos del tema según modo Claro / Oscuro
+val VERDE_KITCHEN @Composable get() = MaterialTheme.colorScheme.primary
+val VERDE_CLARO @Composable get() = Color(0xFFC5D86D)
+val CREMA @Composable get() = MaterialTheme.colorScheme.background
+val NARANJA @Composable get() = MaterialTheme.colorScheme.secondary
+val GRIS_TEXTO @Composable get() = MaterialTheme.colorScheme.onSurfaceVariant
+val NEGRO_OPCIONES @Composable get() = MaterialTheme.colorScheme.onSurface
 
 // Listas de opciones comunes para salud
 val OPCIONES_ALERGIAS = listOf(
