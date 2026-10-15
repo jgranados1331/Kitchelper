@@ -2,14 +2,13 @@ package com.example.kitchelper.data.repository
 
 import android.content.Context
 import android.net.Uri
+import android.util.Base64
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.Credentials
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 import java.io.InputStream
 import java.util.UUID
@@ -35,7 +34,7 @@ class ImageKitRepository {
         try {
             if (privateKey.isBlank()) {
                 return@withContext Result.failure(
-                    Exception("Falta configurar la Private Key de ImageKit.io. La puedes encontrar en ImageKit Dashboard -> Developer Options -> API Keys (empieza con 'private_').")
+                    Exception("Falta configurar la Private Key de ImageKit.io.")
                 )
             }
 
@@ -54,22 +53,22 @@ class ImageKitRepository {
                 else -> "jpg"
             }
             val fileName = "${nombreArchivoPrefijo}_${UUID.randomUUID()}.$fileExtension"
-            val mediaType = mimeType.toMediaTypeOrNull() ?: "image/jpeg".toMediaTypeOrNull()
-            val fileBody = bytes.toRequestBody(mediaType)
-
             val cleanFolder = if (folder.startsWith("/")) folder else "/$folder"
 
-            // Subida mediante Multipart
+            // Base64 puro de los bytes del archivo
+            val base64Data = Base64.encodeToString(bytes, Base64.NO_WRAP)
+
+            // Petición Multipart pasando la cadena Base64 que requiere ImageKit API
             val requestBody = MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
-                .addFormDataPart("file", fileName, fileBody)
+                .addFormDataPart("file", base64Data)
                 .addFormDataPart("fileName", fileName)
                 .addFormDataPart("publicKey", publicKey)
                 .addFormDataPart("useUniqueFileName", "true")
                 .addFormDataPart("folder", cleanFolder)
                 .build()
 
-            // Autenticación HTTP Basic requerida por ImageKit API mediante Private Key
+            // Autenticación HTTP Basic requerida por la API de ImageKit mediante Private Key
             val authCredential = Credentials.basic(privateKey + ":", "")
 
             val request = Request.Builder()

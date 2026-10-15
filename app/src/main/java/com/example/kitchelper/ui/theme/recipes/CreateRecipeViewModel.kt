@@ -37,6 +37,7 @@ data class PasoItemState(
 )
 
 data class CreateRecipeState(
+    val editingRecipeId: String? = null,
     val esPracticaBasica: Boolean = false, // Toggle entre Receta y Práctica Básica
     val titulo: String = "",
     val descripcion: String = "",
@@ -69,6 +70,43 @@ class CreateRecipeViewModel(
     private val _state = MutableStateFlow(CreateRecipeState())
     val state: StateFlow<CreateRecipeState> = _state.asStateFlow()
 
+    fun cargarParaEditar(recetaId: String) {
+        if (recetaId.isBlank()) return
+        viewModelScope.launch {
+            _state.value = _state.value.copy(isSaving = true)
+            val result = recipeRepo.obtenerReceta(recetaId)
+            result.onSuccess { receta ->
+                if (receta != null) {
+                    _state.value = CreateRecipeState(
+                        editingRecipeId = receta.id,
+                        esPracticaBasica = false,
+                        titulo = receta.titulo,
+                        descripcion = receta.descripcion,
+                        categoria = receta.categoria.ifBlank { "Desayuno" },
+                        dificultad = receta.dificultad.ifBlank { "Principiante" },
+                        tiempoMinutosText = receta.tiempoMinutos.toString(),
+                        imagenPrincipalUrl = receta.imagenUrl,
+                        videoPrincipalUrl = receta.videoUrl,
+                        ingredientes = receta.ingredientes.map {
+                            IngredienteItemState(nombre = it.nombre, cantidad = it.cantidad, imagenUrl = it.imagenUrl)
+                        }.ifEmpty { listOf(IngredienteItemState()) },
+                        pasos = receta.pasos.map {
+                            PasoItemState(orden = it.orden, descripcion = it.descripcion, imagenUrl = it.imagenUrl, videoUrl = it.videoUrl)
+                        }.ifEmpty { listOf(PasoItemState(orden = 1)) },
+                        incluyeAR = receta.ar?.tieneAR == true,
+                        instruccionAR = receta.ar?.instruccionAR ?: "",
+                        modelo3DUrlAR = receta.ar?.modelo3DUrl ?: "",
+                        tagsText = receta.tags.joinToString(", ")
+                    )
+                } else {
+                    _state.value = _state.value.copy(isSaving = false)
+                }
+            }.onFailure {
+                _state.value = _state.value.copy(isSaving = false)
+            }
+        }
+    }
+
     // ===== Toggle Tipo de Creación (Receta vs Práctica) =====
     fun toggleEsPracticaBasica(esPractica: Boolean) {
         _state.value = _state.value.copy(esPracticaBasica = esPractica)
@@ -87,7 +125,7 @@ class CreateRecipeViewModel(
     fun toggleIncluyeAR(v: Boolean) { _state.value = _state.value.copy(incluyeAR = v) }
     fun actualizarInstruccionAR(v: String) { _state.value = _state.value.copy(instruccionAR = v) }
 
-    // ===== Subida de imágenes con ImageKit.io y carpetas específicas =====
+    // ===== Subida de imágenes con ImageKit.io =====
 
     fun subirImagenPrincipal(context: Context, uri: Uri) {
         val folder = if (_state.value.esPracticaBasica) "/Kitchelper/Practicas" else "/Kitchelper/Recetas"
@@ -171,7 +209,7 @@ class CreateRecipeViewModel(
                     isUploading = false,
                     uploadProgressMessage = null,
                     modelo3DUrlAR = url,
-                    mensajeExito = "Modelo 3D cargado correctamente"
+                    mensajeExito = "Modelo 3D cargado con éxito"
                 )
             }.onFailure { err ->
                 _state.value = _state.value.copy(
@@ -227,7 +265,7 @@ class CreateRecipeViewModel(
         _state.value = _state.value.copy(pasos = lista)
     }
 
-    // ===== Publicar Receta o Práctica Básica en Firestore =====
+    // ===== Publicar o Actualizar Receta o Práctica Básica en Firestore =====
 
     fun guardarReceta() {
         val st = _state.value
@@ -241,7 +279,14 @@ class CreateRecipeViewModel(
             return
         }
 
-        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: "anonimo"
+        // Verificación estricta de sesión de usuario de Firebase Auth
+        val currentUser = FirebaseAuth.getInstance().currentUser
+        if (currentUser == null || currentUser.uid.isBlank()) {
+            _state.value = st.copy(mensajeError = "Debes iniciar sesión para publicar o guardar recetas.")
+            return
+        }
+        val userId = currentUser.uid
+
         val tagsList = st.tagsText.split(",").map { it.trim() }.filter { it.isNotBlank() }
 
         val arData = if (st.incluyeAR) {
@@ -278,16 +323,16 @@ class CreateRecipeViewModel(
                     _state.value = _state.value.copy(
                         isSaving = false,
                         guardadoExitoso = true,
-                        mensajeExito = "¡Práctica básica creada con éxito!"
+                        mensajeExito = "¡Práctica básica guardada con éxito!"
                     )
                 }.onFailure { err ->
                     _state.value = _state.value.copy(
                         isSaving = false,
-                        mensajeError = "Error al crear la práctica: ${err.message}"
+                        mensajeError = "Error al guardar la práctica: ${err.message}"
                     )
                 }
             } else {
-                // Guardar como Receta
+                // Guardar o Actualizar como Receta
                 val ingredientesFinales = st.ingredientes.mapNotNull {
                     if (it.nombre.isNotBlank()) {
                         Ingrediente(nombre = it.nombre.trim(), cantidad = it.cantidad.trim(), imagenUrl = it.imagenUrl)
@@ -308,7 +353,8 @@ class CreateRecipeViewModel(
                 val userDoc = userRepo.obtenerUsuario(userId).getOrNull()
                 val autorNombre = userDoc?.nombre?.takeIf { it.isNotBlank() } ?: "Chef KitchenPer"
 
-                val nuevaReceta = Receta(
+                val recetaFinal = Receta(
+                    id = st.editingRecipeId ?: "",
                     titulo = st.titulo.trim(),
                     descripcion = st.descripcion.trim(),
                     dificultad = st.dificultad,
@@ -326,17 +372,25 @@ class CreateRecipeViewModel(
                     ar = arData
                 )
 
-                val result = recipeRepo.crearReceta(nuevaReceta)
+                val result = if (st.editingRecipeId != null && st.editingRecipeId.isNotBlank()) {
+                    recipeRepo.actualizarReceta(recetaFinal).map { st.editingRecipeId }
+                } else {
+                    recipeRepo.crearReceta(recetaFinal)
+                }
+
                 result.onSuccess {
                     _state.value = _state.value.copy(
                         isSaving = false,
                         guardadoExitoso = true,
-                        mensajeExito = "¡Receta creada con éxito!"
+                        mensajeExito = if (st.editingRecipeId != null) "¡Receta actualizada con éxito!" else "¡Receta publicada con éxito!"
                     )
                 }.onFailure { err ->
+                    val msg = if (err.message?.contains("permission", ignoreCase = true) == true) {
+                        "Permiso denegado por Firestore. Verifica que tu sesión siga activa."
+                    } else err.message ?: "Error desconocido al guardar"
                     _state.value = _state.value.copy(
                         isSaving = false,
-                        mensajeError = "Error al crear la receta: ${err.message}"
+                        mensajeError = msg
                     )
                 }
             }

@@ -51,14 +51,19 @@ class HomeViewModel(
             val recetasResult = recipeRepo.obtenerRecetas()
             val recetas = recetasResult.getOrNull() ?: emptyList()
 
-            // 3. Cargar prácticas
+            // 3. Cargar prácticas y aplicar rotación de 24 horas
             val practicasResult = practiceRepo.obtenerPracticas()
             val practicas = practicasResult.getOrNull() ?: emptyList()
+
+            val seedDia = System.currentTimeMillis() / (1000 * 60 * 60 * 24)
+            val practicasHoy24h = if (practicas.isNotEmpty()) {
+                practicas.shuffled(java.util.Random(seedDia)).take(2)
+            } else emptyList()
 
             // 4. Seleccionar receta destacada (aleatoria o personalizada)
             val recetaDestacada = seleccionarRecetaDestacada(recetas, usuario)
 
-            // 5. Filtrar recetas por nivel del usuario (con fallback a cualquier receta si no hay o está vacío)
+            // 5. Filtrar recetas por nivel del usuario
             val nivel = usuario?.informacionCulinaria?.experticia?.takeIf { it.isNotBlank() } ?: "Principiante"
             var recetasDelNivel = recetas.filter { receta ->
                 receta.dificultad.equals(nivel, ignoreCase = true) ||
@@ -73,7 +78,7 @@ class HomeViewModel(
                 usuario = usuario,
                 recetaDestacada = recetaDestacada,
                 recetasDelNivel = recetasDelNivel,
-                practicasBasicas = practicas.take(2),
+                practicasBasicas = practicasHoy24h,
                 nivelSeleccionado = nivel
             )
         }

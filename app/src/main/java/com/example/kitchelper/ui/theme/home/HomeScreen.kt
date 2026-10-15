@@ -50,7 +50,7 @@ fun HomeScreen(
                     onToggleMenu = { menuExpandido = !menuExpandido },
                     onPerfilClick = { navController.navigate(Routes.PROFILE) },
                     onPuntosClick = { navController.navigate(Routes.PROFILE) },
-                    onConfiguracionClick = { navController.navigate(Routes.PROFILE) },
+                    onConfiguracionClick = { navController.navigate(Routes.SETTINGS) },
                     onCerrarSesionClick = {
                         navController.navigate(Routes.LOGIN) {
                             popUpTo(0) { inclusive = true }

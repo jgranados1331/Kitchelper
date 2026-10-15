@@ -19,10 +19,13 @@ import com.example.kitchelper.ui.theme.auth.LoginScreen
 import com.example.kitchelper.ui.theme.auth.RegisterScreen
 import com.example.kitchelper.ui.theme.auth.SplashScreen
 import com.example.kitchelper.ui.theme.home.HomeScreen
+import com.example.kitchelper.ui.theme.home.TodayBasicsScreen
 import com.example.kitchelper.ui.theme.profile.ProfileScreen
+import com.example.kitchelper.ui.theme.settings.SettingsScreen
 import com.example.kitchelper.ui.theme.favorites.FavoritesScreen
 import com.example.kitchelper.ui.theme.recipes.RecipesScreen
 import com.example.kitchelper.ui.theme.recipes.RecipeDetailScreen
+import com.example.kitchelper.ui.theme.recipes.RecipeStepViewerScreen
 import com.example.kitchelper.ui.theme.recipes.CreateRecipeScreen
 import com.example.kitchelper.ui.theme.practices.PracticesScreen
 import com.example.kitchelper.ui.theme.practices.PracticeDetailScreen
@@ -73,9 +76,12 @@ fun AppNavigation() {
             HomeScreen(navController = navController)
         }
 
-        // ===== MÓDULO 3: PERFIL =====
+        // ===== MÓDULO 3: PERFIL Y CONFIGURACIÓN =====
         composable(Routes.PROFILE) {
             ProfileScreen(navController = navController)
+        }
+        composable(Routes.SETTINGS) {
+            SettingsScreen(navController = navController)
         }
 
         // ===== MÓDULO 4: RECETAS =====
@@ -92,9 +98,19 @@ fun AppNavigation() {
             val recetaId = backStackEntry.arguments?.getString("recetaId") ?: ""
             RecipeDetailScreen(recetaId = recetaId, navController = navController)
         }
+        composable(
+            route = Routes.RECIPE_STEP_VIEWER,
+            arguments = listOf(androidx.navigation.navArgument("recetaId") {})
+        ) { backStackEntry ->
+            val recetaId = backStackEntry.arguments?.getString("recetaId") ?: ""
+            RecipeStepViewerScreen(recetaId = recetaId, navController = navController)
+        }
 
         composable(Routes.PRACTICES) {
             PracticesScreen(navController = navController)
+        }
+        composable(Routes.TODAY_BASICS) {
+            TodayBasicsScreen(navController = navController)
         }
 
         // ===== MÓDULO 5: PRÁCTICAS =====
@@ -125,9 +141,16 @@ fun AppNavigation() {
             PlaceholderScreen("AR Práctica: $practicaId")
         }
 
-        // ===== MÓDULO 7: CREAR RECETA =====
+        // ===== MÓDULO 7: CREAR / EDITAR RECETA =====
         composable(Routes.CREATE_RECIPE) {
             CreateRecipeScreen(navController = navController)
+        }
+        composable(
+            route = "create_recipe?recetaId={recetaId}",
+            arguments = listOf(androidx.navigation.navArgument("recetaId") { nullable = true })
+        ) { backStackEntry ->
+            val recetaId = backStackEntry.arguments?.getString("recetaId") ?: ""
+            CreateRecipeScreen(navController = navController, recetaIdToEdit = recetaId)
         }
     }
 }

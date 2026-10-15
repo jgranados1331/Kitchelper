@@ -33,10 +33,17 @@ import com.example.kitchelper.ui.theme.profile.VERDE_KITCHEN
 @Composable
 fun CreateRecipeScreen(
     navController: NavController,
+    recetaIdToEdit: String? = null,
     viewModel: CreateRecipeViewModel = viewModel()
 ) {
     val state by viewModel.state.collectAsState()
     val context = LocalContext.current
+
+    LaunchedEffect(recetaIdToEdit) {
+        if (!recetaIdToEdit.isNullOrBlank()) {
+            viewModel.cargarParaEditar(recetaIdToEdit)
+        }
+    }
 
     // Notificaciones y navegación al guardar
     LaunchedEffect(state.guardadoExitoso) {

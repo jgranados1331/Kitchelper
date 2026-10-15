@@ -84,14 +84,14 @@ fun HeaderHome(
                     }
                 }
 
-                // Menú desplegable solicitado: PERFIL, PUNTOS, CONFIGURACIÓN, CERRAR SESIÓN
+                // Menú desplegable con alta visibilidad
                 DropdownMenu(
                     expanded = menuExpandido,
                     onDismissRequest = onToggleMenu,
                     modifier = Modifier.background(Color.White)
                 ) {
                     DropdownMenuItem(
-                        text = { Text("PERFIL", fontFamily = InterFamily, fontWeight = FontWeight.Bold) },
+                        text = { Text("PERFIL", fontFamily = InterFamily, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color(0xFF1A1A1A)) },
                         onClick = {
                             onToggleMenu()
                             onPerfilClick()
@@ -101,7 +101,7 @@ fun HeaderHome(
                         }
                     )
                     DropdownMenuItem(
-                        text = { Text("PUNTOS", fontFamily = InterFamily, fontWeight = FontWeight.Bold) },
+                        text = { Text("PUNTOS", fontFamily = InterFamily, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color(0xFF1A1A1A)) },
                         onClick = {
                             onToggleMenu()
                             onPuntosClick()
@@ -111,7 +111,7 @@ fun HeaderHome(
                         }
                     )
                     DropdownMenuItem(
-                        text = { Text("CONFIGURACIÓN", fontFamily = InterFamily, fontWeight = FontWeight.Bold) },
+                        text = { Text("CONFIGURACIÓN", fontFamily = InterFamily, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color(0xFF1A1A1A)) },
                         onClick = {
                             onToggleMenu()
                             onConfiguracionClick()
@@ -122,13 +122,13 @@ fun HeaderHome(
                     )
                     HorizontalDivider()
                     DropdownMenuItem(
-                        text = { Text("CERRAR SESIÓN", fontFamily = InterFamily, fontWeight = FontWeight.Bold, color = Color.Red) },
+                        text = { Text("CERRAR SESIÓN", fontFamily = InterFamily, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color(0xFFE53935)) },
                         onClick = {
                             onToggleMenu()
                             onCerrarSesionClick()
                         },
                         leadingIcon = {
-                            Icon(Icons.Default.ExitToApp, contentDescription = null, tint = Color.Red)
+                            Icon(Icons.Default.ExitToApp, contentDescription = null, tint = Color(0xFFE53935))
                         }
                     )
                 }

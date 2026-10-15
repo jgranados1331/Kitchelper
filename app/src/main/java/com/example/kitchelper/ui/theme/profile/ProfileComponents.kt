@@ -9,6 +9,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDownward
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -51,29 +52,45 @@ fun CampoTexto(
     label: String,
     valor: String,
     onValorChange: (String) -> Unit,
+    enabled: Boolean = true,
     keyboardType: KeyboardType = KeyboardType.Text
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
-        Text(
-            label,
-            fontFamily = InterFamily,
-            fontSize = 13.sp,
-            color = NEGRO_OPCIONES,
-            fontWeight = FontWeight.Bold
-        )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                label,
+                fontFamily = InterFamily,
+                fontSize = 13.sp,
+                color = if (enabled) NEGRO_OPCIONES else Color.Gray,
+                fontWeight = FontWeight.Bold
+            )
+            if (!enabled) {
+                Spacer(modifier = Modifier.width(6.dp))
+                Icon(
+                    Icons.Default.Lock,
+                    contentDescription = "Protegido",
+                    tint = Color.Gray,
+                    modifier = Modifier.size(14.dp)
+                )
+            }
+        }
         Spacer(modifier = Modifier.height(4.dp))
         OutlinedTextField(
             value = valor,
             onValueChange = onValorChange,
+            enabled = enabled,
             singleLine = true,
             shape = RoundedCornerShape(14.dp),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedContainerColor = Color(0xFFEBEBEB),
                 unfocusedContainerColor = Color(0xFFEBEBEB),
+                disabledContainerColor = Color(0xFFE0E0E0),
                 focusedBorderColor = Color.Transparent,
                 unfocusedBorderColor = Color.Transparent,
+                disabledBorderColor = Color.Transparent,
                 focusedTextColor = NEGRO_OPCIONES,
-                unfocusedTextColor = NEGRO_OPCIONES
+                unfocusedTextColor = NEGRO_OPCIONES,
+                disabledTextColor = Color.DarkGray
             ),
             keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
             modifier = Modifier.fillMaxWidth()

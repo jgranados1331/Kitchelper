@@ -2,6 +2,7 @@ package com.example.kitchelper.ui.theme.recipes
 
 import android.content.Intent
 import android.net.Uri
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -13,6 +14,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.DinnerDining
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Restaurant
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Star
@@ -51,8 +53,6 @@ import com.example.kitchelper.ui.theme.profile.VERDE_KITCHEN
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
-val AMARILLO_ESTRELLA = Color(0xFFFFC107)
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecipeDetailScreen(recetaId: String, navController: NavController) {
@@ -66,12 +66,13 @@ fun RecipeDetailScreen(recetaId: String, navController: NavController) {
 
     LaunchedEffect(recetaId) {
         try {
-            val doc = FirebaseFirestore.getInstance().collection("recetas").document(recetaId).get().await()
-            receta = doc.toObject(Receta::class.java)?.copy(id = doc.id)
+            val result = com.example.kitchelper.data.repository.RecipeRepository().obtenerReceta(recetaId)
+            receta = result.getOrNull()
 
             if (userId.isNotBlank()) {
-                val favDoc = FirebaseFirestore.getInstance().collection("favoritos").document("${userId}_${recetaId}").get().await()
-                esFavorito = favDoc.exists()
+                val favsResult = FavoriteRepository().obtenerIdsFavoritos(userId)
+                val favSet = favsResult.getOrNull() ?: emptySet()
+                esFavorito = favSet.contains(recetaId)
             }
         } catch (_: Exception) {}
         isLoading = false
@@ -79,7 +80,7 @@ fun RecipeDetailScreen(recetaId: String, navController: NavController) {
 
     fun toggleFavorito() {
         if (userId.isBlank()) {
-            android.widget.Toast.makeText(context, "Debes iniciar sesión para guardar favoritos", android.widget.Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Debes iniciar sesión para guardar favoritos", Toast.LENGTH_SHORT).show()
             return
         }
         val estadoPrevio = esFavorito
@@ -89,10 +90,10 @@ fun RecipeDetailScreen(recetaId: String, navController: NavController) {
             result.onSuccess { estadoFinal ->
                 esFavorito = estadoFinal
                 val msg = if (estadoFinal) "¡Agregado a tus favoritos!" else "Eliminado de tus favoritos"
-                android.widget.Toast.makeText(context, msg, android.widget.Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
             }.onFailure { err ->
                 esFavorito = estadoPrevio
-                android.widget.Toast.makeText(context, "Error al actualizar favorito: ${err.message}", android.widget.Toast.LENGTH_LONG).show()
+                Toast.makeText(context, "Error al actualizar favorito: ${err.message}", Toast.LENGTH_LONG).show()
             }
         }
     }
@@ -223,7 +224,7 @@ fun RecipeDetailScreen(recetaId: String, navController: NavController) {
                                     )
                             )
 
-                            // Ícono de estrella interactivo (Amarillo si es favorito)
+                            // Ícono de estrella interactivo
                             Surface(
                                 shape = CircleShape,
                                 color = Color.Black.copy(alpha = 0.35f),
@@ -237,7 +238,7 @@ fun RecipeDetailScreen(recetaId: String, navController: NavController) {
                                     Icon(
                                         if (esFavorito) Icons.Default.Star else Icons.Default.StarBorder,
                                         contentDescription = "Favorito",
-                                        tint = if (esFavorito) AMARILLO_ESTRELLA else Color.White,
+                                        tint = if (esFavorito) Color(0xFFFFC107) else Color.White,
                                         modifier = Modifier.size(24.dp)
                                     )
                                 }
@@ -344,8 +345,15 @@ fun RecipeDetailScreen(recetaId: String, navController: NavController) {
                             onClick = {
                                 tabSeleccionada = "Video"
                                 if (currentReceta.videoUrl.isNotBlank()) {
-                                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(currentReceta.videoUrl))
-                                    context.startActivity(intent)
+                                    val videoLink = if (!currentReceta.videoUrl.startsWith("http")) "https://${currentReceta.videoUrl}" else currentReceta.videoUrl
+                                    try {
+                                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(videoLink))
+                                        context.startActivity(intent)
+                                    } catch (_: Exception) {
+                                        Toast.makeText(context, "No se pudo abrir el enlace de video", Toast.LENGTH_SHORT).show()
+                                    }
+                                } else {
+                                    Toast.makeText(context, "Esta receta no incluye un enlace de video de YouTube", Toast.LENGTH_SHORT).show()
                                 }
                             },
                             label = { Text("Video", fontFamily = InterFamily, fontWeight = FontWeight.Bold) },
@@ -396,21 +404,42 @@ fun RecipeDetailScreen(recetaId: String, navController: NavController) {
 
                 item { Spacer(modifier = Modifier.height(20.dp)) }
 
-                // ===== 6. SECCIÓN A PREPARAR! (PASOS DE PREPARACIÓN) =====
+                // ===== 6. SECCIÓN A PREPARAR! (BOTÓN DE COMENZAR PREPARACIÓN GUIADA) =====
                 item {
-                    Text(
-                        "A preparar!",
-                        fontFamily = InriaSerifFamily,
-                        fontSize = 22.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = GRIS_TEXTO,
-                        modifier = Modifier.padding(horizontal = 16.dp)
-                    )
-                    Spacer(modifier = Modifier.height(10.dp))
-                }
+                    Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+                        Text(
+                            "A preparar!",
+                            fontFamily = InriaSerifFamily,
+                            fontSize = 22.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = GRIS_TEXTO
+                        )
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Text(
+                            "Sigue la preparación paso a paso con fotos y asistencia guiada.",
+                            fontFamily = InterFamily,
+                            fontSize = 12.sp,
+                            color = Color.Gray
+                        )
+                        Spacer(modifier = Modifier.height(14.dp))
 
-                items(currentReceta.pasos) { paso ->
-                    ItemPasoDetalleCard(paso = paso)
+                        Button(
+                            onClick = { navController.navigate("recipe_step_viewer/${currentReceta.id}") },
+                            colors = ButtonDefaults.buttonColors(containerColor = NARANJA),
+                            shape = RoundedCornerShape(24.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(54.dp)
+                        ) {
+                            Text(
+                                "COMENZAR PREPARACIÓN PASO A PASO ▶",
+                                fontFamily = InterFamily,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 15.sp,
+                                color = Color.White
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -452,6 +481,8 @@ private fun MetricaItem(icon: ImageVector, label: String) {
 // ============ TARJETA DE INGREDIENTE EN DETALLE ============
 @Composable
 fun ItemIngredienteDetalleCard(ingrediente: Ingrediente) {
+    var showInfoDialog by remember { mutableStateOf(false) }
+
     Surface(
         shape = RoundedCornerShape(20.dp),
         color = Color.White,
@@ -499,7 +530,7 @@ fun ItemIngredienteDetalleCard(ingrediente: Ingrediente) {
                     color = GRIS_TEXTO
                 )
                 Text(
-                    "Detalles adicionales opcionales",
+                    "Ingrediente de la receta",
                     fontFamily = InterFamily,
                     fontSize = 11.sp,
                     color = Color.Gray
@@ -520,13 +551,106 @@ fun ItemIngredienteDetalleCard(ingrediente: Ingrediente) {
                     )
                 }
             }
+
+            // Botón de información (i) del ingrediente
+            Surface(
+                shape = CircleShape,
+                color = Color(0xFFF2F7EC),
+                modifier = Modifier
+                    .size(36.dp)
+                    .clickable { showInfoDialog = true }
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(
+                        Icons.Default.Info,
+                        contentDescription = "Información del ingrediente",
+                        tint = VERDE_KITCHEN,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+            }
         }
+    }
+
+    // Diálogo informativo del ingrediente
+    if (showInfoDialog) {
+        AlertDialog(
+            onDismissRequest = { showInfoDialog = false },
+            title = {
+                Text(
+                    "Información de ${ingrediente.nombre.ifBlank { "Ingrediente" }}",
+                    fontFamily = InriaSerifFamily,
+                    fontWeight = FontWeight.Bold,
+                    color = VERDE_KITCHEN
+                )
+            },
+            text = {
+                Column {
+                    Text(
+                        "🛒 Dónde comprar:",
+                        fontFamily = InterFamily,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 13.sp,
+                        color = NARANJA
+                    )
+                    Text(
+                        "Supermercados locales, plazas de mercado y tiendas de víveres.",
+                        fontFamily = InterFamily,
+                        fontSize = 12.sp,
+                        color = GRIS_TEXTO
+                    )
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    Text(
+                        "💰 Precio estimado:",
+                        fontFamily = InterFamily,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 13.sp,
+                        color = NARANJA
+                    )
+                    Text(
+                        "Rango promedio según presentación estándar de la porción.",
+                        fontFamily = InterFamily,
+                        fontSize = 12.sp,
+                        color = GRIS_TEXTO
+                    )
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    Text(
+                        "🤖 Asistencia Inteligente IA:",
+                        fontFamily = InterFamily,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 13.sp,
+                        color = VERDE_KITCHEN
+                    )
+                    Text(
+                        "Las sugerencias en tiempo real de disponibilidad por zona y precios exactos con IA aparecerán aquí.",
+                        fontFamily = InterFamily,
+                        fontSize = 12.sp,
+                        color = Color.Gray
+                    )
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = { showInfoDialog = false },
+                    colors = ButtonDefaults.buttonColors(containerColor = VERDE_KITCHEN)
+                ) {
+                    Text("Entendido", fontFamily = InterFamily, color = Color.White, fontWeight = FontWeight.Bold)
+                }
+            },
+            shape = RoundedCornerShape(20.dp),
+            containerColor = Color.White
+        )
     }
 }
 
 // ============ TARJETA DE PASO EN DETALLE ============
 @Composable
 fun ItemPasoDetalleCard(paso: Paso) {
+    val context = LocalContext.current
     val esPar = paso.orden % 2 == 0
     val backgroundColor = if (esPar) Color(0xFFB86400) else VERDE_KITCHEN
 
@@ -566,6 +690,36 @@ fun ItemPasoDetalleCard(paso: Paso) {
                         .height(140.dp)
                         .clip(RoundedCornerShape(12.dp))
                 )
+            }
+
+            if (paso.videoUrl.isNotBlank()) {
+                Spacer(modifier = Modifier.height(10.dp))
+                Surface(
+                    shape = RoundedCornerShape(12.dp),
+                    color = Color.White.copy(alpha = 0.25f),
+                    modifier = Modifier.clickable {
+                        val validUrl = if (!paso.videoUrl.startsWith("http")) "https://${paso.videoUrl}" else paso.videoUrl
+                        try {
+                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(validUrl))
+                            context.startActivity(intent)
+                        } catch (_: Exception) {
+                            Toast.makeText(context, "No se pudo abrir el video del paso", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            "▶ Ver video demostrativo de este paso",
+                            fontFamily = InterFamily,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White
+                        )
+                    }
+                }
             }
         }
     }

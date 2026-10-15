@@ -124,9 +124,10 @@ fun ProfileScreen(
                     )
                     Spacer(modifier = Modifier.height(12.dp))
                     CampoTexto(
-                        label = "Correo Electrónico",
+                        label = "Correo Electrónico (No modificable)",
                         valor = state.usuario.email,
-                        onValorChange = viewModel::actualizarEmail,
+                        onValorChange = {},
+                        enabled = false,
                         keyboardType = KeyboardType.Email
                     )
                     Spacer(modifier = Modifier.height(12.dp))

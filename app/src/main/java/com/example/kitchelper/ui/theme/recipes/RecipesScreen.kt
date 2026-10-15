@@ -1,5 +1,6 @@
 package com.example.kitchelper.ui.theme.recipes
 
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -13,6 +14,9 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.StarBorder
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -21,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -43,6 +48,21 @@ fun RecipesScreen(
     viewModel: RecipesViewModel = viewModel()
 ) {
     val state by viewModel.state.collectAsState()
+    val context = LocalContext.current
+
+    LaunchedEffect(state.mensajeExito) {
+        state.mensajeExito?.let {
+            Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+            viewModel.limpiarMensajes()
+        }
+    }
+
+    LaunchedEffect(state.errorMessage) {
+        state.errorMessage?.let {
+            Toast.makeText(context, it, Toast.LENGTH_LONG).show()
+            viewModel.limpiarMensajes()
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -65,13 +85,13 @@ fun RecipesScreen(
                 ) {
                     Column {
                         Text(
-                            "Nivel - Principiante",
+                            "Descubre y Crea",
                             fontFamily = InterFamily,
                             fontSize = 12.sp,
                             color = Color.Gray
                         )
                         Text(
-                            "KITCHELPER",
+                            "RECETAS",
                             fontFamily = FrauncesFamily,
                             fontSize = 24.sp,
                             fontWeight = FontWeight.Bold,
@@ -104,7 +124,7 @@ fun RecipesScreen(
             item(span = { GridItemSpan(2) }) {
                 Column {
                     Text(
-                        "Categorias",
+                        "Categorías",
                         fontFamily = InriaSerifFamily,
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
@@ -161,27 +181,56 @@ fun RecipesScreen(
                 }
             }
 
-            // ===== 4. SECCIÓN TODAS LAS RECETAS =====
+            // ===== 4. SECCIÓN RECETAS CON PESTAÑA MIS CREACIONES =====
             item(span = { GridItemSpan(2) }) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        "Todas las recetas",
-                        fontFamily = InriaSerifFamily,
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF4A4A4A)
-                    )
-                    TextButton(onClick = { navController.navigate(Routes.CREATE_RECIPE) }) {
+                Column {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
                         Text(
-                            "+ Crear Receta",
-                            fontFamily = InterFamily,
-                            fontSize = 12.sp,
+                            if (state.soloMisRecetas) "Mis Recetas Creadas" else "Todas las recetas",
+                            fontFamily = InriaSerifFamily,
+                            fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF4A6B4A)
+                            color = Color(0xFF4A4A4A)
+                        )
+
+                        Button(
+                            onClick = { navController.navigate(Routes.CREATE_RECIPE) },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4A6B4A)),
+                            shape = RoundedCornerShape(16.dp),
+                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
+                        ) {
+                            Text("+ Crear Receta", fontFamily = InterFamily, fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // Botones de filtro: "Todas las Recetas" vs "Mis Recetas (Creadas por mí)"
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        FilterChip(
+                            selected = !state.soloMisRecetas,
+                            onClick = { viewModel.toggleSoloMisRecetas(false) },
+                            label = { Text("Todas", fontFamily = InterFamily, fontWeight = FontWeight.Bold) },
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = Color(0xFF4A6B4A),
+                                selectedLabelColor = Color.White
+                            )
+                        )
+                        FilterChip(
+                            selected = state.soloMisRecetas,
+                            onClick = { viewModel.toggleSoloMisRecetas(true) },
+                            label = { Text("Mis Creaciones", fontFamily = InterFamily, fontWeight = FontWeight.Bold) },
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = Color(0xFFE07A5F),
+                                selectedLabelColor = Color.White
+                            )
                         )
                     }
                 }
@@ -197,16 +246,68 @@ fun RecipesScreen(
             } else if (state.recetasFiltradas.isEmpty()) {
                 item(span = { GridItemSpan(2) }) {
                     Box(modifier = Modifier.height(150.dp), contentAlignment = Alignment.Center) {
-                        Text("No se encontraron recetas con los filtros seleccionados", fontFamily = InterFamily, color = Color.Gray)
+                        Text(
+                            if (state.soloMisRecetas) "Aún no has creado recetas. ¡Usa el botón '+ Crear Receta' para empezar!" else "No se encontraron recetas con los filtros seleccionados",
+                            fontFamily = InterFamily,
+                            color = Color.Gray,
+                            fontSize = 13.sp
+                        )
                     }
                 }
             } else {
                 items(state.recetasFiltradas) { receta ->
-                    TarjetaRecetaGrid(receta = receta) {
-                        navController.navigate("recipe_detail/${receta.id}")
-                    }
+                    val esMio = state.currentUserId.isNotBlank() && receta.autorId == state.currentUserId
+                    val esFavorito = state.favoritoIds.contains(receta.id)
+
+                    TarjetaRecetaGrid(
+                        receta = receta,
+                        esRecetaPropia = esMio,
+                        esFavorito = esFavorito,
+                        onFavoritoClick = { viewModel.toggleFavorito(receta.id) },
+                        onEditClick = { navController.navigate("create_recipe?recetaId=${receta.id}") },
+                        onDeleteClick = { viewModel.solicitarEliminarReceta(receta.id) },
+                        onClick = { navController.navigate("recipe_detail/${receta.id}") }
+                    )
                 }
             }
+        }
+
+        // Alerta de confirmación para eliminar receta creada por el usuario
+        if (state.showDialogConfirmarEliminar) {
+            AlertDialog(
+                onDismissRequest = { viewModel.cancelarEliminarReceta() },
+                title = {
+                    Text(
+                        "Eliminar Receta",
+                        fontFamily = FrauncesFamily,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFFE53935)
+                    )
+                },
+                text = {
+                    Text(
+                        "¿Estás seguro de que deseas eliminar esta receta? Se borrará permanentemente de la plataforma.",
+                        fontFamily = InterFamily,
+                        fontSize = 14.sp,
+                        color = Color(0xFF4A4A4A)
+                    )
+                },
+                confirmButton = {
+                    Button(
+                        onClick = { viewModel.confirmarEliminarReceta() },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE53935))
+                    ) {
+                        Text("Eliminar", fontFamily = InterFamily, color = Color.White, fontWeight = FontWeight.Bold)
+                    }
+                },
+                dismissButton = {
+                    OutlinedButton(onClick = { viewModel.cancelarEliminarReceta() }) {
+                        Text("Cancelar", fontFamily = InterFamily, color = Color.Gray)
+                    }
+                },
+                shape = RoundedCornerShape(20.dp),
+                containerColor = Color.White
+            )
         }
 
         // Barra de navegación inferior flotante
@@ -260,7 +361,15 @@ fun ItemCategoriaCard(
 
 // ============ TARJETA DE RECETA GRID 2 COLUMNAS ============
 @Composable
-fun TarjetaRecetaGrid(receta: Receta, onClick: () -> Unit) {
+fun TarjetaRecetaGrid(
+    receta: Receta,
+    esRecetaPropia: Boolean = false,
+    esFavorito: Boolean = false,
+    onFavoritoClick: () -> Unit = {},
+    onEditClick: () -> Unit = {},
+    onDeleteClick: () -> Unit = {},
+    onClick: () -> Unit
+) {
     Surface(
         shape = RoundedCornerShape(20.dp),
         color = Color.White,
@@ -277,7 +386,7 @@ fun TarjetaRecetaGrid(receta: Receta, onClick: () -> Unit) {
             ) {
                 if (receta.imagenUrl.isNotBlank()) {
                     AsyncImage(
-                        model = receta.imagenUrl, // Carga directa desde la URL de ImageKit.io guardada en Firestore
+                        model = receta.imagenUrl,
                         contentDescription = receta.titulo,
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
@@ -292,22 +401,67 @@ fun TarjetaRecetaGrid(receta: Receta, onClick: () -> Unit) {
                     )
                 }
 
-                // Ícono de Estrella en la esquina superior derecha
+                // Ícono de Estrella Favorito
                 Surface(
                     shape = CircleShape,
-                    color = Color.Black.copy(alpha = 0.25f),
+                    color = Color.Black.copy(alpha = 0.35f),
                     modifier = Modifier
                         .align(Alignment.TopEnd)
                         .padding(8.dp)
                         .size(28.dp)
+                        .clickable { onFavoritoClick() }
                 ) {
                     Box(contentAlignment = Alignment.Center) {
                         Icon(
-                            Icons.Default.StarBorder,
+                            if (esFavorito) Icons.Default.Star else Icons.Default.StarBorder,
                             contentDescription = "Favorito",
-                            tint = Color.White,
+                            tint = if (esFavorito) Color(0xFFFFC107) else Color.White,
                             modifier = Modifier.size(18.dp)
                         )
+                    }
+                }
+
+                // Si la receta fue creada por el usuario actual, mostrar insignias Editar y Eliminar
+                if (esRecetaPropia) {
+                    Row(
+                        modifier = Modifier
+                            .align(Alignment.TopStart)
+                            .padding(6.dp),
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Surface(
+                            shape = CircleShape,
+                            color = Color(0xFF4A6B4A),
+                            modifier = Modifier
+                                .size(28.dp)
+                                .clickable { onEditClick() }
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Icon(
+                                    Icons.Default.Edit,
+                                    contentDescription = "Editar mi receta",
+                                    tint = Color.White,
+                                    modifier = Modifier.size(15.dp)
+                                )
+                            }
+                        }
+
+                        Surface(
+                            shape = CircleShape,
+                            color = Color(0xFFE53935),
+                            modifier = Modifier
+                                .size(28.dp)
+                                .clickable { onDeleteClick() }
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Icon(
+                                    Icons.Default.Delete,
+                                    contentDescription = "Eliminar mi receta",
+                                    tint = Color.White,
+                                    modifier = Modifier.size(15.dp)
+                                )
+                            }
+                        }
                     }
                 }
             }
