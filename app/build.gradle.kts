@@ -84,6 +84,9 @@ dependencies {
     // Coil (Carga de imágenes)
     implementation(libs.coil.compose)
 
+    // Google AI Client SDK (Gemini AI API)
+    implementation("com.google.ai.client.generativeai:generativeai:0.9.0")
+
     // Testing
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.2.1")

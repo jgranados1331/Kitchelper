@@ -7,69 +7,65 @@ import kotlinx.coroutines.tasks.await
 
 class RecipeRepository(private val db: FirebaseFirestore = FirebaseFirestore.getInstance()) {
 
-    // Obtener todas las recetas de Firestore (combina colección pública y subcolección de mis recetas)
+    // Obtener todas las recetas globales creadas por cualquier usuario en la plataforma
     suspend fun obtenerRecetas(): Result<List<Receta>> {
         return try {
-            val recetasPublicas = mutableListOf<Receta>()
+            val recetasMapa = mutableMapOf<String, Receta>()
+
+            // 1. Obtener de la colección pública principal "recetas"
             try {
-                val snapshot = db.collection("recetas").get().await()
-                val lista = snapshot.documents.mapNotNull { doc ->
+                val snapshotPublic = db.collection("recetas").get().await()
+                snapshotPublic.documents.mapNotNull { doc ->
                     doc.toObject(Receta::class.java)?.copy(id = doc.id)
+                }.forEach { receta ->
+                    recetasMapa[receta.id] = receta
                 }
-                recetasPublicas.addAll(lista)
             } catch (_: Exception) {}
 
-            // Cargar también recetas del usuario desde su subcolección personal
-            val currentUser = FirebaseAuth.getInstance().currentUser
-            if (currentUser != null) {
-                try {
-                    val userSnap = db.collection("usuarios")
-                        .document(currentUser.uid)
-                        .collection("mis_recetas")
-                        .get()
-                        .await()
-
-                    val misRecetas = userSnap.documents.mapNotNull { doc ->
-                        doc.toObject(Receta::class.java)?.copy(id = doc.id)
+            // 2. Obtener de todas las subcolecciones "mis_recetas" de todos los usuarios mediante collectionGroup
+            try {
+                val snapshotGroup = db.collectionGroup("mis_recetas").get().await()
+                snapshotGroup.documents.mapNotNull { doc ->
+                    doc.toObject(Receta::class.java)?.copy(id = doc.id)
+                }.forEach { receta ->
+                    if (!recetasMapa.containsKey(receta.id)) {
+                        recetasMapa[receta.id] = receta
                     }
+                }
+            } catch (_: Exception) {}
 
-                    val idsPublicos = recetasPublicas.map { it.id }.toSet()
-                    for (rec in misRecetas) {
-                        if (!idsPublicos.contains(rec.id)) {
-                            recetasPublicas.add(rec)
-                        }
-                    }
-                } catch (_: Exception) {}
-            }
-
-            Result.success(recetasPublicas)
+            Result.success(recetasMapa.values.toList())
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
 
-    // Obtener una receta por ID
+    // Obtener una receta por ID buscando globalmente
     suspend fun obtenerReceta(recetaId: String): Result<Receta?> {
         return try {
-            val currentUser = FirebaseAuth.getInstance().currentUser
-            if (currentUser != null) {
-                try {
-                    val userDoc = db.collection("usuarios")
-                        .document(currentUser.uid)
-                        .collection("mis_recetas")
-                        .document(recetaId)
-                        .get()
-                        .await()
-                    if (userDoc.exists()) {
-                        val recUser = userDoc.toObject(Receta::class.java)?.copy(id = userDoc.id)
-                        if (recUser != null) return Result.success(recUser)
-                    }
-                } catch (_: Exception) {}
-            }
+            // 1. Buscar en la colección pública principal
+            try {
+                val doc = db.collection("recetas").document(recetaId).get().await()
+                if (doc.exists()) {
+                    val receta = doc.toObject(Receta::class.java)?.copy(id = doc.id)
+                    if (receta != null) return Result.success(receta)
+                }
+            } catch (_: Exception) {}
 
-            val doc = db.collection("recetas").document(recetaId).get().await()
-            val receta = doc.toObject(Receta::class.java)?.copy(id = doc.id)
-            Result.success(receta)
+            // 2. Buscar en las subcolecciones mediante collectionGroup
+            try {
+                val groupSnap = db.collectionGroup("mis_recetas")
+                    .get()
+                    .await()
+
+                val doc = groupSnap.documents.firstOrNull { it.id == recetaId }
+                if (doc != null && doc.exists()) {
+                    val receta = doc.toObject(Receta::class.java)?.copy(id = doc.id)
+                    if (receta != null) return Result.success(receta)
+                }
+            } catch (_: Exception) {}
+
+            Result.success(null)
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -97,7 +93,7 @@ class RecipeRepository(private val db: FirebaseFirestore = FirebaseFirestore.get
         }
     }
 
-    // Crear una nueva receta
+    // Crear una nueva receta globalmente
     suspend fun crearReceta(receta: Receta): Result<String> {
         return try {
             val docRef = if (receta.id.isNotBlank()) db.collection("recetas").document(receta.id) else db.collection("recetas").document()
@@ -105,7 +101,13 @@ class RecipeRepository(private val db: FirebaseFirestore = FirebaseFirestore.get
 
             var guardadoExitoso = false
 
-            // 1. Guardar primero en la subcolección del usuario (100% garantizado por reglas de usuario)
+            // 1. Guardar en la colección pública global "recetas"
+            try {
+                docRef.set(recetaConId).await()
+                guardadoExitoso = true
+            } catch (_: Exception) {}
+
+            // 2. Guardar en la subcolección del usuario
             if (receta.autorId.isNotBlank() && receta.autorId != "anonimo") {
                 try {
                     db.collection("usuarios")
@@ -118,31 +120,30 @@ class RecipeRepository(private val db: FirebaseFirestore = FirebaseFirestore.get
                 } catch (_: Exception) {}
             }
 
-            // 2. Intentar guardar en la colección pública global de recetas
-            try {
-                docRef.set(recetaConId).await()
-                guardadoExitoso = true
-            } catch (e: Exception) {
-                // Si la colección pública tiene restricciones pero ya se guardó en la subcolección del usuario
-                if (!guardadoExitoso) {
-                    throw e
-                }
+            if (guardadoExitoso) {
+                Result.success(docRef.id)
+            } else {
+                Result.failure(Exception("No se pudo guardar la receta en Firestore."))
             }
-
-            Result.success(docRef.id)
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
 
-    // Actualizar una receta existente
+    // Actualizar una receta existente globalmente
     suspend fun actualizarReceta(receta: Receta): Result<Unit> {
         return try {
             if (receta.id.isBlank()) return Result.failure(Exception("ID de receta no válido"))
 
             var guardadoExitoso = false
 
-            // 1. Actualizar en la subcolección del usuario
+            // 1. Actualizar en la colección pública
+            try {
+                db.collection("recetas").document(receta.id).set(receta).await()
+                guardadoExitoso = true
+            } catch (_: Exception) {}
+
+            // 2. Actualizar en la subcolección del usuario
             if (receta.autorId.isNotBlank() && receta.autorId != "anonimo") {
                 try {
                     db.collection("usuarios")
@@ -155,15 +156,11 @@ class RecipeRepository(private val db: FirebaseFirestore = FirebaseFirestore.get
                 } catch (_: Exception) {}
             }
 
-            // 2. Actualizar en la colección pública
-            try {
-                db.collection("recetas").document(receta.id).set(receta).await()
-                guardadoExitoso = true
-            } catch (e: Exception) {
-                if (!guardadoExitoso) throw e
+            if (guardadoExitoso) {
+                Result.success(Unit)
+            } else {
+                Result.failure(Exception("No se pudo actualizar la receta."))
             }
-
-            Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -198,31 +195,12 @@ class RecipeRepository(private val db: FirebaseFirestore = FirebaseFirestore.get
         }
     }
 
-    // Obtener recetas de un usuario específico
+    // Obtener recetas creadas por un usuario específico
     suspend fun obtenerRecetasDeUsuario(userId: String): Result<List<Receta>> {
         return try {
-            val userSnap = db.collection("usuarios")
-                .document(userId)
-                .collection("mis_recetas")
-                .get()
-                .await()
-
-            val recetasUser = userSnap.documents.mapNotNull { doc ->
-                doc.toObject(Receta::class.java)?.copy(id = doc.id)
-            }
-
-            if (recetasUser.isNotEmpty()) {
-                return Result.success(recetasUser)
-            }
-
-            val snapshot = db.collection("recetas")
-                .whereEqualTo("autorId", userId)
-                .get()
-                .await()
-            val recetas = snapshot.documents.mapNotNull { doc ->
-                doc.toObject(Receta::class.java)?.copy(id = doc.id)
-            }
-            Result.success(recetas)
+            val todas = obtenerRecetas().getOrNull() ?: emptyList()
+            val filtradas = todas.filter { it.autorId == userId }
+            Result.success(filtradas)
         } catch (e: Exception) {
             Result.failure(e)
         }

@@ -13,6 +13,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.DinnerDining
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Restaurant
@@ -40,7 +41,11 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.example.kitchelper.data.model.Ingrediente
 import com.example.kitchelper.data.model.Paso
 import com.example.kitchelper.data.model.Receta
+import com.example.kitchelper.data.model.Usuario
 import com.example.kitchelper.data.repository.FavoriteRepository
+import com.example.kitchelper.data.repository.GeminiAiRepository
+import com.example.kitchelper.data.repository.RecipeRepository
+import com.example.kitchelper.data.repository.UserRepository
 import com.example.kitchelper.ui.theme.FrauncesFamily
 import com.example.kitchelper.ui.theme.InterFamily
 import com.example.kitchelper.ui.theme.InriaSerifFamily
@@ -57,6 +62,8 @@ import kotlinx.coroutines.tasks.await
 @Composable
 fun RecipeDetailScreen(recetaId: String, navController: NavController) {
     var receta by remember { mutableStateOf<Receta?>(null) }
+    var usuarioLogueado by remember { mutableStateOf<Usuario?>(null) }
+    var sugerenciasIA by remember { mutableStateOf<List<String>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
     var esFavorito by remember { mutableStateOf(false) }
     var tabSeleccionada by remember { mutableStateOf("Instrucciones") }
@@ -66,13 +73,21 @@ fun RecipeDetailScreen(recetaId: String, navController: NavController) {
 
     LaunchedEffect(recetaId) {
         try {
-            val result = com.example.kitchelper.data.repository.RecipeRepository().obtenerReceta(recetaId)
+            val result = RecipeRepository().obtenerReceta(recetaId)
             receta = result.getOrNull()
 
             if (userId.isNotBlank()) {
                 val favsResult = FavoriteRepository().obtenerIdsFavoritos(userId)
                 val favSet = favsResult.getOrNull() ?: emptySet()
                 esFavorito = favSet.contains(recetaId)
+
+                val userRes = UserRepository().obtenerUsuario(userId)
+                usuarioLogueado = userRes.getOrNull()
+
+                if (receta != null && usuarioLogueado != null) {
+                    val aiRes = GeminiAiRepository().generarSugerenciasPersonalizadasReceta(usuarioLogueado!!, receta!!)
+                    sugerenciasIA = aiRes.getOrNull() ?: emptyList()
+                }
             }
         } catch (_: Exception) {}
         isLoading = false
@@ -273,7 +288,7 @@ fun RecipeDetailScreen(recetaId: String, navController: NavController) {
 
                 item { Spacer(modifier = Modifier.height(16.dp)) }
 
-                // ===== 3. METRICAS / INFORMACIÓN RÁPIDA (TIEMPO, PLATOS, DIFICULTAD) =====
+                // ===== 3. METRICAS / INFORMACIÓN RÁPIDA =====
                 item {
                     Surface(
                         shape = RoundedCornerShape(20.dp),
@@ -385,6 +400,54 @@ fun RecipeDetailScreen(recetaId: String, navController: NavController) {
 
                 item { Spacer(modifier = Modifier.height(16.dp)) }
 
+                // ===== TARJETA DE RECOMENDACIONES DEL CHEF IA =====
+                if (sugerenciasIA.isNotEmpty()) {
+                    item {
+                        Surface(
+                            shape = RoundedCornerShape(20.dp),
+                            color = Color(0xFFF2F7EC),
+                            border = BorderStroke(1.5.dp, VERDE_KITCHEN),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp)
+                        ) {
+                            Column(modifier = Modifier.padding(16.dp)) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(
+                                        Icons.Default.AutoAwesome,
+                                        contentDescription = "IA",
+                                        tint = VERDE_KITCHEN,
+                                        modifier = Modifier.size(22.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(
+                                        "Consejos de Adaptación del Chef IA",
+                                        fontFamily = InriaSerifFamily,
+                                        fontSize = 17.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = VERDE_KITCHEN
+                                    )
+                                }
+
+                                Spacer(modifier = Modifier.height(8.dp))
+
+                                sugerenciasIA.forEach { sugerencia ->
+                                    Text(
+                                        sugerencia,
+                                        fontFamily = InterFamily,
+                                        fontSize = 13.sp,
+                                        color = GRIS_TEXTO,
+                                        lineHeight = 18.sp,
+                                        modifier = Modifier.padding(vertical = 2.dp)
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    item { Spacer(modifier = Modifier.height(16.dp)) }
+                }
+
                 // ===== 5. SECCIÓN INGREDIENTES =====
                 item {
                     Text(
@@ -399,12 +462,12 @@ fun RecipeDetailScreen(recetaId: String, navController: NavController) {
                 }
 
                 items(currentReceta.ingredientes) { ingrediente ->
-                    ItemIngredienteDetalleCard(ingrediente = ingrediente)
+                    ItemIngredienteDetalleCard(ingrediente = ingrediente, ubicacionUsuario = "Colombia")
                 }
 
                 item { Spacer(modifier = Modifier.height(20.dp)) }
 
-                // ===== 6. SECCIÓN A PREPARAR! (BOTÓN DE COMENZAR PREPARACIÓN GUIADA) =====
+                // ===== 6. SECCIÓN A PREPARAR! =====
                 item {
                     Column(modifier = Modifier.padding(horizontal = 16.dp)) {
                         Text(
@@ -478,10 +541,30 @@ private fun MetricaItem(icon: ImageVector, label: String) {
     }
 }
 
-// ============ TARJETA DE INGREDIENTE EN DETALLE ============
+// ============ TARJETA DE INGREDIENTE EN DETALLE CON GEMINI IA ============
 @Composable
-fun ItemIngredienteDetalleCard(ingrediente: Ingrediente) {
+fun ItemIngredienteDetalleCard(
+    ingrediente: Ingrediente,
+    ubicacionUsuario: String = "Colombia"
+) {
     var showInfoDialog by remember { mutableStateOf(false) }
+    var infoTextoIA by remember { mutableStateOf<String?>(null) }
+    var isLoadingInfoIA by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+
+    LaunchedEffect(ingrediente.nombre) {
+        infoTextoIA = null
+    }
+
+    fun abrirInfoConIA() {
+        showInfoDialog = true
+        isLoadingInfoIA = true
+        scope.launch {
+            val res = GeminiAiRepository().obtenerInfoIngredienteConUbicacion(ingrediente.nombre, ubicacionUsuario)
+            infoTextoIA = res.getOrNull() ?: "Supermercados locales, plazas de mercado o tiendas de víveres en $ubicacionUsuario."
+            isLoadingInfoIA = false
+        }
+    }
 
     Surface(
         shape = RoundedCornerShape(20.dp),
@@ -552,18 +635,18 @@ fun ItemIngredienteDetalleCard(ingrediente: Ingrediente) {
                 }
             }
 
-            // Botón de información (i) del ingrediente
+            // Botón de información (i) con Gemini IA
             Surface(
                 shape = CircleShape,
                 color = Color(0xFFF2F7EC),
                 modifier = Modifier
                     .size(36.dp)
-                    .clickable { showInfoDialog = true }
+                    .clickable { abrirInfoConIA() }
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Icon(
                         Icons.Default.Info,
-                        contentDescription = "Información del ingrediente",
+                        contentDescription = "Información con IA del ingrediente",
                         tint = VERDE_KITCHEN,
                         modifier = Modifier.size(20.dp)
                     )
@@ -572,65 +655,48 @@ fun ItemIngredienteDetalleCard(ingrediente: Ingrediente) {
         }
     }
 
-    // Diálogo informativo del ingrediente
+    // Diálogo informativo del ingrediente con respuesta en tiempo real de Gemini IA
     if (showInfoDialog) {
         AlertDialog(
             onDismissRequest = { showInfoDialog = false },
             title = {
-                Text(
-                    "Información de ${ingrediente.nombre.ifBlank { "Ingrediente" }}",
-                    fontFamily = InriaSerifFamily,
-                    fontWeight = FontWeight.Bold,
-                    color = VERDE_KITCHEN
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        Icons.Default.AutoAwesome,
+                        contentDescription = "IA",
+                        tint = VERDE_KITCHEN,
+                        modifier = Modifier.size(22.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        "Información IA: ${ingrediente.nombre.ifBlank { "Ingrediente" }}",
+                        fontFamily = InriaSerifFamily,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 17.sp,
+                        color = VERDE_KITCHEN
+                    )
+                }
             },
             text = {
                 Column {
-                    Text(
-                        "🛒 Dónde comprar:",
-                        fontFamily = InterFamily,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 13.sp,
-                        color = NARANJA
-                    )
-                    Text(
-                        "Supermercados locales, plazas de mercado y tiendas de víveres.",
-                        fontFamily = InterFamily,
-                        fontSize = 12.sp,
-                        color = GRIS_TEXTO
-                    )
-
-                    Spacer(modifier = Modifier.height(10.dp))
-
-                    Text(
-                        "💰 Precio estimado:",
-                        fontFamily = InterFamily,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 13.sp,
-                        color = NARANJA
-                    )
-                    Text(
-                        "Rango promedio según presentación estándar de la porción.",
-                        fontFamily = InterFamily,
-                        fontSize = 12.sp,
-                        color = GRIS_TEXTO
-                    )
-
-                    Spacer(modifier = Modifier.height(10.dp))
-
-                    Text(
-                        "🤖 Asistencia Inteligente IA:",
-                        fontFamily = InterFamily,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 13.sp,
-                        color = VERDE_KITCHEN
-                    )
-                    Text(
-                        "Las sugerencias en tiempo real de disponibilidad por zona y precios exactos con IA aparecerán aquí.",
-                        fontFamily = InterFamily,
-                        fontSize = 12.sp,
-                        color = Color.Gray
-                    )
+                    if (isLoadingInfoIA) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(100.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator(color = VERDE_KITCHEN)
+                        }
+                    } else {
+                        Text(
+                            infoTextoIA ?: "Cargando información del ingrediente...",
+                            fontFamily = InterFamily,
+                            fontSize = 13.sp,
+                            color = GRIS_TEXTO,
+                            lineHeight = 18.sp
+                        )
+                    }
                 }
             },
             confirmButton = {

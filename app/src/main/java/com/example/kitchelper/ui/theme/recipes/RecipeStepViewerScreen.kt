@@ -29,9 +29,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import com.google.firebase.auth.FirebaseAuth
 import com.example.kitchelper.data.model.Paso
 import com.example.kitchelper.data.model.Receta
+import com.example.kitchelper.data.model.Usuario
+import com.example.kitchelper.data.repository.GeminiAiRepository
 import com.example.kitchelper.data.repository.RecipeRepository
+import com.example.kitchelper.data.repository.UserRepository
 import com.example.kitchelper.ui.theme.FrauncesFamily
 import com.example.kitchelper.ui.theme.InterFamily
 import com.example.kitchelper.ui.theme.InriaSerifFamily
@@ -45,16 +49,47 @@ import com.example.kitchelper.ui.theme.profile.VERDE_KITCHEN
 @Composable
 fun RecipeStepViewerScreen(recetaId: String, navController: NavController) {
     var receta by remember { mutableStateOf<Receta?>(null) }
+    var usuarioLogueado by remember { mutableStateOf<Usuario?>(null) }
+    var sugerenciasIA by remember { mutableStateOf<List<String>>(emptyList()) }
+    var consejoPasoActualIA by remember { mutableStateOf<String?>(null) }
+    var isLoadingConsejoPaso by remember { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(true) }
     var pasoActualIndex by remember { mutableIntStateOf(0) }
     val context = LocalContext.current
+    val userId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
 
     LaunchedEffect(recetaId) {
         try {
             val result = RecipeRepository().obtenerReceta(recetaId)
             receta = result.getOrNull()
+
+            if (userId.isNotBlank()) {
+                val userRes = UserRepository().obtenerUsuario(userId)
+                usuarioLogueado = userRes.getOrNull()
+
+                if (receta != null && usuarioLogueado != null) {
+                    val aiRes = GeminiAiRepository().generarSugerenciasPersonalizadasReceta(usuarioLogueado!!, receta!!)
+                    sugerenciasIA = aiRes.getOrNull() ?: emptyList()
+                }
+            }
         } catch (_: Exception) {}
         isLoading = false
+    }
+
+    // Efecto para solicitar a Gemini IA el consejo técnico para cada paso específico
+    LaunchedEffect(pasoActualIndex, receta) {
+        val currentReceta = receta
+        if (currentReceta != null && currentReceta.pasos.isNotEmpty()) {
+            val paso = currentReceta.pasos.getOrElse(pasoActualIndex) { currentReceta.pasos.first() }
+            isLoadingConsejoPaso = true
+            val aiStepRes = GeminiAiRepository().obtenerConsejoPasoASpaso(
+                tituloReceta = currentReceta.titulo,
+                pasoActual = paso,
+                usuario = usuarioLogueado ?: Usuario()
+            )
+            consejoPasoActualIA = aiStepRes.getOrNull()
+            isLoadingConsejoPaso = false
+        }
     }
 
     Box(
@@ -217,7 +252,6 @@ fun RecipeStepViewerScreen(recetaId: String, navController: NavController) {
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            // Flecha Izquierda (Paso Anterior)
                             IconButton(
                                 onClick = {
                                     if (pasoActualIndex > 0) pasoActualIndex--
@@ -240,7 +274,6 @@ fun RecipeStepViewerScreen(recetaId: String, navController: NavController) {
                                 color = NARANJA
                             )
 
-                            // Flecha Derecha (Paso Siguiente)
                             IconButton(
                                 onClick = {
                                     if (pasoActualIndex < pasos.size - 1) pasoActualIndex++
@@ -258,7 +291,6 @@ fun RecipeStepViewerScreen(recetaId: String, navController: NavController) {
 
                         Spacer(modifier = Modifier.height(10.dp))
 
-                        // Barra de progreso
                         LinearProgressIndicator(
                             progress = { (pasoActualIndex + 1) / pasos.size.toFloat() },
                             modifier = Modifier
@@ -305,7 +337,7 @@ fun RecipeStepViewerScreen(recetaId: String, navController: NavController) {
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // ===== SECCIÓN 3: RECOMENDACIÓN DE LA IA (MÓDULO RESERVADO) =====
+                // ===== SECCIÓN 3: RECOMENDACIÓN DE LA IA SEGÚN EL PASO Y PERFIL =====
                 Surface(
                     shape = RoundedCornerShape(20.dp),
                     color = Color(0xFFF2F7EC),
@@ -324,7 +356,7 @@ fun RecipeStepViewerScreen(recetaId: String, navController: NavController) {
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
-                                "Recomendaciones del Chef IA",
+                                "Consejo del Chef IA para el Paso ${pasoActualIndex + 1}",
                                 fontFamily = InriaSerifFamily,
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold,
@@ -334,13 +366,58 @@ fun RecipeStepViewerScreen(recetaId: String, navController: NavController) {
 
                         Spacer(modifier = Modifier.height(8.dp))
 
-                        Text(
-                            "Las sugerencias inteligentes de sustitución e ingredientes personalizadas según tu perfil aparecerán aquí para cada paso.",
-                            fontFamily = InterFamily,
-                            fontSize = 12.sp,
-                            color = GRIS_TEXTO,
-                            lineHeight = 16.sp
-                        )
+                        if (isLoadingConsejoPaso) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.padding(vertical = 4.dp)
+                            ) {
+                                CircularProgressIndicator(
+                                    color = VERDE_KITCHEN,
+                                    modifier = Modifier.size(16.dp),
+                                    strokeWidth = 2.dp
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    "Consultando consejo del Chef IA para este paso...",
+                                    fontFamily = InterFamily,
+                                    fontSize = 12.sp,
+                                    color = Color.Gray
+                                )
+                            }
+                        } else {
+                            Text(
+                                consejoPasoActualIA ?: "👨‍🍳 Sigue las indicaciones del paso a paso y mantén un fuego constante.",
+                                fontFamily = InterFamily,
+                                fontSize = 13.sp,
+                                color = GRIS_TEXTO,
+                                lineHeight = 18.sp
+                            )
+                        }
+
+                        if (sugerenciasIA.isNotEmpty()) {
+                            Spacer(modifier = Modifier.height(10.dp))
+                            HorizontalDivider(color = Color(0xFFD0E0C0))
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            Text(
+                                "Adaptación a tu Perfil:",
+                                fontFamily = InriaSerifFamily,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = NARANJA
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            sugerenciasIA.forEach { sugerencia ->
+                                Text(
+                                    sugerencia,
+                                    fontFamily = InterFamily,
+                                    fontSize = 12.sp,
+                                    color = GRIS_TEXTO,
+                                    lineHeight = 16.sp,
+                                    modifier = Modifier.padding(vertical = 1.dp)
+                                )
+                            }
+                        }
                     }
                 }
             }
