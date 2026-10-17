@@ -3,6 +3,11 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <!-- Feature de cámara (AR opcional para permitir compatibilidad con todos los dispositivos) -->
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <uses-feature android:name="android.hardware.camera.ar" android:required="false" />
 
     <application
         android:allowBackup="true"
@@ -13,6 +18,13 @@
         android:roundIcon="@drawable/logo_kitchelper"
         android:supportsRtl="true"
         android:theme="@style/Theme.Kitchelper">
+
+        <!-- ARCore es Opcional para habilitar la app en dispositivos no soportados por ARCore -->
+        <meta-data
+            android:name="com.google.ar.core"
+            android:value="optional"
+            tools:replace="android:value" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true"

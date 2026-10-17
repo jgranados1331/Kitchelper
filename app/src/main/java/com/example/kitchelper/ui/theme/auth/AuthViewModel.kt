@@ -195,22 +195,23 @@ class AuthViewModel(
     }
 
     fun resetPassword(email: String) {
-        if (email.isBlank()) {
+        val trimmedEmail = email.trim()
+        if (trimmedEmail.isBlank()) {
             _authState.value = AuthState(errorMessage = "Por favor ingresa tu correo")
             return
         }
-        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(trimmedEmail).matches()) {
             _authState.value = AuthState(errorMessage = "El correo no tiene un formato válido")
             return
         }
 
         viewModelScope.launch {
             _authState.value = AuthState(isLoading = true, loadingMessage = "Nunca la olvides, ni la compartas")
-            val result = repository.resetPassword(email.trim())
+            val result = repository.resetPassword(trimmedEmail)
             result.onSuccess {
                 _authState.value = AuthState(
                     successMessage = "Correo enviado correctamente",
-                    emailEnviado = email.trim()
+                    emailEnviado = trimmedEmail
                 )
             }.onFailure { exception ->
                 val err = traducirError(exception.message)
