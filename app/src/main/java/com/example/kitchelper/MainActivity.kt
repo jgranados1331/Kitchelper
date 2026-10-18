@@ -129,8 +129,19 @@ fun AppNavigation() {
 
         // ===== MÓDULO 6: AR =====
         composable(Routes.AR_GUIDE) {
-            ArIngredientScannerScreen(onNavigateBack = { navController.popBackStack() })
+            PlaceholderScreen("Calibración de la tabla de picar (próximamente)")
         }
+        composable(Routes.AR_SCAN) {
+            ArIngredientScannerScreen(
+                onNavigateBack = { navController.popBackStack() },
+                onConfirm = { lista -> /* ... */ }
+            )
+        }
+
+        composable(Routes.AR_GUIDE) {
+            PlaceholderScreen("Calibración de la tabla de picar") // pendiente
+        }
+
         composable(
             route = Routes.AR_RECIPE,
             arguments = listOf(androidx.navigation.navArgument("recetaId") {})

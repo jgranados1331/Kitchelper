@@ -19,4 +19,5 @@ object Routes {
     const val AR_RECIPE = "ar_recipe/{recetaId}"
     const val AR_PRACTICE = "ar_practice/{practicaId}"
     const val SPLASH = "splash"
+    const val AR_SCAN = "ar_scan"
 }
