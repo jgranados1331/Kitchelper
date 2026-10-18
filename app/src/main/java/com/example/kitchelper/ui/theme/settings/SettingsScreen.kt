@@ -11,11 +11,16 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.CameraAlt
+import androidx.compose.material.icons.filled.Checklist
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Language
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Palette
+import androidx.compose.material.icons.filled.PermMedia
 import androidx.compose.material.icons.filled.PrivacyTip
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -39,6 +44,11 @@ import com.example.kitchelper.ui.theme.profile.GRIS_TEXTO
 import com.example.kitchelper.ui.theme.profile.NARANJA
 import com.example.kitchelper.ui.theme.profile.TarjetaSeccion
 import com.example.kitchelper.ui.theme.profile.VERDE_KITCHEN
+import android.content.Context
+import android.content.Intent // Permisos App
+import android.net.Uri // Permisos App
+import android.provider.Settings // Permisos App
+import androidx.compose.material.icons.filled.PendingActions
 
 @Composable
 fun SettingsScreen(navController: NavController) {
@@ -149,20 +159,43 @@ fun SettingsScreen(navController: NavController) {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Default.Palette, contentDescription = null, tint = NARANJA, modifier = Modifier.size(20.dp))
+                        Icon(
+                            Icons.Default.Palette,
+                            contentDescription = null,
+                            tint = NARANJA,
+                            modifier = Modifier.size(20.dp)
+                        )
                         Spacer(modifier = Modifier.width(8.dp))
                         Column {
-                            Text("Tema de la App", fontFamily = InterFamily, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = GRIS_TEXTO)
-                            Text(if (modoOscuroActivo) "Modo Oscuro" else "Modo Claro", fontFamily = InterFamily, fontSize = 12.sp, color = Color.Gray)
+                            Text(
+                                "Tema de la App",
+                                fontFamily = InterFamily,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = GRIS_TEXTO
+                            )
+                            Text(
+                                if (modoOscuroActivo) "Modo Oscuro" else "Modo Claro",
+                                fontFamily = InterFamily,
+                                fontSize = 12.sp,
+                                color = Color.Gray
+                            )
                         }
                     }
                     Switch(
                         checked = modoOscuroActivo,
                         onCheckedChange = {
                             com.example.kitchelper.ui.theme.ThemeManager.setDarkTheme(it)
-                            Toast.makeText(context, if (it) "Modo Oscuro activado" else "Modo Claro activado", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                context,
+                                if (it) "Modo Oscuro activado" else "Modo Claro activado",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         },
-                        colors = SwitchDefaults.colors(checkedThumbColor = Color.White, checkedTrackColor = VERDE_KITCHEN)
+                        colors = SwitchDefaults.colors(
+                            checkedThumbColor = Color.White,
+                            checkedTrackColor = VERDE_KITCHEN
+                        )
                     )
                 }
 
@@ -175,27 +208,68 @@ fun SettingsScreen(navController: NavController) {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Default.Notifications, contentDescription = null, tint = NARANJA, modifier = Modifier.size(20.dp))
+                        Icon(
+                            Icons.Default.Notifications,
+                            contentDescription = null,
+                            tint = NARANJA,
+                            modifier = Modifier.size(20.dp)
+                        )
                         Spacer(modifier = Modifier.width(8.dp))
                         Column {
-                            Text("Notificaciones Culinarias", fontFamily = InterFamily, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = GRIS_TEXTO)
-                            Text("Recordatorios de recetas y básicos", fontFamily = InterFamily, fontSize = 12.sp, color = Color.Gray)
+                            Text(
+                                "Notificaciones Culinarias",
+                                fontFamily = InterFamily,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = GRIS_TEXTO
+                            )
+                            Text(
+                                "Recordatorios de recetas y básicos",
+                                fontFamily = InterFamily,
+                                fontSize = 12.sp,
+                                color = Color.Gray
+                            )
                         }
                     }
                     Switch(
                         checked = notificacionesActivas,
                         onCheckedChange = {
                             notificacionesActivas = it
-                            Toast.makeText(context, if (it) "Notificaciones activadas" else "Notificaciones desactivadas", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                context,
+                                if (it) "Notificaciones activadas" else "Notificaciones desactivadas",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         },
-                        colors = SwitchDefaults.colors(checkedThumbColor = Color.White, checkedTrackColor = VERDE_KITCHEN)
+                        colors = SwitchDefaults.colors(
+                            checkedThumbColor = Color.White,
+                            checkedTrackColor = VERDE_KITCHEN
+                        )
                     )
                 }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // ===== 3. TARJETA INFORMACIÓN Y LEGALES =====
+            // ===== 3. TARJETA PERMISOS DE LA APP =====
+            TarjetaSeccion(titulo = "Permisos App") {
+                ItemOpcionConfiguracion(
+                    icon = Icons.Default.PendingActions ,
+                    titulo = "Accede a App Permissions",
+                    subtitulo = "Y permitenos usar Archivos, Cámara y GPS",
+                    onClick = {
+                        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                            data = Uri.fromParts("package", context.packageName, null)
+                        }
+                        context.startActivity(intent)
+                    }
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+
+            // ===== 4. TARJETA INFORMACIÓN Y LEGALES =====
             TarjetaSeccion(titulo = "Información y Legales") {
                 ItemOpcionConfiguracion(
                     icon = Icons.Default.Lock,
@@ -289,6 +363,14 @@ fun SettingsScreen(navController: NavController) {
             onFlechaClick = { navController.navigate(Routes.CREATE_RECIPE) }
         )
     }
+}
+
+// Permisos App
+fun abrirAjustesPermisosApp(context: Context) {
+    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+        data = Uri.fromParts("package", context.packageName, null)
+    }
+    context.startActivity(intent)
 }
 
 @Composable
