@@ -154,7 +154,7 @@ fun RecipesScreen(
                             ItemCategoriaCard(
                                 titulo = "Cena",
                                 drawableResId = R.drawable.comida,
-                                estaSeleccionada = state.categoriaSeleccionada.equals("Cena", ignoreCase = true),
+                                estaSeleccionada = state.categoriaSeleccionada.equals("Cena",ignoreCase = true),
                                 onClick = { viewModel.filtrarPorCategoria("Cena") }
                             )
                         }
@@ -192,22 +192,52 @@ fun RecipesScreen(
                         Text(
                             if (state.soloMisRecetas) "Mis Recetas Creadas" else "Todas las recetas",
                             fontFamily = InriaSerifFamily,
-                            fontSize = 20.sp,
+                            fontSize = 19.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF4A4A4A)
                         )
-
-                        Button(
-                            onClick = { navController.navigate(Routes.CREATE_RECIPE) },
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4A6B4A)),
-                            shape = RoundedCornerShape(16.dp),
-                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(7.dp),
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text("+ Crear Receta", fontFamily = InterFamily, fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                            // BOTON DE ESCANER IA
+                            Button(
+                                onClick = {
+                                    // FALTA INCLUIR EL ARCORE DE MATEO
+                                },
+                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4A6B4A)),
+                                shape = RoundedCornerShape(16.dp),
+                                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
+                            ) {
+                                Text(
+                                    text = "✦ Escáner IA",
+                                    fontFamily = InterFamily,
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.White
+                                )
+                            }
+
+                            // A CONTNUACION ES EL BOTON DE CREAR RECETA
+
+                            Button(
+                                onClick = { navController.navigate(Routes.CREATE_RECIPE) },
+                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4A6B4A)),
+                                shape = RoundedCornerShape(16.dp),
+                                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
+                            ) {
+                                Text(
+                                    text = "+ Crear Receta",
+                                    fontFamily = InterFamily,
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.White
+                                )
+                            }
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(12.dp))
 
                     // Botones de filtro: "Todas las Recetas" vs "Mis Recetas (Creadas por mí)"
                     Row(
