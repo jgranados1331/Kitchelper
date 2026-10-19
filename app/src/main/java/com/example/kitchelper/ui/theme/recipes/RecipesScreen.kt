@@ -158,7 +158,6 @@ fun RecipesScreen(
                                 onClick = { viewModel.filtrarPorCategoria("Cena") }
                             )
                         }
-
                     }
                 }
             }
@@ -174,7 +173,11 @@ fun RecipesScreen(
                         color = Color(0xFF4A4A4A)
                     )
                     Spacer(modifier = Modifier.height(8.dp))
-                    SelectorNivel(nivelUsuario = "Principiante", nivelSeleccionado = state.dificultadSeleccionada, onNivelChange = { viewModel.filtrarPorDificultad(it) })
+                    SelectorNivel(
+                        nivelUsuario = "Principiante",
+                        nivelSeleccionado = state.dificultadSeleccionada,
+                        onNivelChange = { viewModel.filtrarPorDificultad(it) }
+                    )
                 }
             }
 
@@ -197,7 +200,7 @@ fun RecipesScreen(
                             horizontalArrangement = Arrangement.spacedBy(7.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-
+                            // BOTON DE ESCANER IA
                             Button(
                                 onClick = {
                                     // FALTA INCLUIR EL ARCORE DE MATEO
