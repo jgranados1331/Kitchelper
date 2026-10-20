@@ -12,18 +12,13 @@ import java.util.concurrent.atomic.AtomicBoolean
 /**
  * Análisis en tiempo real de fotogramas ARCore con ML Kit Image Labeling.
  *
- * Estrategia de filtrado:
+ * Estrategia de filtrado optimizada (Umbral 0.45f para mayor sensibilidad):
  *  1. Tokenizar la etiqueta devuelta por ML Kit (separada por espacios).
- *  2. Rechazar si CUALQUIER token está en la blacklist (cuerpo, muebles,
- *     categorías genéricas como "food", "fruit", "vegetable", "cuisine"…).
+ *  2. Rechazar si CUALQUIER token está en la blacklist.
  *  3. Aceptar si ALGÚN token está en la whitelist de ingredientes específicos.
- *  4. En cualquier otro caso, rechazar (fail-safe).
- *
- * El matching es por token exacto, NO por substring, para evitar el bug
- * clásico `"mushroom".contains("room") == true`.
  */
 class IngredientAnalyzer(
-    private val confidenceThreshold: Float = 0.55f,
+    private val confidenceThreshold: Float = 0.45f,
     private val onIngredientDetected: (DetectedIngredient?) -> Unit,
     private val onError: (Exception) -> Unit = {}
 ) {
@@ -38,74 +33,50 @@ class IngredientAnalyzer(
     }
 
     data class DetectedIngredient(
-        val name: String,       // Nombre ya traducido (ej. "Tomate")
+        val name: String,       // Nombre traducido
         val confidence: Float
     )
 
     companion object {
-
-        // ───────────────────────────────────────────────────────────────
-        // 1. TOKENS QUE NUNCA SON UN INGREDIENTE
-        //    (cuerpo humano, fondo, utensilios, categorías genéricas)
-        // ───────────────────────────────────────────────────────────────
         private val NON_INGREDIENT_TOKENS = setOf(
-            // Cuerpo / personas
             "person", "human", "people", "man", "woman", "child", "face",
             "hand", "finger", "nail", "skin", "arm", "thumb", "gesture", "smile",
-            // Entorno / mobiliario
             "poster", "wall", "room", "table", "furniture", "flooring", "wood",
             "shelf", "appliance", "paper", "textile", "cloth",
-            // Utensilios de cocina
             "spoon", "fork", "knife", "plate", "bowl", "cup", "glass",
             "bottle", "jar", "pan", "pot", "kitchenware", "utensil", "cutlery",
-            // Categorías genéricas de comida (esto es clave para "Food")
             "food", "fruit", "vegetable", "produce", "meal", "dish", "cuisine",
             "snack", "dessert", "baked", "goods", "recipe", "staple",
             "comfort", "natural", "whole", "local", "fried", "fast",
             "breakfast", "lunch", "dinner", "brunch", "appetizer", "entree"
         )
 
-        // ───────────────────────────────────────────────────────────────
-        // 2. INGREDIENTES ESPECÍFICOS QUE SÍ QUEREMOS ACEPTAR
-        // ───────────────────────────────────────────────────────────────
         private val INGREDIENT_TOKENS = setOf(
-            // Vegetales
             "tomato", "onion", "garlic", "potato", "carrot", "pepper", "chili",
             "lettuce", "spinach", "broccoli", "cabbage", "cauliflower", "zucchini",
             "cucumber", "pumpkin", "mushroom", "celery", "asparagus", "beet",
             "radish", "eggplant", "leek", "shallot", "squash", "pea", "corn",
             "kale", "arugula", "chive", "fennel", "scallion",
-            // Frutas
             "apple", "banana", "orange", "lemon", "lime", "strawberry",
             "blueberry", "raspberry", "cherry", "grape", "peach", "pear",
             "plum", "mango", "pineapple", "watermelon", "melon", "coconut",
             "avocado", "kiwi", "papaya", "fig", "date", "pomegranate", "grapefruit",
-            // Lácteos y huevos
             "cheese", "milk", "butter", "egg", "yogurt", "yoghurt", "cream",
-            // Carnes y pescados
             "meat", "beef", "pork", "chicken", "fish", "salmon", "tuna",
             "shrimp", "bacon", "ham", "sausage", "turkey", "lamb", "duck",
             "crab", "lobster",
-            // Granos, legumbres, harinas
             "bread", "pasta", "rice", "flour", "bean", "lentil", "chickpea",
             "oat", "wheat", "barley", "quinoa", "noodle", "cereal",
-            // Frutos secos y semillas
             "nut", "almond", "walnut", "peanut", "cashew", "pistachio",
             "hazelnut", "seed",
-            // Condimentos, especias, endulzantes
             "herb", "spice", "oil", "vinegar", "sauce", "salt", "sugar",
             "honey", "syrup", "cinnamon", "paprika", "basil", "parsley",
             "cilantro", "mint", "ginger", "turmeric", "cumin", "oregano",
             "thyme", "rosemary", "chocolate", "cocoa", "vanilla",
-            // Bebidas usadas como ingredientes
             "coffee", "tea", "juice", "wine", "beer",
-            // Otros
             "tofu", "tempeh", "seitan", "seaweed", "olive", "pickle", "hummus"
         )
 
-        // ───────────────────────────────────────────────────────────────
-        // 3. TRADUCCIONES AL ESPAÑOL (para mostrar en la UI)
-        // ───────────────────────────────────────────────────────────────
         private val SPANISH_NAMES = mapOf(
             "tomato" to "Tomate", "onion" to "Cebolla", "garlic" to "Ajo",
             "potato" to "Papa", "carrot" to "Zanahoria", "pepper" to "Pimiento",
@@ -142,10 +113,6 @@ class IngredientAnalyzer(
         private fun normalize(label: String): String =
             label.lowercase().trim().replace(Regex("\\s+"), " ")
 
-        /**
-         * Determina si una etiqueta de ML Kit corresponde a un ingrediente válido.
-         * Público porque lo consume CameraXScannerView.
-         */
         fun isFoodIngredient(label: String): Boolean {
             val tokens = normalize(label).split(" ").filter { it.isNotBlank() }
             if (tokens.isEmpty()) return false
@@ -153,11 +120,6 @@ class IngredientAnalyzer(
             return tokens.any { it in INGREDIENT_TOKENS }
         }
 
-        /**
-         * Traduce una etiqueta en inglés al español.
-         * Recorre los tokens de atrás hacia adelante (en inglés compuesto el
-         * sustantivo cabecera va al final: "Cherry tomato" → "Tomate").
-         */
         fun toSpanish(englishLabel: String): String {
             val tokens = normalize(englishLabel).split(" ").reversed()
             for (token in tokens) {

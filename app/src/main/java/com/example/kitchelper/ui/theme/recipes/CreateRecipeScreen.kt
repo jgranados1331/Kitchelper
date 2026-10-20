@@ -310,15 +310,6 @@ fun CreateRecipeScreen(
                     modelo3DUrl = state.modelo3DUrlAR,
                     onModelo3DSeleccionado = { uri -> viewModel.subirModelo3DAR(context, uri) }
                 )
-
-                // La guía de calibración solo aparece si el usuario activó la AR
-                if (state.incluyeAR) {
-                    Spacer(modifier = Modifier.height(12.dp))
-                    GuiaInteractivaAR(
-                        onCalibrarClick = { navController.navigate(Routes.AR_GUIDE) },
-                        onVistaARClick = { navController.navigate(Routes.AR_GUIDE) }
-                    )
-                }
             }
 
             Spacer(modifier = Modifier.height(16.dp))

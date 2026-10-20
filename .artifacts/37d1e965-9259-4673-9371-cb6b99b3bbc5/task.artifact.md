@@ -1,7 +1,5 @@
-# Tareas - Sección de Recetas e Imágenes en Firestore
+# Tareas - Mejora de Reconocimiento AR y Diálogo IA Post-Escaneo
 
-- `[x]` Crear `RecipesViewModel.kt`
-- `[x]` Crear `RecipesScreen.kt`
-- `[x]` Crear `RecipeDetailScreen.kt`
-- `[x]` Actualizar `MainActivity.kt` con las rutas de recetas
-- `[x]` Compilar y verificar el proyecto (`gradle_build`)
+- `[x]` Optimizar `IngredientAnalyzer.kt` (umbral y tokens)
+- `[x]` Implementar diálogo de selección en `ArIngredientScannerScreen.kt` (Receta Existente vs Receta Improvisada con IA)
+- `[ ]` Compilar y verificar el proyecto (`gradle_build`)

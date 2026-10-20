@@ -49,14 +49,9 @@ import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.label.ImageLabeling
 import com.google.mlkit.vision.label.defaults.ImageLabelerOptions
 import io.github.sceneview.ar.ARScene
-import com.google.common.util.concurrent.ListenableFuture
-
 
 /**
  * Pantalla interactiva para escaneo y registro manual de ingredientes con ARCore / CameraX.
- *
- * Muestra el ingrediente enfocado actualmente en tiempo real y permite guardarlo
- * únicamente cuando el usuario presiona explícitamente el botón "Registrar Ingrediente".
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -67,6 +62,7 @@ fun ArIngredientScannerScreen(
 ) {
     val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsState()
+    var showDecisionDialog by remember { mutableStateOf(false) }
 
     var hasCameraPermission by remember {
         mutableStateOf(
@@ -89,7 +85,6 @@ fun ArIngredientScannerScreen(
         }
     }
 
-    // Feedback visual mediante Toast al registrar un ingrediente
     LaunchedEffect(uiState.userFeedbackMessage) {
         uiState.userFeedbackMessage?.let { message ->
             Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
@@ -97,7 +92,6 @@ fun ArIngredientScannerScreen(
         }
     }
 
-    // Verificación de compatibilidad con ARCore
     var isArSupported by remember { mutableStateOf<Boolean?>(null) }
     LaunchedEffect(Unit) {
         try {
@@ -125,10 +119,9 @@ fun ArIngredientScannerScreen(
         return
     }
 
-    // Instancia del analizador
     val analyzer = remember {
         IngredientAnalyzer(
-            confidenceThreshold = 0.55f,
+            confidenceThreshold = 0.45f,
             onIngredientDetected = { detected ->
                 viewModel.onIngredientDetected(detected)
             }
@@ -139,6 +132,40 @@ fun ArIngredientScannerScreen(
         onDispose {
             analyzer.close()
         }
+    }
+
+    // Diálogo de decisión post-escaneo (Receta Existente vs Receta Improvisada con IA)
+    if (showDecisionDialog) {
+        AlertDialog(
+            onDismissRequest = { showDecisionDialog = false },
+            title = { Text("Ingredientes Escaneados con IA", fontWeight = FontWeight.Bold) },
+            text = { Text("Tienes ${uiState.savedIngredients.size} ingredientes listos. ¿Cómo deseas proceder?") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showDecisionDialog = false
+                        // Pasar señal de receta improvisada con IA (ej. anteponiendo prefijo o gestionando en ViewModel)
+                        onConfirm(uiState.savedIngredients)
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF6B4A)),
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Text("✦ Receta Improvisada con IA", color = Color.White, fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = {
+                OutlinedButton(
+                    onClick = {
+                        showDecisionDialog = false
+                        onConfirm(uiState.savedIngredients)
+                    },
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Text("Usar en Receta")
+                }
+            },
+            shape = RoundedCornerShape(20.dp)
+        )
     }
 
     Scaffold(
@@ -160,7 +187,6 @@ fun ArIngredientScannerScreen(
                     }
                 },
                 actions = {
-                    // Contador de ingredientes registrados
                     Surface(
                         shape = RoundedCornerShape(16.dp),
                         color = MaterialTheme.colorScheme.primaryContainer,
@@ -197,7 +223,6 @@ fun ArIngredientScannerScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            // 1. VISTA DE CÁMARA (ARCore o CameraX Fallback)
             when (isArSupported) {
                 true -> {
                     ARScene(
@@ -223,7 +248,7 @@ fun ArIngredientScannerScreen(
                 }
             }
 
-            // 2. MIRA / RETÍCULA CENTRAL DE ENFOQUE
+            // Retícula central
             Box(
                 modifier = Modifier
                     .size(120.dp)
@@ -235,7 +260,6 @@ fun ArIngredientScannerScreen(
                     )
             )
 
-            // 3. SUPERPOSICIÓN DE ESTADO Y BOTÓN DE REGISTRO
             Column(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
@@ -243,7 +267,6 @@ fun ArIngredientScannerScreen(
                     .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Tarjeta del Ingrediente Enfocado Actualmente
                 Surface(
                     shape = RoundedCornerShape(16.dp),
                     color = Color.Black.copy(alpha = 0.8f),
@@ -287,7 +310,6 @@ fun ArIngredientScannerScreen(
                     }
                 }
 
-                // Lista horizontal de ingredientes ya guardados
                 AnimatedVisibility(
                     visible = uiState.savedIngredients.isNotEmpty(),
                     enter = fadeIn(),
@@ -325,7 +347,6 @@ fun ArIngredientScannerScreen(
                     }
                 }
 
-                // BOTÓN "REGISTRAR INGREDIENTE" (Acción Manual explícita)
                 Button(
                     onClick = { viewModel.registerCurrentIngredient() },
                     enabled = uiState.currentIngredient != null,
@@ -347,14 +368,13 @@ fun ArIngredientScannerScreen(
                     )
                 }
 
-                // BOTÓN PARA TERMINAR Y DEVOLVER LOS INGREDIENTES A LA RECETA
                 AnimatedVisibility(
                     visible = uiState.savedIngredients.isNotEmpty(),
                     enter = fadeIn(),
                     exit = fadeOut()
                 ) {
                     Button(
-                        onClick = { onConfirm(uiState.savedIngredients) },
+                        onClick = { showDecisionDialog = true },
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(top = 8.dp)
@@ -376,9 +396,6 @@ fun ArIngredientScannerScreen(
     }
 }
 
-/**
- * Vista de fallback en CameraX para análisis con ML Kit.
- */
 @androidx.annotation.OptIn(androidx.camera.core.ExperimentalGetImage::class)
 @Composable
 private fun CameraXScannerView(
@@ -389,7 +406,7 @@ private fun CameraXScannerView(
 
     val labeler = remember {
         val options = ImageLabelerOptions.Builder()
-            .setConfidenceThreshold(0.55f)
+            .setConfidenceThreshold(0.45f)
             .build()
         ImageLabeling.getClient(options)
     }

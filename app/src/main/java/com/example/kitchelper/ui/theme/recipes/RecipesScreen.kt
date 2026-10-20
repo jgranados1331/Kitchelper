@@ -203,7 +203,7 @@ fun RecipesScreen(
                             // BOTON DE ESCANER IA
                             Button(
                                 onClick = {
-                                    // FALTA INCLUIR EL ARCORE DE MATEO
+                                    navController.navigate(Routes.AR_SCAN)
                                 },
                                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4A6B4A)),
                                 shape = RoundedCornerShape(16.dp),

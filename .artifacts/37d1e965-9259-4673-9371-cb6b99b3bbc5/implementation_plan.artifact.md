@@ -1,33 +1,30 @@
-# Plan: Implementación de la Sección de Recetas (`RecipesScreen`) y Guía de Subida de Imágenes a Firebase Storage
+# Plan: Mejora del Reconocimiento de Ingredientes ARCore y Diálogo de Selección (Receta Existente vs Receta Improvisada con IA)
 
-Este plan detalla la creación de la pantalla y el ViewModel para la sección de Recetas (`Routes.RECIPES`), conectándola con `RecipeRepository` y Firestore, así como una guía completa sobre cómo subir imágenes a **Firebase Storage** y almacenarlas en **Firestore**.
+Este plan detalla las mejoras al escáner ARCore / IA:
+1. **Mejorar el Reconocimiento**: Ampliar el catálogo de tokens en `IngredientAnalyzer.kt` y ajustar el umbral de confianza a `0.45f` para una detección más fluida y precisa.
+2. **Flujo Post-Escaneo (Diálogo de Decisión)**: Al presionar el botón "Usar X ingredientes en la receta" en `ArIngredientScannerScreen.kt`, mostrar un diálogo con dos opciones:
+   - **Buscar receta existente**: Buscar en el repositorio de recetas si alguna contiene los ingredientes escaneados.
+   - **Receta improvisada con IA**: Generar una receta improvisada basada en los ingredientes escaneados (prellenando el flujo de creación de receta con título, ingredientes y pasos sugeridos por IA).
 
 ## User Review Required
 
 > [!IMPORTANT]
-> - **Pantalla de Recetas**: Se implementará `RecipesScreen.kt`, `RecipesViewModel.kt` y `RecipeDetailScreen.kt` para reemplazar los placeholders actuales en `MainActivity.kt`.
-> - **Guía de Almacenamiento de Imágenes**: Se proveerá una recomendación arquitectónica y de código utilizando **Firebase Storage** junto con **Cloud Firestore**.
+> - **Diálogo Interactivo Post-Escaneo**: Se añadirá un diálogo al confirmar los ingredientes escaneados para que el usuario elija entre buscar una receta existente o crear una receta improvisada con IA.
 
 ## Proposed Changes
 
-### Módulo de Recetas (`ui/theme/recipes/` o similar)
+### Escáner AR / IA (`ar/`)
 
-#### [NEW] [RecipesViewModel.kt](file:///C:/Users/johan/OneDrive/Documents/universidad/Kitchelper/Kitchelper/app/src/main/java/com/example/kitchelper/ui/theme/recipes/RecipesViewModel.kt)
-- ViewModel para gestionar la lista de recetas, búsqueda, filtrado por categoría y dificultad desde `RecipeRepository`.
+#### [MODIFY] [IngredientAnalyzer.kt](file:///C:/Users/johan/OneDrive/Documents/universidad/Kitchelper/Kitchelper/app/src/main/java/com/example/kitchelper/ar/IngredientAnalyzer.kt)
+- Reducir el umbral de confianza por defecto a `0.45f` para mayor sensibilidad de reconocimiento.
+- Ampliar la whitelist de `INGREDIENT_TOKENS` y `SPANISH_NAMES` con más variedades culinarias.
 
-#### [NEW] [RecipesScreen.kt](file:///C:/Users/johan/OneDrive/Documents/universidad/Kitchelper/Kitchelper/app/src/main/java/com/example/kitchelper/ui/theme/recipes/RecipesScreen.kt)
-- Pantalla visual con barra de búsqueda, filtros de categoría y tarjetas de recetas con Coil (`AsyncImage`).
-
-#### [NEW] [RecipeDetailScreen.kt](file:///C:/Users/johan/OneDrive/Documents/universidad/Kitchelper/Kitchelper/app/src/main/java/com/example/kitchelper/ui/theme/recipes/RecipeDetailScreen.kt)
-- Pantalla de detalle para visualizar ingredientes, pasos y tiempo de la receta.
-
-#### [MODIFY] [MainActivity.kt](file:///C:/Users/johan/OneDrive/Documents/universidad/Kitchelper/Kitchelper/app/src/main/java/com/example/kitchelper/MainActivity.kt)
-- Reemplazar los placeholders de `Routes.RECIPES` y `Routes.RECIPE_DETAIL` por las pantallas reales.
+#### [MODIFY] [ArIngredientScannerScreen.kt](file:///C:/Users/johan/OneDrive/Documents/universidad/Kitchelper/Kitchelper/app/src/main/java/com/example/kitchelper/ar/ArIngredientScannerScreen.kt)
+- Añadir un estado de diálogo al presionar el botón de confirmación de ingredientes.
+- Opción 1: Buscar receta existente (filtrando por ingredientes).
+- Opción 2: Generar receta improvisada (creando un borrador en `CreateRecipeScreen` con los ingredientes escaneados y título/pasos generados).
 
 ---
-
-### Guía de Subida de Imágenes a Firebase Storage (Artifact / Explicación)
-- Explicación detallada del flujo: Compresión local $\rightarrow$ Firebase Storage (`storage.reference`) $\rightarrow$ Obtención de `downloadUrl` $\rightarrow$ Guardado en Firestore.
 
 ## Verification Plan
 
@@ -35,4 +32,4 @@ Este plan detalla la creación de la pantalla y el ViewModel para la sección de
 - Compilación del proyecto (`gradle_build`) para verificar cero errores de compilación.
 
 ### Manual Verification
-- Navegar a la sección de Recetas desde la barra inferior de la Home y verificar que carguen desde Firestore.
+- Probar el escaneo AR en la app y verificar que al confirmar aparezca el diálogo para elegir entre receta existente o receta improvisada con IA.
