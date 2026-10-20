@@ -72,6 +72,7 @@ class CreateRecipeViewModel(
 
     fun cargarParaEditar(recetaId: String) {
         if (recetaId.isBlank()) return
+        if (_state.value.editingRecipeId == recetaId) return   // ← NUEVO: ya está cargada
         viewModelScope.launch {
             _state.value = _state.value.copy(isSaving = true)
             val result = recipeRepo.obtenerReceta(recetaId)
@@ -240,6 +241,26 @@ class CreateRecipeViewModel(
             if (it.id == id) it.copy(nombre = nombre, cantidad = cantidad) else it
         }
         _state.value = _state.value.copy(ingredientes = lista)
+    }
+
+    // ===== Ingredientes escaneados con AR =====
+    fun agregarIngredientesDesdeAR(nombres: List<String>) {
+        // Quitamos los items en blanco (el estado inicial trae uno vacío)
+        val actuales = _state.value.ingredientes.filter { it.nombre.isNotBlank() }
+        val existentes = actuales.map { it.nombre.trim().lowercase() }.toSet()
+
+        val nuevos = nombres
+            .distinctBy { it.trim().lowercase() }
+            .filter { it.trim().lowercase() !in existentes }
+            .map { IngredienteItemState(nombre = it.trim()) }
+
+        _state.value = _state.value.copy(
+            ingredientes = (actuales + nuevos).ifEmpty { listOf(IngredienteItemState()) },
+            mensajeExito = if (nuevos.isNotEmpty())
+                "${nuevos.size} ingrediente(s) añadido(s) desde AR"
+            else
+                "Esos ingredientes ya estaban en la lista"
+        )
     }
 
     // ===== Gestión de Pasos =====

@@ -30,6 +30,7 @@ import com.example.kitchelper.ui.theme.recipes.CreateRecipeScreen
 import com.example.kitchelper.ui.theme.practices.PracticesScreen
 import com.example.kitchelper.ui.theme.practices.PracticeDetailScreen
 import com.example.kitchelper.ui.theme.navigation.Routes
+import com.example.kitchelper.ar.ArIngredientScannerScreen
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import com.example.kitchelper.ui.theme.ThemeManager
@@ -126,10 +127,21 @@ fun AppNavigation() {
             PracticeDetailScreen(practicaId = practicaId, navController = navController)
         }
 
-        // ===== MÓDULO 6: AR (Pendiente) =====
+        // ===== MÓDULO 6: AR =====
         composable(Routes.AR_GUIDE) {
-            PlaceholderScreen("Guía AR - Próximamente")
+            PlaceholderScreen("Calibración de la tabla de picar (próximamente)")
         }
+        composable(Routes.AR_SCAN) {
+            ArIngredientScannerScreen(
+                onNavigateBack = { navController.popBackStack() },
+                onConfirm = { lista -> /* ... */ }
+            )
+        }
+
+        composable(Routes.AR_GUIDE) {
+            PlaceholderScreen("Calibración de la tabla de picar") // pendiente
+        }
+
         composable(
             route = Routes.AR_RECIPE,
             arguments = listOf(androidx.navigation.navArgument("recetaId") {})

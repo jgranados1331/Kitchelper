@@ -29,6 +29,9 @@ import com.example.kitchelper.ui.theme.profile.CREMA
 import com.example.kitchelper.ui.theme.profile.DropdownField
 import com.example.kitchelper.ui.theme.profile.GRIS_TEXTO
 import com.example.kitchelper.ui.theme.profile.VERDE_KITCHEN
+import com.example.kitchelper.ui.theme.home.GuiaInteractivaAR
+import com.example.kitchelper.ui.theme.navigation.Routes
+import kotlinx.coroutines.flow.MutableStateFlow
 
 @Composable
 fun CreateRecipeScreen(
@@ -38,6 +41,18 @@ fun CreateRecipeScreen(
 ) {
     val state by viewModel.state.collectAsState()
     val context = LocalContext.current
+    val savedStateHandle = navController.currentBackStackEntry?.savedStateHandle
+    val ingredientesAR by (
+            savedStateHandle?.getStateFlow<List<String>>("ar_ingredientes", emptyList())
+                ?: remember { MutableStateFlow(emptyList()) }
+            ).collectAsState()
+
+    LaunchedEffect(ingredientesAR) {
+        if (ingredientesAR.isNotEmpty()) {
+            viewModel.agregarIngredientesDesdeAR(ingredientesAR)
+            savedStateHandle?.remove<List<String>>("ar_ingredientes")
+        }
+    }
 
     LaunchedEffect(recetaIdToEdit) {
         if (!recetaIdToEdit.isNullOrBlank()) {
@@ -242,6 +257,17 @@ fun CreateRecipeScreen(
                     Spacer(modifier = Modifier.width(6.dp))
                     Text("Agregar Ingrediente", fontFamily = InterFamily, fontWeight = FontWeight.Bold)
                 }
+                if (state.incluyeAR && !state.esPracticaBasica) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Button(
+                        onClick = { navController.navigate(Routes.AR_SCAN) },
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = VERDE_KITCHEN),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Escanear ingredientes con AR", fontFamily = InterFamily, fontWeight = FontWeight.Bold)
+                    }
+                }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -284,6 +310,15 @@ fun CreateRecipeScreen(
                     modelo3DUrl = state.modelo3DUrlAR,
                     onModelo3DSeleccionado = { uri -> viewModel.subirModelo3DAR(context, uri) }
                 )
+
+                // La guía de calibración solo aparece si el usuario activó la AR
+                if (state.incluyeAR) {
+                    Spacer(modifier = Modifier.height(12.dp))
+                    GuiaInteractivaAR(
+                        onCalibrarClick = { navController.navigate(Routes.AR_GUIDE) },
+                        onVistaARClick = { navController.navigate(Routes.AR_GUIDE) }
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(16.dp))

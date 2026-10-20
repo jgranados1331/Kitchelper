@@ -102,6 +102,8 @@ class HomeViewModel(
         }
     }
 
+    // ===== Gestión de Pasos =====
+
     /**
      * Lógica de IA simplificada (Content-Based Filtering):
      * - Si perfil está incompleto → receta aleatoria

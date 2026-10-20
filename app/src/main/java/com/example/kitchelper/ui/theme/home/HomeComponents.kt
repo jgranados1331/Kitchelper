@@ -296,6 +296,9 @@ fun RecetaDestacada(receta: Receta, onEmpezar: () -> Unit) {
 }
 
 // ============ GUÍA INTERACTIVA EN VR ============
+
+// Aplicar rutas para mostrar la guia solo cuando el usuario active AR
+
 @Composable
 fun GuiaInteractivaAR(onCalibrarClick: () -> Unit, onVistaARClick: () -> Unit) {
     Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {

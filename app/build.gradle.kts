@@ -77,9 +77,17 @@ dependencies {
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.storage)
 
-    // ARCore y SceneView
+    // ARCore, SceneView, ML Kit y CameraX
     implementation(libs.sceneview.ar)
     implementation(libs.arcore)
+    implementation(libs.mlkit.image.labeling)
+
+    // CameraX (Fallback para dispositivos no compatibles con ARCore)
+    implementation(libs.androidx.camera.camera2)
+    implementation(libs.androidx.camera.lifecycle)
+    implementation(libs.androidx.camera.view)
+    implementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
+    implementation("com.google.guava:guava:31.1-android")
 
     // Coil (Carga de imágenes)
     implementation(libs.coil.compose)
