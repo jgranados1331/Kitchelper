@@ -190,7 +190,7 @@ fun RecipesScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            if (state.soloMisRecetas) "Mis Recetas Creadas" else "Todas las recetas",
+                            if (state.soloMisRecetas) "Mis Recetas" else "Todas las recetas",
                             fontFamily = InriaSerifFamily,
                             fontSize = 19.sp,
                             fontWeight = FontWeight.Bold,
@@ -536,7 +536,7 @@ fun TarjetaRecetaGrid(
                             fontFamily = InterFamily,
                             fontSize = 9.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFFFF6B4A),
+                            color = Color(0xFF673AB7),
                             modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                         )
                     }

@@ -1,17 +1,19 @@
-# Resumen de Cambios - Mejora de Reconocimiento AR y Diálogo IA Post-Escaneo
+# Resumen de Cambios - Recálculo Dinámico e Individual por Paso de Receta
 
-Se han implementado exitosamente las mejoras solicitadas en el escáner ARCore / IA:
+Se han solucionado los motivos que provocaban respuestas repetitivas o estáticas al avanzar o retroceder entre pasos:
 
 ## Cambios Realizados
 
-### 1. Optimización del Reconocimiento de Ingredientes (`IngredientAnalyzer.kt`)
-- Se ajustó el umbral de confianza de ML Kit a **`0.45f`** (anteriormente `0.55f`), lo que proporciona mayor sensibilidad y velocidad al enfocar y detectar ingredientes en tiempo real.
-- Se refinó el filtrado con la whitelist de tokens de ingredientes y su correspondiente traducción al español.
+### 1. Inclusión Dinámica del Texto Exacto del Paso (`GeminiAiRepository.kt`)
+- Anteriormente, las descripciones que no contenían palabras clave específicas (como cortar o freír) caían en una cláusula de reserva estática idéntica para todos los pasos.
+- Ahora, el generador de consejos analiza la acción exacta de cada paso (`pasoActual.descripcion`) e integra **el texto del paso y el título de la receta** directamente en la respuesta (ej. `"Para 'Mezclar la salsa en la sartén': realiza el procedimiento..."`).
+- Se ampliaron las categorías de palabras clave (*mezclar*, *hornear*, *hervir*, *licuar*, *servir*, *sazonar*, *aceite*, *azúcar*, etc.) para dar un consejo técnico 100% único por paso.
 
-### 2. Flujo de Decisión Post-Escaneo con IA (`ArIngredientScannerScreen.kt`)
-- Al pulsar el botón para utilizar los ingredientes escaneados (`"Usar X ingredientes en la receta"`), ahora se despliega un **diálogo interactivo** que ofrece dos opciones:
-  1. **Usar en Receta**: Envía los ingredientes directamente al flujo de creación/búsqueda de receta normal.
-  2. **✦ Receta Improvisada con IA**: Activa la creación inteligente de una receta creativa improvisada basada en los ingredientes escaneados.
+### 2. Feedback Visual de Recálculo en Tiempo Real (`RecipeStepViewerScreen.kt`)
+- Al presionar las flechas para avanzar o retroceder de paso, la pantalla inmediatamente:
+  1. Limpia la sugerencia anterior (`consejoPasoActualIA = null`).
+  2. Muestra un indicador de carga (`CircularProgressIndicator`) con el mensaje *"Generando consejo único para el Paso X de 'Título de Receta'..."*.
+  3. Ejecuta de nuevo la recomendación de la IA para ese paso específico.
 
 ## Resultados de Verificación
 - **Compilación**: Ejecución exitosa de `app:assembleDebug` con **Build finished successfully**.

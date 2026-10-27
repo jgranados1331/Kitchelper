@@ -1,5 +1,5 @@
-# Tareas - Mejora de Reconocimiento AR y Diálogo IA Post-Escaneo
+# Tareas - Personalización IA del Paso a Paso Guiado
 
-- `[x]` Optimizar `IngredientAnalyzer.kt` (umbral y tokens)
-- `[x]` Implementar diálogo de selección en `ArIngredientScannerScreen.kt` (Receta Existente vs Receta Improvisada con IA)
-- `[ ]` Compilar y verificar el proyecto (`gradle_build`)
+- `[x]` Actualizar `GeminiAiRepository.kt` con prompts hiper-personalizados (Experticia, Salud y Preferencias) y motor de respuesta inteligente
+- `[x]` Actualizar `RecipeStepViewerScreen.kt` para asegurar actualización en cada ingreso a la receta y mostrar sugerencias adaptadas
+- `[x]` Compilar y verificar el proyecto (`gradle_build`)
