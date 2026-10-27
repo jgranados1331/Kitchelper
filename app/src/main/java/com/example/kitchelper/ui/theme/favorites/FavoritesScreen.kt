@@ -37,7 +37,7 @@ import com.example.kitchelper.ui.theme.profile.CREMA
 import com.example.kitchelper.ui.theme.profile.GRIS_TEXTO
 import com.example.kitchelper.ui.theme.profile.VERDE_KITCHEN
 
-val AMARILLO_ESTRELLA = Color(0xFFFFC107)
+val AMARILLO_ESTRELLA = Color(0xFFFFC107) // quemado ok
 
 @Composable
 fun FavoritesScreen(
@@ -54,7 +54,7 @@ fun FavoritesScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(CREMA)
+            .background(MaterialTheme.colorScheme.background)
     ) {
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
@@ -75,21 +75,21 @@ fun FavoritesScreen(
                             "Guardados",
                             fontFamily = InterFamily,
                             fontSize = 12.sp,
-                            color = Color.Gray
+                            color = MaterialTheme.colorScheme.onBackground
                         )
                         Text(
                             "MIS FAVORITOS",
                             fontFamily = FrauncesFamily,
                             fontSize = 24.sp,
                             fontWeight = FontWeight.Bold,
-                            color = VERDE_KITCHEN
+                            color = MaterialTheme.colorScheme.primary
                         )
                     }
 
                     Surface(
                         shape = CircleShape,
-                        color = Color.White,
-                        border = BorderStroke(2.dp, VERDE_KITCHEN),
+                        color = MaterialTheme.colorScheme.surface,
+                        border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
                         modifier = Modifier
                             .size(48.dp)
                             .clickable { navController.navigate(Routes.PROFILE) }
@@ -100,7 +100,7 @@ fun FavoritesScreen(
                                 fontFamily = FrauncesFamily,
                                 fontSize = 20.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = VERDE_KITCHEN
+                                color = MaterialTheme.colorScheme.primary
                             )
                         }
                     }
@@ -111,14 +111,14 @@ fun FavoritesScreen(
             if (state.isLoading) {
                 item(span = { GridItemSpan(2) }) {
                     Box(modifier = Modifier.height(250.dp), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator(color = VERDE_KITCHEN)
+                        CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                     }
                 }
             } else if (state.recetasFavoritas.isEmpty()) {
                 item(span = { GridItemSpan(2) }) {
                     Surface(
                         shape = RoundedCornerShape(24.dp),
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.surface,
                         shadowElevation = 2.dp,
                         modifier = Modifier
                             .fillMaxWidth()
@@ -140,23 +140,23 @@ fun FavoritesScreen(
                                 fontFamily = InriaSerifFamily,
                                 fontSize = 18.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = GRIS_TEXTO
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                             Spacer(modifier = Modifier.height(6.dp))
                             Text(
                                 "Presiona la estrella en cualquier receta para guardarla aquí y acceder rápidamente.",
                                 fontFamily = InterFamily,
                                 fontSize = 13.sp,
-                                color = Color.Gray,
+                                color = MaterialTheme.colorScheme.onSurface,
                                 textAlign = TextAlign.Center
                             )
                             Spacer(modifier = Modifier.height(16.dp))
                             Button(
                                 onClick = { navController.navigate(Routes.RECIPES) },
-                                colors = ButtonDefaults.buttonColors(containerColor = VERDE_KITCHEN),
+                                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                                 shape = RoundedCornerShape(20.dp)
                             ) {
-                                Text("Explorar Recetas", fontFamily = InterFamily, color = Color.White, fontWeight = FontWeight.Bold)
+                                Text("Explorar Recetas", fontFamily = InterFamily, color = MaterialTheme.colorScheme.onPrimary, fontWeight = FontWeight.Bold)
                             }
                         }
                     }
@@ -195,7 +195,7 @@ fun TarjetaFavoritaItem(
 ) {
     Surface(
         shape = RoundedCornerShape(20.dp),
-        color = Color.White,
+        color = MaterialTheme.colorScheme.surface,
         shadowElevation = 3.dp,
         modifier = Modifier
             .fillMaxWidth()
@@ -220,7 +220,7 @@ fun TarjetaFavoritaItem(
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .background(Color(0xFFE0E0E0), RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
+                            .background(MaterialTheme.colorScheme.onSurface, RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
                     )
                 }
 
@@ -251,7 +251,7 @@ fun TarjetaFavoritaItem(
                     fontFamily = InriaSerifFamily,
                     fontWeight = FontWeight.Bold,
                     fontSize = 14.sp,
-                    color = GRIS_TEXTO,
+                    color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 2
                 )
 
@@ -263,40 +263,40 @@ fun TarjetaFavoritaItem(
                 ) {
                     Surface(
                         shape = RoundedCornerShape(10.dp),
-                        color = Color(0xFFEBEBEB)
+                        color = MaterialTheme.colorScheme.surfaceVariant
                     ) {
                         Text(
                             "${receta.tiempoMinutos} min",
                             fontFamily = InterFamily,
                             fontSize = 9.sp,
-                            color = Color.Gray,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                         )
                     }
 
                     Surface(
                         shape = RoundedCornerShape(10.dp),
-                        color = Color(0xFFF2E6E6)
+                        color = MaterialTheme.colorScheme.surfaceVariant
                     ) {
                         Text(
                             "VR",
                             fontFamily = InterFamily,
                             fontSize = 9.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFFFF6B4A),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                         )
                     }
 
                     Surface(
                         shape = RoundedCornerShape(10.dp),
-                        color = Color(0xFFEBEBEB)
+                        color = MaterialTheme.colorScheme.surfaceVariant
                     ) {
                         Text(
                             receta.categoria.ifBlank { "Desayuno" },
                             fontFamily = InterFamily,
                             fontSize = 9.sp,
-                            color = Color.Gray,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                         )
                     }

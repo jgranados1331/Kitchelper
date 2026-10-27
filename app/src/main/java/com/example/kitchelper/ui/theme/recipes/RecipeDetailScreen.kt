@@ -120,7 +120,7 @@ fun RecipeDetailScreen(recetaId: String, navController: NavController) {
     ) {
         if (isLoading) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator(color = VERDE_KITCHEN)
+                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
             }
         } else if (receta == null) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -145,7 +145,7 @@ fun RecipeDetailScreen(recetaId: String, navController: NavController) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Surface(
                                 shape = CircleShape,
-                                color = VERDE_KITCHEN,
+                                color = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier
                                     .size(40.dp)
                                     .clickable { navController.popBackStack() }
@@ -154,7 +154,7 @@ fun RecipeDetailScreen(recetaId: String, navController: NavController) {
                                     Icon(
                                         Icons.AutoMirrored.Filled.ArrowBack,
                                         contentDescription = "Atrás",
-                                        tint = Color.White,
+                                        tint = MaterialTheme.colorScheme.surface,
                                         modifier = Modifier.size(18.dp)
                                     )
                                 }
@@ -165,14 +165,14 @@ fun RecipeDetailScreen(recetaId: String, navController: NavController) {
                                     "Nivel - ${currentReceta.dificultad.ifBlank { "Principiante" }}",
                                     fontFamily = InterFamily,
                                     fontSize = 11.sp,
-                                    color = Color.Gray
+                                    color = MaterialTheme.colorScheme.primary
                                 )
                                 Text(
                                     "KITCHELPER",
                                     fontFamily = FrauncesFamily,
                                     fontSize = 22.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = VERDE_KITCHEN
+                                    color = MaterialTheme.colorScheme.primary
                                 )
                             }
                         }
@@ -180,7 +180,7 @@ fun RecipeDetailScreen(recetaId: String, navController: NavController) {
                         Surface(
                             shape = CircleShape,
                             color = Color.White,
-                            border = BorderStroke(2.dp, VERDE_KITCHEN),
+                            border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
                             modifier = Modifier
                                 .size(44.dp)
                                 .clickable { navController.navigate(Routes.PROFILE) }
@@ -191,7 +191,7 @@ fun RecipeDetailScreen(recetaId: String, navController: NavController) {
                                     fontFamily = FrauncesFamily,
                                     fontSize = 18.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = VERDE_KITCHEN
+                                    color = MaterialTheme.colorScheme.primary
                                 )
                             }
                         }
@@ -292,7 +292,7 @@ fun RecipeDetailScreen(recetaId: String, navController: NavController) {
                 item {
                     Surface(
                         shape = RoundedCornerShape(20.dp),
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.surfaceVariant,
                         shadowElevation = 3.dp,
                         modifier = Modifier
                             .fillMaxWidth()
@@ -313,7 +313,7 @@ fun RecipeDetailScreen(recetaId: String, navController: NavController) {
                                 modifier = Modifier
                                     .height(30.dp)
                                     .width(1.dp),
-                                color = Color(0xFFE0E0E0)
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                             MetricaItem(
                                 icon = Icons.Default.DinnerDining,
@@ -323,7 +323,7 @@ fun RecipeDetailScreen(recetaId: String, navController: NavController) {
                                 modifier = Modifier
                                     .height(30.dp)
                                     .width(1.dp),
-                                color = Color(0xFFE0E0E0)
+                                color = MaterialTheme.colorScheme.onSurface,
                             )
                             MetricaItem(
                                 icon = Icons.Default.Restaurant,
@@ -348,10 +348,10 @@ fun RecipeDetailScreen(recetaId: String, navController: NavController) {
                             onClick = { tabSeleccionada = "Instrucciones" },
                             label = { Text("Instrucciones", fontFamily = InterFamily, fontWeight = FontWeight.Bold) },
                             colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = VERDE_KITCHEN,
-                                selectedLabelColor = Color.White,
-                                containerColor = Color.White,
-                                labelColor = GRIS_TEXTO
+                                selectedContainerColor = MaterialTheme.colorScheme.primary,
+                                selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                                containerColor = MaterialTheme.colorScheme.surface,
+                                labelColor = MaterialTheme.colorScheme.onSurface,
                             ),
                             modifier = Modifier.weight(1f)
                         )
@@ -373,10 +373,10 @@ fun RecipeDetailScreen(recetaId: String, navController: NavController) {
                             },
                             label = { Text("Video", fontFamily = InterFamily, fontWeight = FontWeight.Bold) },
                             colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = VERDE_KITCHEN,
-                                selectedLabelColor = Color.White,
-                                containerColor = Color.White,
-                                labelColor = GRIS_TEXTO
+                                selectedContainerColor = MaterialTheme.colorScheme.primary,
+                                selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                                containerColor = MaterialTheme.colorScheme.surface,
+                                labelColor = MaterialTheme.colorScheme.onSurface,
                             ),
                             modifier = Modifier.weight(1f)
                         )
@@ -388,10 +388,10 @@ fun RecipeDetailScreen(recetaId: String, navController: NavController) {
                             },
                             label = { Text("Realidad AR", fontFamily = InterFamily, fontWeight = FontWeight.Bold) },
                             colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = VERDE_KITCHEN,
-                                selectedLabelColor = Color.White,
-                                containerColor = Color.White,
-                                labelColor = GRIS_TEXTO
+                                selectedContainerColor = MaterialTheme.colorScheme.primary,
+                                selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                                containerColor = MaterialTheme.colorScheme.surface,
+                                labelColor = MaterialTheme.colorScheme.onSurface,
                             ),
                             modifier = Modifier.weight(1f)
                         )
@@ -406,7 +406,7 @@ fun RecipeDetailScreen(recetaId: String, navController: NavController) {
                         Surface(
                             shape = RoundedCornerShape(20.dp),
                             color = Color(0xFFF2F7EC),
-                            border = BorderStroke(1.5.dp, VERDE_KITCHEN),
+                            border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary),
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(horizontal = 16.dp)
@@ -416,7 +416,7 @@ fun RecipeDetailScreen(recetaId: String, navController: NavController) {
                                     Icon(
                                         Icons.Default.AutoAwesome,
                                         contentDescription = "IA",
-                                        tint = VERDE_KITCHEN,
+                                        tint = MaterialTheme.colorScheme.primary,
                                         modifier = Modifier.size(22.dp)
                                     )
                                     Spacer(modifier = Modifier.width(8.dp))
@@ -425,7 +425,7 @@ fun RecipeDetailScreen(recetaId: String, navController: NavController) {
                                         fontFamily = InriaSerifFamily,
                                         fontSize = 17.sp,
                                         fontWeight = FontWeight.Bold,
-                                        color = VERDE_KITCHEN
+                                        color = MaterialTheme.colorScheme.primary
                                     )
                                 }
 
@@ -455,7 +455,7 @@ fun RecipeDetailScreen(recetaId: String, navController: NavController) {
                         fontFamily = InriaSerifFamily,
                         fontSize = 22.sp,
                         fontWeight = FontWeight.Bold,
-                        color = GRIS_TEXTO,
+                        color = MaterialTheme.colorScheme.onBackground,
                         modifier = Modifier.padding(horizontal = 16.dp)
                     )
                     Spacer(modifier = Modifier.height(10.dp))
@@ -475,20 +475,20 @@ fun RecipeDetailScreen(recetaId: String, navController: NavController) {
                             fontFamily = InriaSerifFamily,
                             fontSize = 22.sp,
                             fontWeight = FontWeight.Bold,
-                            color = GRIS_TEXTO
+                            color = MaterialTheme.colorScheme.onBackground
                         )
                         Spacer(modifier = Modifier.height(6.dp))
                         Text(
                             "Sigue la preparación paso a paso con fotos y asistencia guiada.",
                             fontFamily = InterFamily,
                             fontSize = 12.sp,
-                            color = Color.Gray
+                            color = MaterialTheme.colorScheme.onBackground
                         )
                         Spacer(modifier = Modifier.height(14.dp))
 
                         Button(
                             onClick = { navController.navigate("recipe_step_viewer/${currentReceta.id}") },
-                            colors = ButtonDefaults.buttonColors(containerColor = NARANJA),
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
                             shape = RoundedCornerShape(24.dp),
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -527,7 +527,7 @@ private fun MetricaItem(icon: ImageVector, label: String) {
         Icon(
             icon,
             contentDescription = null,
-            tint = NARANJA,
+            tint = MaterialTheme.colorScheme.secondary,
             modifier = Modifier.size(24.dp)
         )
         Spacer(modifier = Modifier.height(4.dp))
@@ -568,7 +568,7 @@ fun ItemIngredienteDetalleCard(
 
     Surface(
         shape = RoundedCornerShape(20.dp),
-        color = Color.White,
+        color = MaterialTheme.colorScheme.surface,
         shadowElevation = 2.dp,
         modifier = Modifier
             .fillMaxWidth()
@@ -616,20 +616,20 @@ fun ItemIngredienteDetalleCard(
                     "Ingrediente de la receta",
                     fontFamily = InterFamily,
                     fontSize = 11.sp,
-                    color = Color.Gray
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
                 Spacer(modifier = Modifier.height(6.dp))
 
                 Surface(
                     shape = RoundedCornerShape(10.dp),
-                    color = Color(0xFFEBEBEB)
+                    color = MaterialTheme.colorScheme.surfaceVariant,
                 ) {
                     Text(
                         ingrediente.cantidad.ifBlank { "Al gusto" },
                         fontFamily = InterFamily,
                         fontSize = 10.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color.DarkGray,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
                     )
                 }
@@ -647,7 +647,7 @@ fun ItemIngredienteDetalleCard(
                     Icon(
                         Icons.Default.Info,
                         contentDescription = "Información con IA del ingrediente",
-                        tint = VERDE_KITCHEN,
+                        tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(20.dp)
                     )
                 }
@@ -664,7 +664,7 @@ fun ItemIngredienteDetalleCard(
                     Icon(
                         Icons.Default.AutoAwesome,
                         contentDescription = "IA",
-                        tint = VERDE_KITCHEN,
+                        tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(22.dp)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
@@ -673,7 +673,7 @@ fun ItemIngredienteDetalleCard(
                         fontFamily = InriaSerifFamily,
                         fontWeight = FontWeight.Bold,
                         fontSize = 17.sp,
-                        color = VERDE_KITCHEN
+                        color = MaterialTheme.colorScheme.primary
                     )
                 }
             },
@@ -686,14 +686,14 @@ fun ItemIngredienteDetalleCard(
                                 .height(100.dp),
                             contentAlignment = Alignment.Center
                         ) {
-                            CircularProgressIndicator(color = VERDE_KITCHEN)
+                            CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                         }
                     } else {
                         Text(
                             infoTextoIA ?: "Cargando información del ingrediente...",
                             fontFamily = InterFamily,
                             fontSize = 13.sp,
-                            color = GRIS_TEXTO,
+                            color = MaterialTheme.colorScheme.onSurface,
                             lineHeight = 18.sp
                         )
                     }
@@ -702,13 +702,13 @@ fun ItemIngredienteDetalleCard(
             confirmButton = {
                 Button(
                     onClick = { showInfoDialog = false },
-                    colors = ButtonDefaults.buttonColors(containerColor = VERDE_KITCHEN)
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                 ) {
-                    Text("Entendido", fontFamily = InterFamily, color = Color.White, fontWeight = FontWeight.Bold)
+                    Text("Entendido", fontFamily = InterFamily, color = MaterialTheme.colorScheme.onPrimary, fontWeight = FontWeight.Bold)
                 }
             },
             shape = RoundedCornerShape(20.dp),
-            containerColor = Color.White
+            containerColor = MaterialTheme.colorScheme.surface
         )
     }
 }

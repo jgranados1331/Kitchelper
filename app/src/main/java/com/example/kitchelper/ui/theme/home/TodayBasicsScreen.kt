@@ -62,7 +62,7 @@ fun TodayBasicsScreen(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Surface(
                             shape = CircleShape,
-                            color = VERDE_KITCHEN,
+                            color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier
                                 .size(40.dp)
                                 .clickable { navController.popBackStack() }
@@ -71,7 +71,7 @@ fun TodayBasicsScreen(
                                 Icon(
                                     Icons.AutoMirrored.Filled.ArrowBack,
                                     contentDescription = "Atrás",
-                                    tint = Color.White,
+                                    tint = MaterialTheme.colorScheme.onPrimary,
                                     modifier = Modifier.size(18.dp)
                                 )
                             }
@@ -82,22 +82,22 @@ fun TodayBasicsScreen(
                                 "Módulo Diario (Rotación 24h)",
                                 fontFamily = InterFamily,
                                 fontSize = 11.sp,
-                                color = Color.Gray
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                             Text(
                                 "BÁSICOS DE HOY",
                                 fontFamily = FrauncesFamily,
                                 fontSize = 22.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = VERDE_KITCHEN
+                                color = MaterialTheme.colorScheme.primary
                             )
                         }
                     }
 
                     Surface(
                         shape = CircleShape,
-                        color = Color.White,
-                        border = BorderStroke(2.dp, VERDE_KITCHEN),
+                        color = MaterialTheme.colorScheme.surface,
+                        border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
                         modifier = Modifier
                             .size(44.dp)
                             .clickable { navController.navigate(Routes.PROFILE) }
@@ -108,7 +108,7 @@ fun TodayBasicsScreen(
                                 fontFamily = FrauncesFamily,
                                 fontSize = 18.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = VERDE_KITCHEN
+                                color = MaterialTheme.colorScheme.primary
                             )
                         }
                     }
@@ -121,13 +121,13 @@ fun TodayBasicsScreen(
                     value = state.searchQuery,
                     onValueChange = { viewModel.buscarBasicos(it) },
                     placeholder = { Text("Buscar en los básicos de hoy...", fontFamily = InterFamily, fontSize = 13.sp) },
-                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = Color.Gray) },
+                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = MaterialTheme.colorScheme.secondary) },
                     singleLine = true,
                     shape = RoundedCornerShape(16.dp),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = Color.White,
-                        unfocusedContainerColor = Color.White,
-                        focusedBorderColor = VERDE_KITCHEN,
+                        focusedContainerColor = MaterialTheme.colorScheme.surface,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
                         unfocusedBorderColor = Color.Transparent
                     ),
                     modifier = Modifier.fillMaxWidth()
@@ -142,7 +142,7 @@ fun TodayBasicsScreen(
                         fontFamily = InriaSerifFamily,
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
-                        color = GRIS_TEXTO
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     SelectorNivel(
@@ -167,13 +167,13 @@ fun TodayBasicsScreen(
             if (state.isLoading) {
                 item(span = { GridItemSpan(2) }) {
                     Box(modifier = Modifier.height(200.dp), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator(color = VERDE_KITCHEN)
+                        CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                     }
                 }
             } else if (state.practicasFiltradas.isEmpty()) {
                 item(span = { GridItemSpan(2) }) {
                     Box(modifier = Modifier.height(150.dp), contentAlignment = Alignment.Center) {
-                        Text("No se encontraron básicos de hoy con los filtros seleccionados.", fontFamily = InterFamily, color = Color.Gray)
+                        Text("No se encontraron básicos de hoy con los filtros seleccionados.", fontFamily = InterFamily, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
             } else {

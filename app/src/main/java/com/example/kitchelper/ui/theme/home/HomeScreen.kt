@@ -35,7 +35,7 @@ fun HomeScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(0xFFFDF6EC))
+                .background(MaterialTheme.colorScheme.background)
         ) {
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
@@ -109,7 +109,7 @@ fun HomeScreen(
                         fontFamily = FrauncesFamily,
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF4A4A4A)
+                        color = MaterialTheme.colorScheme.onBackground
                     )
                     TextButton(onClick = { navController.navigate(Routes.RECIPES) }) {
                         Text(
@@ -117,7 +117,7 @@ fun HomeScreen(
                             fontFamily = InterFamily,
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFFFF6B4A)
+                            color = MaterialTheme.colorScheme.secondary
                         )
                     }
                 }
@@ -150,7 +150,7 @@ fun HomeScreen(
                         fontFamily = FrauncesFamily,
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF4A4A4A)
+                        color = MaterialTheme.colorScheme.onBackground
                     )
                     TextButton(onClick = { navController.navigate(Routes.PRACTICES) }) {
                         Text(
@@ -158,7 +158,7 @@ fun HomeScreen(
                             fontFamily = InterFamily,
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFFFF6B4A)
+                            color = MaterialTheme.colorScheme.secondary
                         )
                     }
                 }

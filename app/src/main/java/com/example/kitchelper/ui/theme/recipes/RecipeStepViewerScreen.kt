@@ -96,11 +96,11 @@ fun RecipeStepViewerScreen(recetaId: String, navController: NavController) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(CREMA)
+            .background(MaterialTheme.colorScheme.background)
     ) {
         if (isLoading) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator(color = VERDE_KITCHEN)
+                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
             }
         } else if (receta == null || receta!!.pasos.isEmpty()) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -132,7 +132,7 @@ fun RecipeStepViewerScreen(recetaId: String, navController: NavController) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Surface(
                             shape = CircleShape,
-                            color = VERDE_KITCHEN,
+                            color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier
                                 .size(40.dp)
                                 .clickable { navController.popBackStack() }
@@ -160,7 +160,7 @@ fun RecipeStepViewerScreen(recetaId: String, navController: NavController) {
                                 fontFamily = FrauncesFamily,
                                 fontSize = 18.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = VERDE_KITCHEN,
+                                color = MaterialTheme.colorScheme.primary,
                                 maxLines = 1
                             )
                         }
@@ -169,7 +169,7 @@ fun RecipeStepViewerScreen(recetaId: String, navController: NavController) {
                     Surface(
                         shape = CircleShape,
                         color = Color.White,
-                        border = BorderStroke(2.dp, VERDE_KITCHEN),
+                        border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
                         modifier = Modifier.size(44.dp)
                     ) {
                         Box(contentAlignment = Alignment.Center) {
@@ -178,7 +178,7 @@ fun RecipeStepViewerScreen(recetaId: String, navController: NavController) {
                                 fontFamily = FrauncesFamily,
                                 fontSize = 18.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = VERDE_KITCHEN
+                                color = MaterialTheme.colorScheme.primary
                             )
                         }
                     }
@@ -209,17 +209,17 @@ fun RecipeStepViewerScreen(recetaId: String, navController: NavController) {
                             Box(
                                 modifier = Modifier
                                     .fillMaxSize()
-                                    .background(Color(0xFFE0E0E0)),
+                                    .background(MaterialTheme.colorScheme.surfaceVariant),
                                 contentAlignment = Alignment.Center
                             ) {
-                                Text("Sin imagen disponible", fontFamily = InterFamily, color = Color.Gray)
+                                Text("Sin imagen disponible", fontFamily = InterFamily, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                         }
 
                         // Píldora del paso
                         Surface(
                             shape = RoundedCornerShape(12.dp),
-                            color = VERDE_KITCHEN,
+                            color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier
                                 .align(Alignment.TopStart)
                                 .padding(12.dp)
@@ -262,7 +262,7 @@ fun RecipeStepViewerScreen(recetaId: String, navController: NavController) {
                                 Icon(
                                     Icons.AutoMirrored.Filled.ArrowBack,
                                     contentDescription = "Paso Anterior",
-                                    tint = if (pasoActualIndex > 0) VERDE_KITCHEN else Color.LightGray,
+                                    tint = if (pasoActualIndex > 0) MaterialTheme.colorScheme.primary else Color.LightGray,
                                     modifier = Modifier.size(28.dp)
                                 )
                             }
@@ -272,7 +272,7 @@ fun RecipeStepViewerScreen(recetaId: String, navController: NavController) {
                                 fontFamily = InriaSerifFamily,
                                 fontSize = 18.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = NARANJA
+                                color = MaterialTheme.colorScheme.secondary
                             )
 
                             IconButton(
@@ -284,7 +284,7 @@ fun RecipeStepViewerScreen(recetaId: String, navController: NavController) {
                                 Icon(
                                     Icons.AutoMirrored.Filled.ArrowForward,
                                     contentDescription = "Paso Siguiente",
-                                    tint = if (pasoActualIndex < pasos.size - 1) VERDE_KITCHEN else Color.LightGray,
+                                    tint = if (pasoActualIndex < pasos.size - 1) MaterialTheme.colorScheme.primary else Color.LightGray,
                                     modifier = Modifier.size(28.dp)
                                 )
                             }
@@ -298,7 +298,7 @@ fun RecipeStepViewerScreen(recetaId: String, navController: NavController) {
                                 .fillMaxWidth()
                                 .height(6.dp)
                                 .clip(RoundedCornerShape(3.dp)),
-                            color = VERDE_KITCHEN,
+                            color = MaterialTheme.colorScheme.primary,
                             trackColor = Color(0xFFE0E0E0)
                         )
 
@@ -324,7 +324,7 @@ fun RecipeStepViewerScreen(recetaId: String, navController: NavController) {
                                         Toast.makeText(context, "No se pudo abrir el video", Toast.LENGTH_SHORT).show()
                                     }
                                 },
-                                colors = ButtonDefaults.buttonColors(containerColor = NARANJA),
+                                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
                                 shape = RoundedCornerShape(14.dp),
                                 modifier = Modifier.fillMaxWidth()
                             ) {
@@ -342,7 +342,7 @@ fun RecipeStepViewerScreen(recetaId: String, navController: NavController) {
                 Surface(
                     shape = RoundedCornerShape(20.dp),
                     color = Color(0xFFF2F7EC),
-                    border = BorderStroke(1.5.dp, VERDE_KITCHEN),
+                    border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp)
@@ -352,7 +352,7 @@ fun RecipeStepViewerScreen(recetaId: String, navController: NavController) {
                             Icon(
                                 Icons.Default.AutoAwesome,
                                 contentDescription = "IA",
-                                tint = VERDE_KITCHEN,
+                                tint = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.size(22.dp)
                             )
                             Spacer(modifier = Modifier.width(8.dp))
@@ -361,7 +361,7 @@ fun RecipeStepViewerScreen(recetaId: String, navController: NavController) {
                                 fontFamily = InriaSerifFamily,
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = VERDE_KITCHEN
+                                color = MaterialTheme.colorScheme.primary
                             )
                         }
 
@@ -373,7 +373,7 @@ fun RecipeStepViewerScreen(recetaId: String, navController: NavController) {
                                 modifier = Modifier.padding(vertical = 4.dp)
                             ) {
                                 CircularProgressIndicator(
-                                    color = VERDE_KITCHEN,
+                                    color = MaterialTheme.colorScheme.primary,
                                     modifier = Modifier.size(16.dp),
                                     strokeWidth = 2.dp
                                 )
@@ -405,7 +405,7 @@ fun RecipeStepViewerScreen(recetaId: String, navController: NavController) {
                                 fontFamily = InriaSerifFamily,
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = NARANJA
+                                color = MaterialTheme.colorScheme.secondary
                             )
                             Spacer(modifier = Modifier.height(4.dp))
                             sugerenciasIA.forEach { sugerencia ->

@@ -91,7 +91,7 @@ fun ProfileScreen(
     ) {
         if (state.isLoading) {
             CircularProgressIndicator(
-                color = VERDE_KITCHEN,
+                color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.align(Alignment.Center)
             )
         } else {
@@ -127,8 +127,8 @@ fun ProfileScreen(
                         label = "Correo Electrónico (No modificable)",
                         valor = state.usuario.email,
                         onValorChange = {},
-                        enabled = false,
-                        keyboardType = KeyboardType.Email
+                        // enabled = false,
+                        // keyboardType = KeyboardType.Email
                     )
                     Spacer(modifier = Modifier.height(12.dp))
                     CampoTexto(
@@ -313,19 +313,19 @@ fun ProfileScreen(
                     onClick = { viewModel.solicitarGuardar() },
                     enabled = !state.isLoading,
                     shape = RoundedCornerShape(30.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = VERDE_KITCHEN),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp)
                         .height(56.dp)
                 ) {
                     if (state.isLoading) {
-                        CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
+                        CircularProgressIndicator(color = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.size(24.dp))
                     } else {
                         Text(
                             "Guardar Información",
                             fontFamily = InterFamily,
-                            color = Color.White,
+                            color = MaterialTheme.colorScheme.onPrimary,
                             fontWeight = FontWeight.Bold,
                             fontSize = 16.sp
                         )
@@ -375,7 +375,7 @@ fun ProfileScreen(
                         "Perfil incompleto",
                         fontFamily = FrauncesFamily,
                         fontWeight = FontWeight.Bold,
-                        color = GRIS_TEXTO
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 },
                 text = {
@@ -383,13 +383,13 @@ fun ProfileScreen(
                         "¿Deseas regresar sin completar el perfil?",
                         fontFamily = InterFamily,
                         fontSize = 14.sp,
-                        color = GRIS_TEXTO
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 },
                 confirmButton = {
                     Button(
                         onClick = { viewModel.confirmarSalida() },
-                        colors = ButtonDefaults.buttonColors(containerColor = VERDE_KITCHEN)
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                     ) {
                         Text("Continuar", fontFamily = InterFamily, color = Color.White, fontWeight = FontWeight.Bold)
                     }
@@ -402,7 +402,7 @@ fun ProfileScreen(
                     }
                 },
                 shape = RoundedCornerShape(20.dp),
-                containerColor = Color.White
+                containerColor = MaterialTheme.colorScheme.surface
             )
         }
 
@@ -415,7 +415,7 @@ fun ProfileScreen(
                         "Cambios sin guardar",
                         fontFamily = FrauncesFamily,
                         fontWeight = FontWeight.Bold,
-                        color = GRIS_TEXTO
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 },
                 text = {
@@ -423,13 +423,13 @@ fun ProfileScreen(
                         "¿Deseas continuar sin guardar los cambios?",
                         fontFamily = InterFamily,
                         fontSize = 14.sp,
-                        color = GRIS_TEXTO
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 },
                 confirmButton = {
                     Button(
                         onClick = { viewModel.confirmarSalida() },
-                        colors = ButtonDefaults.buttonColors(containerColor = VERDE_KITCHEN)
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                     ) {
                         Text("Continuar", fontFamily = InterFamily, color = Color.White, fontWeight = FontWeight.Bold)
                     }
@@ -438,11 +438,11 @@ fun ProfileScreen(
                     OutlinedButton(
                         onClick = { viewModel.cancelarSalida() }
                     ) {
-                        Text("Volver", fontFamily = InterFamily, color = Color.Gray)
+                        Text("Volver", fontFamily = InterFamily, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 },
                 shape = RoundedCornerShape(20.dp),
-                containerColor = Color.White
+                containerColor = MaterialTheme.colorScheme.surface
             )
         }
 
@@ -455,7 +455,7 @@ fun ProfileScreen(
                         "Guardar información",
                         fontFamily = FrauncesFamily,
                         fontWeight = FontWeight.Bold,
-                        color = GRIS_TEXTO
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 },
                 text = {
@@ -463,15 +463,15 @@ fun ProfileScreen(
                         "¿Estás seguro de que deseas guardar los cambios?",
                         fontFamily = InterFamily,
                         fontSize = 14.sp,
-                        color = GRIS_TEXTO
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 },
                 confirmButton = {
                     Button(
                         onClick = { viewModel.guardarPerfil() },
-                        colors = ButtonDefaults.buttonColors(containerColor = VERDE_KITCHEN)
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                     ) {
-                        Text("Continuar", fontFamily = InterFamily, color = Color.White, fontWeight = FontWeight.Bold)
+                        Text("Continuar", fontFamily = InterFamily, color = MaterialTheme.colorScheme.onPrimary, fontWeight = FontWeight.Bold)
                     }
                 },
                 dismissButton = {
@@ -482,7 +482,7 @@ fun ProfileScreen(
                     }
                 },
                 shape = RoundedCornerShape(20.dp),
-                containerColor = Color.White
+                containerColor = MaterialTheme.colorScheme.surface
             )
         }
 
@@ -503,7 +503,7 @@ fun ProfileScreen(
                         "¿Estás seguro de que deseas eliminar tu cuenta? Esta acción borrará permanentemente toda tu información, perfil y favoritos, y no se podrá deshacer.",
                         fontFamily = InterFamily,
                         fontSize = 14.sp,
-                        color = GRIS_TEXTO
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 },
                 confirmButton = {
@@ -522,7 +522,7 @@ fun ProfileScreen(
                     }
                 },
                 shape = RoundedCornerShape(20.dp),
-                containerColor = Color.White
+                containerColor = MaterialTheme.colorScheme.surface
             )
         }
 
@@ -557,7 +557,7 @@ fun HeaderPerfil(onBackClick: () -> Unit, state: ProfileState) {
         ) {
             Surface(
                 shape = CircleShape,
-                color = VERDE_KITCHEN,
+                color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier
                     .size(44.dp)
                     .clickable { onBackClick() }
@@ -566,7 +566,7 @@ fun HeaderPerfil(onBackClick: () -> Unit, state: ProfileState) {
                     Icon(
                         Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Atrás",
-                        tint = Color.White,
+                        tint = MaterialTheme.colorScheme.onPrimary,
                         modifier = Modifier.size(20.dp)
                     )
                 }
@@ -580,13 +580,13 @@ fun HeaderPerfil(onBackClick: () -> Unit, state: ProfileState) {
                 Text(
                     "Nivel - ${state.usuario.informacionCulinaria.experticia.ifBlank { "Principiante" }}",
                     fontFamily = InterFamily,
-                    color = Color.Gray,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontSize = 12.sp
                 )
                 Text(
                     "TU PERFIL",
                     fontFamily = FrauncesFamily,
-                    color = GRIS_TEXTO,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontWeight = FontWeight.Bold,
                     fontSize = 20.sp
                 )
@@ -595,7 +595,7 @@ fun HeaderPerfil(onBackClick: () -> Unit, state: ProfileState) {
             // Avatar circular superior
             Surface(
                 shape = CircleShape,
-                color = Color.White,
+                color = MaterialTheme.colorScheme.surface,
                 shadowElevation = 2.dp,
                 modifier = Modifier.size(48.dp)
             ) {
@@ -603,7 +603,7 @@ fun HeaderPerfil(onBackClick: () -> Unit, state: ProfileState) {
                     Text(
                         state.usuario.nombre.firstOrNull()?.uppercase() ?: "E",
                         fontFamily = FrauncesFamily,
-                        color = VERDE_KITCHEN,
+                        color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.Bold,
                         fontSize = 20.sp
                     )
@@ -622,7 +622,7 @@ fun HeaderPerfil(onBackClick: () -> Unit, state: ProfileState) {
         ) {
             Surface(
                 shape = CircleShape,
-                color = Color.White,
+                color = MaterialTheme.colorScheme.surface,
                 shadowElevation = 4.dp,
                 modifier = Modifier.size(80.dp)
             ) {
@@ -630,7 +630,7 @@ fun HeaderPerfil(onBackClick: () -> Unit, state: ProfileState) {
                     Text(
                         state.usuario.nombre.firstOrNull()?.uppercase() ?: "E",
                         fontFamily = InriaSerifFamily,
-                        color = VERDE_KITCHEN,
+                        color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.Bold,
                         fontSize = 36.sp
                     )
@@ -643,14 +643,14 @@ fun HeaderPerfil(onBackClick: () -> Unit, state: ProfileState) {
                     fontFamily = InriaSerifFamily,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
-                    color = VERDE_KITCHEN
+                    color = MaterialTheme.colorScheme.primary
                 )
                 Text(
                     "@${state.usuario.email.ifBlank { "Correo Electrónico" }}",
                     fontFamily = InriaSerifFamily,
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold,
-                    color = VERDE_KITCHEN
+                    color = MaterialTheme.colorScheme.primary
                 )
             }
         }
@@ -665,7 +665,7 @@ fun TarjetaSeccion(
 ) {
     Surface(
         shape = RoundedCornerShape(24.dp),
-        color = Color.White,
+        color = MaterialTheme.colorScheme.surface,
         shadowElevation = 2.dp,
         modifier = Modifier
             .fillMaxWidth()
@@ -677,7 +677,7 @@ fun TarjetaSeccion(
                 fontFamily = InriaSerifFamily,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
-                color = NARANJA
+                color = MaterialTheme.colorScheme.secondary
             )
             Spacer(modifier = Modifier.height(12.dp))
             contenido()

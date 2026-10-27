@@ -67,7 +67,7 @@ fun RecipesScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFFDF6EC))
+            .background(MaterialTheme.colorScheme.background)
     ) {
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
@@ -88,21 +88,21 @@ fun RecipesScreen(
                             "Descubre y Crea",
                             fontFamily = InterFamily,
                             fontSize = 12.sp,
-                            color = Color.Gray
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Text(
                             "RECETAS",
                             fontFamily = FrauncesFamily,
                             fontSize = 24.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF4A6B4A)
+                            color = MaterialTheme.colorScheme.primary
                         )
                     }
 
                     Surface(
                         shape = CircleShape,
-                        color = Color.White,
-                        border = BorderStroke(2.dp, Color(0xFF4A6B4A)),
+                        color = MaterialTheme.colorScheme.surface,
+                        border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
                         modifier = Modifier
                             .size(48.dp)
                             .clickable { navController.navigate(Routes.PROFILE) }
@@ -113,7 +113,7 @@ fun RecipesScreen(
                                 fontFamily = FrauncesFamily,
                                 fontSize = 20.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFF4A6B4A)
+                                color = MaterialTheme.colorScheme.primary
                             )
                         }
                     }
@@ -128,7 +128,7 @@ fun RecipesScreen(
                         fontFamily = InriaSerifFamily,
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF4A4A4A)
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Spacer(modifier = Modifier.height(10.dp))
                     LazyRow(
@@ -170,7 +170,7 @@ fun RecipesScreen(
                         fontFamily = InriaSerifFamily,
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF4A4A4A)
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     SelectorNivel(
@@ -194,7 +194,7 @@ fun RecipesScreen(
                             fontFamily = InriaSerifFamily,
                             fontSize = 19.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF4A4A4A)
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(7.dp),
@@ -205,7 +205,7 @@ fun RecipesScreen(
                                 onClick = {
                                     navController.navigate(Routes.AR_SCAN)
                                 },
-                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4A6B4A)),
+                                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                                 shape = RoundedCornerShape(16.dp),
                                 contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
                             ) {
@@ -214,7 +214,7 @@ fun RecipesScreen(
                                     fontFamily = InterFamily,
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = Color.White
+                                    color = MaterialTheme.colorScheme.onPrimary
                                 )
                             }
 
@@ -222,7 +222,7 @@ fun RecipesScreen(
 
                             Button(
                                 onClick = { navController.navigate(Routes.CREATE_RECIPE) },
-                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4A6B4A)),
+                                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                                 shape = RoundedCornerShape(16.dp),
                                 contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
                             ) {
@@ -231,7 +231,7 @@ fun RecipesScreen(
                                     fontFamily = InterFamily,
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = Color.White
+                                    color = MaterialTheme.colorScheme.onPrimary
                                 )
                             }
                         }
@@ -249,8 +249,8 @@ fun RecipesScreen(
                             onClick = { viewModel.toggleSoloMisRecetas(false) },
                             label = { Text("Todas", fontFamily = InterFamily, fontWeight = FontWeight.Bold) },
                             colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = Color(0xFF4A6B4A),
-                                selectedLabelColor = Color.White
+                                selectedContainerColor = MaterialTheme.colorScheme.primary,
+                                selectedLabelColor = MaterialTheme.colorScheme.onSecondary
                             )
                         )
                         FilterChip(
@@ -258,8 +258,8 @@ fun RecipesScreen(
                             onClick = { viewModel.toggleSoloMisRecetas(true) },
                             label = { Text("Mis Creaciones", fontFamily = InterFamily, fontWeight = FontWeight.Bold) },
                             colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = Color(0xFFE07A5F),
-                                selectedLabelColor = Color.White
+                                selectedContainerColor = MaterialTheme.colorScheme.secondary,
+                                selectedLabelColor = MaterialTheme.colorScheme.onPrimary
                             )
                         )
                     }
@@ -270,7 +270,7 @@ fun RecipesScreen(
             if (state.isLoading) {
                 item(span = { GridItemSpan(2) }) {
                     Box(modifier = Modifier.height(200.dp), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator(color = Color(0xFF4A6B4A))
+                        CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                     }
                 }
             } else if (state.recetasFiltradas.isEmpty()) {
@@ -279,7 +279,7 @@ fun RecipesScreen(
                         Text(
                             if (state.soloMisRecetas) "Aún no has creado recetas. ¡Usa el botón '+ Crear Receta' para empezar!" else "No se encontraron recetas con los filtros seleccionados",
                             fontFamily = InterFamily,
-                            color = Color.Gray,
+                            color = MaterialTheme.colorScheme.onSurface,
                             fontSize = 13.sp
                         )
                     }
@@ -311,7 +311,7 @@ fun RecipesScreen(
                         "Eliminar Receta",
                         fontFamily = FrauncesFamily,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFFE53935)
+                        color = MaterialTheme.colorScheme.surface
                     )
                 },
                 text = {
@@ -319,7 +319,7 @@ fun RecipesScreen(
                         "¿Estás seguro de que deseas eliminar esta receta? Se borrará permanentemente de la plataforma.",
                         fontFamily = InterFamily,
                         fontSize = 14.sp,
-                        color = Color(0xFF4A4A4A)
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 },
                 confirmButton = {
@@ -327,16 +327,16 @@ fun RecipesScreen(
                         onClick = { viewModel.confirmarEliminarReceta() },
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE53935))
                     ) {
-                        Text("Eliminar", fontFamily = InterFamily, color = Color.White, fontWeight = FontWeight.Bold)
+                        Text("Eliminar", fontFamily = InterFamily, color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold)
                     }
                 },
                 dismissButton = {
                     OutlinedButton(onClick = { viewModel.cancelarEliminarReceta() }) {
-                        Text("Cancelar", fontFamily = InterFamily, color = Color.Gray)
+                        Text("Cancelar", fontFamily = InterFamily, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 },
                 shape = RoundedCornerShape(20.dp),
-                containerColor = Color.White
+                containerColor = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
 
@@ -368,7 +368,7 @@ fun ItemCategoriaCard(
         Surface(
             shape = RoundedCornerShape(18.dp),
             shadowElevation = if (estaSeleccionada) 4.dp else 1.dp,
-            border = if (estaSeleccionada) BorderStroke(2.dp, Color(0xFF4A6B4A)) else null,
+            border = if (estaSeleccionada) BorderStroke(2.dp, MaterialTheme.colorScheme.primary) else null,
             modifier = Modifier.size(90.dp)
         ) {
             Image(
@@ -384,7 +384,7 @@ fun ItemCategoriaCard(
             fontFamily = InriaSerifFamily,
             fontSize = 14.sp,
             fontWeight = FontWeight.Bold,
-            color = if (estaSeleccionada) Color(0xFF4A6B4A) else Color(0xFF4A4A4A)
+            color = if (estaSeleccionada) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
         )
     }
 }
@@ -402,7 +402,7 @@ fun TarjetaRecetaGrid(
 ) {
     Surface(
         shape = RoundedCornerShape(20.dp),
-        color = Color.White,
+        color = MaterialTheme.colorScheme.surface,
         shadowElevation = 3.dp,
         modifier = Modifier
             .fillMaxWidth()
@@ -427,7 +427,7 @@ fun TarjetaRecetaGrid(
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .background(Color(0xFFE0E0E0), RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
+                            .background(MaterialTheme.colorScheme.onSurfaceVariant, RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
                     )
                 }
 
@@ -461,7 +461,7 @@ fun TarjetaRecetaGrid(
                     ) {
                         Surface(
                             shape = CircleShape,
-                            color = Color(0xFF4A6B4A),
+                            color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier
                                 .size(28.dp)
                                 .clickable { onEditClick() }
@@ -470,7 +470,7 @@ fun TarjetaRecetaGrid(
                                 Icon(
                                     Icons.Default.Edit,
                                     contentDescription = "Editar mi receta",
-                                    tint = Color.White,
+                                    tint = MaterialTheme.colorScheme.onPrimary,
                                     modifier = Modifier.size(15.dp)
                                 )
                             }
@@ -487,7 +487,7 @@ fun TarjetaRecetaGrid(
                                 Icon(
                                     Icons.Default.Delete,
                                     contentDescription = "Eliminar mi receta",
-                                    tint = Color.White,
+                                    tint = MaterialTheme.colorScheme.onPrimary,
                                     modifier = Modifier.size(15.dp)
                                 )
                             }
@@ -502,7 +502,7 @@ fun TarjetaRecetaGrid(
                     fontFamily = InriaSerifFamily,
                     fontWeight = FontWeight.Bold,
                     fontSize = 14.sp,
-                    color = Color(0xFF4A4A4A),
+                    color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 2
                 )
 
@@ -515,13 +515,13 @@ fun TarjetaRecetaGrid(
                     // Píldora Tiempo
                     Surface(
                         shape = RoundedCornerShape(10.dp),
-                        color = Color(0xFFEBEBEB)
+                        color = MaterialTheme.colorScheme.surfaceVariant
                     ) {
                         Text(
                             "${receta.tiempoMinutos} min",
                             fontFamily = InterFamily,
                             fontSize = 9.sp,
-                            color = Color.Gray,
+                            color = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                         )
                     }
@@ -529,14 +529,14 @@ fun TarjetaRecetaGrid(
                     // Píldora VR / AR
                     Surface(
                         shape = RoundedCornerShape(10.dp),
-                        color = Color(0xFFF2E6E6)
+                        color = MaterialTheme.colorScheme.surfaceVariant
                     ) {
                         Text(
                             "VR",
                             fontFamily = InterFamily,
                             fontSize = 9.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFFFF6B4A),
+                            color = MaterialTheme.colorScheme.secondary,
                             modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                         )
                     }
@@ -544,13 +544,13 @@ fun TarjetaRecetaGrid(
                     // Píldora Categoría
                     Surface(
                         shape = RoundedCornerShape(10.dp),
-                        color = Color(0xFFEBEBEB)
+                        color = MaterialTheme.colorScheme.surfaceVariant
                     ) {
                         Text(
                             receta.categoria.ifBlank { "Desayuno" },
                             fontFamily = InterFamily,
                             fontSize = 9.sp,
-                            color = Color.Gray,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                         )
                     }

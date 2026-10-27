@@ -2,9 +2,9 @@ package com.example.kitchelper.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// ============ COLOR THEORY PALETTE FOR KITCHELPER ============
+// ============ TEORÍA DEL COLOR Y CONTRASTE PARA KITCHENHELPER ============
 
-// Light Theme Palette (Warm & Organic Culinary Tones)
+// Paleta de colores tema claro/crema (Tonos de cocina cálidos)
 val VerdeKitchenLight = Color(0xFF4A6B4A)
 val OnVerdeKitchenLight = Color(0xFFFFFFFF)
 val VerdeKitchenContainerLight = Color(0xFFE2ECE2)
@@ -16,7 +16,7 @@ val NaranjaContainerLight = Color(0xFFFCEAE5)
 val OnNaranjaContainerLight = Color(0xFF3B1309)
 
 val CremaBackgroundLight = Color(0xFFFDF6EC)
-val OnBackgroundLight = Color(0xFF1C1B1F)
+val OnBackgroundLight = Color(0xFF000000)
 val SurfaceLight = Color(0xFFFFFFFF)
 val OnSurfaceLight = Color(0xFF1C1B1F)
 val SurfaceVariantLight = Color(0xFFEBEBEB)
@@ -33,9 +33,9 @@ val OnNaranjaAccentDark = Color(0xFF42180E)
 val NaranjaContainerDark = Color(0xFF5E291C)
 val OnNaranjaContainerDark = Color(0xFFFFDBCF)
 
-val CremaBackgroundDark = Color(0xFF121612)
-val OnBackgroundDark = Color(0xFFE2E8E2)
-val SurfaceDark = Color(0xFF1A201A)
-val OnSurfaceDark = Color(0xFFE2E8E2)
-val SurfaceVariantDark = Color(0xFF262D26)
-val OnSurfaceVariantDark = Color(0xFFA8B4A8)
+val CremaBackgroundDark = Color(0xFF151517)
+val OnBackgroundDark = Color(0xFFFFFFFF)
+val SurfaceDark = Color(0xFF2c2c2e)
+val OnSurfaceDark = Color(0xFFE6E6E6)
+val SurfaceVariantDark = Color(0xFF232325)
+val OnSurfaceVariantDark = Color(0xFFB0B0B0)

@@ -83,7 +83,7 @@ fun SettingsScreen(navController: NavController) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Surface(
                         shape = CircleShape,
-                        color = VERDE_KITCHEN,
+                        color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier
                             .size(40.dp)
                             .clickable { navController.popBackStack() }
@@ -92,7 +92,7 @@ fun SettingsScreen(navController: NavController) {
                             Icon(
                                 Icons.AutoMirrored.Filled.ArrowBack,
                                 contentDescription = "Atrás",
-                                tint = Color.White,
+                                tint = MaterialTheme.colorScheme.onPrimary,
                                 modifier = Modifier.size(18.dp)
                             )
                         }
@@ -103,22 +103,22 @@ fun SettingsScreen(navController: NavController) {
                             "Ajustes de la App",
                             fontFamily = InterFamily,
                             fontSize = 11.sp,
-                            color = Color.Gray
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Text(
                             "CONFIGURACIÓN",
                             fontFamily = FrauncesFamily,
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
-                            color = VERDE_KITCHEN
+                            color = MaterialTheme.colorScheme.primary
                         )
                     }
                 }
 
                 Surface(
                     shape = CircleShape,
-                    color = Color.White,
-                    border = BorderStroke(2.dp, VERDE_KITCHEN),
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
                     modifier = Modifier
                         .size(44.dp)
                         .clickable { navController.navigate(Routes.PROFILE) }
@@ -129,7 +129,7 @@ fun SettingsScreen(navController: NavController) {
                             fontFamily = FrauncesFamily,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
-                            color = VERDE_KITCHEN
+                            color = MaterialTheme.colorScheme.primary
                         )
                     }
                 }
@@ -162,7 +162,7 @@ fun SettingsScreen(navController: NavController) {
                         Icon(
                             Icons.Default.Palette,
                             contentDescription = null,
-                            tint = NARANJA,
+                            tint = MaterialTheme.colorScheme.secondary,
                             modifier = Modifier.size(20.dp)
                         )
                         Spacer(modifier = Modifier.width(8.dp))
@@ -172,13 +172,13 @@ fun SettingsScreen(navController: NavController) {
                                 fontFamily = InterFamily,
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = GRIS_TEXTO
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                             Text(
                                 if (modoOscuroActivo) "Modo Oscuro" else "Modo Claro",
                                 fontFamily = InterFamily,
                                 fontSize = 12.sp,
-                                color = Color.Gray
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                     }
@@ -193,8 +193,8 @@ fun SettingsScreen(navController: NavController) {
                             ).show()
                         },
                         colors = SwitchDefaults.colors(
-                            checkedThumbColor = Color.White,
-                            checkedTrackColor = VERDE_KITCHEN
+                            checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
+                            checkedTrackColor = MaterialTheme.colorScheme.primary
                         )
                     )
                 }
@@ -211,7 +211,7 @@ fun SettingsScreen(navController: NavController) {
                         Icon(
                             Icons.Default.Notifications,
                             contentDescription = null,
-                            tint = NARANJA,
+                            tint = MaterialTheme.colorScheme.secondary,
                             modifier = Modifier.size(20.dp)
                         )
                         Spacer(modifier = Modifier.width(8.dp))
@@ -221,13 +221,13 @@ fun SettingsScreen(navController: NavController) {
                                 fontFamily = InterFamily,
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = GRIS_TEXTO
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                             Text(
                                 "Recordatorios de recetas y básicos",
                                 fontFamily = InterFamily,
                                 fontSize = 12.sp,
-                                color = Color.Gray
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                     }
@@ -242,8 +242,8 @@ fun SettingsScreen(navController: NavController) {
                             ).show()
                         },
                         colors = SwitchDefaults.colors(
-                            checkedThumbColor = Color.White,
-                            checkedTrackColor = VERDE_KITCHEN
+                            checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
+                            checkedTrackColor = MaterialTheme.colorScheme.primary
                         )
                     )
                 }
@@ -304,25 +304,25 @@ fun SettingsScreen(navController: NavController) {
         if (showTerminosDialog) {
             AlertDialog(
                 onDismissRequest = { showTerminosDialog = false },
-                title = { Text("Términos y Condiciones", fontFamily = FrauncesFamily, fontWeight = FontWeight.Bold, color = VERDE_KITCHEN) },
+                title = { Text("Términos y Condiciones", fontFamily = FrauncesFamily, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary) },
                 text = {
                     Text(
                         "Bienvenido a KitchenPer. Al hacer uso de nuestra aplicación aceptas utilizar el contenido de recetas, guías interactivas VR/AR y almacenamiento de datos personales con el fin exclusivo de aprendizaje culinario personal.",
                         fontFamily = InterFamily,
                         fontSize = 13.sp,
-                        color = GRIS_TEXTO
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 },
                 confirmButton = {
                     Button(
                         onClick = { showTerminosDialog = false },
-                        colors = ButtonDefaults.buttonColors(containerColor = VERDE_KITCHEN)
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                     ) {
-                        Text("Entendido", fontFamily = InterFamily, color = Color.White)
+                        Text("Entendido", fontFamily = InterFamily, color = MaterialTheme.colorScheme.onPrimary)
                     }
                 },
                 shape = RoundedCornerShape(20.dp),
-                containerColor = Color.White
+                containerColor = MaterialTheme.colorScheme.surface
             )
         }
 
@@ -330,25 +330,25 @@ fun SettingsScreen(navController: NavController) {
         if (showPrivacidadDialog) {
             AlertDialog(
                 onDismissRequest = { showPrivacidadDialog = false },
-                title = { Text("Políticas de Privacidad", fontFamily = FrauncesFamily, fontWeight = FontWeight.Bold, color = VERDE_KITCHEN) },
+                title = { Text("Políticas de Privacidad", fontFamily = FrauncesFamily, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary) },
                 text = {
                     Text(
                         "En KitchenPer protegemos tu privacidad. Tu correo electrónico, datos de perfil, alergias y recetas se almacenan de manera segura en Firebase Firestore. No compartimos tu información con terceros sin tu consentimiento.",
                         fontFamily = InterFamily,
                         fontSize = 13.sp,
-                        color = GRIS_TEXTO
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 },
                 confirmButton = {
                     Button(
                         onClick = { showPrivacidadDialog = false },
-                        colors = ButtonDefaults.buttonColors(containerColor = VERDE_KITCHEN)
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                     ) {
-                        Text("Entendido", fontFamily = InterFamily, color = Color.White)
+                        Text("Entendido", fontFamily = InterFamily, color = MaterialTheme.colorScheme.onPrimary)
                     }
                 },
                 shape = RoundedCornerShape(20.dp),
-                containerColor = Color.White
+                containerColor = MaterialTheme.colorScheme.surface
             )
         }
 
@@ -382,7 +382,7 @@ fun ItemOpcionConfiguracion(
 ) {
     Surface(
         shape = RoundedCornerShape(14.dp),
-        color = Color(0xFFF9F9F9),
+        color = MaterialTheme.colorScheme.surfaceVariant    ,
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() }
@@ -391,11 +391,11 @@ fun ItemOpcionConfiguracion(
             modifier = Modifier.padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(icon, contentDescription = null, tint = NARANJA, modifier = Modifier.size(20.dp))
+            Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.secondary, modifier = Modifier.size(20.dp))
             Spacer(modifier = Modifier.width(12.dp))
             Column(modifier = Modifier.weight(1f)) {
-                Text(titulo, fontFamily = InterFamily, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = GRIS_TEXTO)
-                Text(subtitulo, fontFamily = InterFamily, fontSize = 11.sp, color = Color.Gray)
+                Text(titulo, fontFamily = InterFamily, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
+                Text(subtitulo, fontFamily = InterFamily, fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
     }
