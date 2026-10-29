@@ -38,7 +38,17 @@ android {
     }
     buildFeatures {
         compose = true
+        mlModelBinding = true
     }
+    packaging {
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+        }
+    }
+    androidResources {
+        noCompress += "tflite"
+    }
+
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
@@ -80,7 +90,8 @@ dependencies {
     // ARCore, SceneView, ML Kit y CameraX
     implementation(libs.sceneview.ar)
     implementation(libs.arcore)
-    implementation(libs.mlkit.image.labeling)
+    implementation(libs.tensorflow.lite)
+    implementation(libs.tensorflow.lite.support)
 
     // CameraX (Fallback para dispositivos no compatibles con ARCore)
     implementation(libs.androidx.camera.camera2)
@@ -103,3 +114,4 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 }
+
