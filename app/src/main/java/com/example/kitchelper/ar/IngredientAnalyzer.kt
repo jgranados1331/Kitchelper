@@ -160,7 +160,17 @@ class IngredientAnalyzer(
         val tensorImage = TensorImage.fromBitmap(bitmap)
         val processed = imageProcessor.process(tensorImage)
 
-        val output = Array(1) { FloatArray(labels.size) }
+        // Leemos cuántas clases tiene el modelo realmente (13 o 2, lo que sea)
+        val modelOutputShape = interpreter.getOutputTensor(0).shape()[1]
+
+        // Si el txt no coincide con el modelo, lanzamos un aviso en Logcat y evitamos el crash
+        if (labels.size != modelOutputShape) {
+            Log.e(tag, "ERROR CRÍTICO: El modelo espera $modelOutputShape clases, pero el txt tiene ${labels.size} etiquetas.")
+            onIngredientDetected(null)
+            return
+        }
+
+        val output = Array(1) { FloatArray(modelOutputShape) }
         interpreter.run(processed.buffer, output)
         val probs = output[0]
 
@@ -173,6 +183,8 @@ class IngredientAnalyzer(
         }
 
         val rawLabel = labels.getOrNull(maxIndex) ?: return
+
+        Log.d("ML_DEBUG", "El modelo dice: $rawLabel con ${maxProb * 100}% de confianza")
 
         if (maxProb < confidenceThreshold || isNeutralLabel(rawLabel)) {
             onIngredientDetected(null)
@@ -281,7 +293,7 @@ class IngredientAnalyzer(
     companion object {
         private val SPANISH_NAMES = mapOf(
             "tomato" to "Tomate", "onion" to "Cebolla", "garlic" to "Ajo",
-            "potato" to "Papa", "carrot" to "Zanahoria", "pepper" to "Pimiento",
+            "potato" to "Papa", "potatos" to "Papas",  "carrot" to "Zanahoria", "pepper" to "Pimiento",
             "lettuce" to "Lechuga", "spinach" to "Espinaca",
             "broccoli" to "Brócoli", "cabbage" to "Repollo", "cauliflower" to "Coliflor",
             "zucchini" to "Calabacín", "cucumber" to "Pepino", "pumpkin" to "Calabaza",

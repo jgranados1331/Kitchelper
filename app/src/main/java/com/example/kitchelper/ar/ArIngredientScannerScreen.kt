@@ -409,6 +409,8 @@ private fun CameraXScannerView(
                 }
 
                 val imageAnalysis = ImageAnalysis.Builder()
+                    // ESTA LÍNEA ES LA QUE ARREGLA EL PROBLEMA DE LA IMAGEN NEGRA
+                    .setOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_RGBA_8888)
                     .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                     .build()
 
