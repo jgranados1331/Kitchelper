@@ -1,4 +1,11 @@
-// app/build.gradle.kts
+import java.util.Properties
+
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localProperties.load(localPropertiesFile.inputStream())
+}
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -19,6 +26,9 @@ android {
         versionCode = 1
         versionName = "1.0"
 
+        val geminiKey: String = localProperties.getProperty("GEMINI_API_KEY") ?: ""
+        buildConfigField("String", "GEMINI_API_KEY", "\"$geminiKey\"")
+
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables { useSupportLibrary = true }
     }
@@ -38,6 +48,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
         mlModelBinding = true
     }
     packaging {
@@ -47,12 +58,6 @@ android {
     }
     androidResources {
         noCompress += "tflite"
-    }
-
-    packaging {
-        resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
-        }
     }
 }
 
@@ -78,7 +83,7 @@ dependencies {
 
     // Hilt (Inyección de Dependencias)
     implementation(libs.hilt.android)
-    ksp(libs.hilt.compiler) // Usa KSP en lugar de KAPT para mejor rendimiento
+    ksp(libs.hilt.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
 
     // Firebase (BOM)
@@ -93,7 +98,7 @@ dependencies {
     implementation(libs.tensorflow.lite)
     implementation(libs.tensorflow.lite.support)
 
-    // CameraX (Fallback para dispositivos no compatibles con ARCore)
+    // CameraX
     implementation(libs.androidx.camera.camera2)
     implementation(libs.androidx.camera.lifecycle)
     implementation(libs.androidx.camera.view)
@@ -114,4 +119,3 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 }
-
