@@ -45,9 +45,6 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.ar.core.ArCoreApk
-import com.google.mlkit.vision.common.InputImage
-import com.google.mlkit.vision.label.ImageLabeling
-import com.google.mlkit.vision.label.defaults.ImageLabelerOptions
 import io.github.sceneview.ar.ARScene
 
 /**
@@ -121,7 +118,8 @@ fun ArIngredientScannerScreen(
 
     val analyzer = remember {
         IngredientAnalyzer(
-            confidenceThreshold = 0.45f,
+            context = context,
+            confidenceThreshold = 0.65f,
             onIngredientDetected = { detected ->
                 viewModel.onIngredientDetected(detected)
             }
@@ -234,12 +232,7 @@ fun ArIngredientScannerScreen(
                     )
                 }
                 false -> {
-                    CameraXScannerView(
-                        modifier = Modifier.fillMaxSize(),
-                        onIngredientDetected = { detected ->
-                            viewModel.onIngredientDetected(detected)
-                        }
-                    )
+                    CameraXScannerView(modifier = Modifier.fillMaxSize(), analyzer = analyzer)
                 }
                 null -> {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -400,22 +393,9 @@ fun ArIngredientScannerScreen(
 @Composable
 private fun CameraXScannerView(
     modifier: Modifier = Modifier,
-    onIngredientDetected: (IngredientAnalyzer.DetectedIngredient?) -> Unit
+    analyzer: IngredientAnalyzer
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
-
-    val labeler = remember {
-        val options = ImageLabelerOptions.Builder()
-            .setConfidenceThreshold(0.45f)
-            .build()
-        ImageLabeling.getClient(options)
-    }
-
-    DisposableEffect(Unit) {
-        onDispose {
-            labeler.close()
-        }
-    }
 
     AndroidView(
         factory = { ctx ->
@@ -429,36 +409,14 @@ private fun CameraXScannerView(
                 }
 
                 val imageAnalysis = ImageAnalysis.Builder()
+                    // ESTA LÍNEA ES LA QUE ARREGLA EL PROBLEMA DE LA IMAGEN NEGRA
+                    .setOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_RGBA_8888)
                     .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                     .build()
 
                 imageAnalysis.setAnalyzer(ContextCompat.getMainExecutor(ctx)) { imageProxy ->
-                    val mediaImage = imageProxy.image
-                    if (mediaImage != null) {
-                        val inputImage = InputImage.fromMediaImage(
-                            mediaImage,
-                            imageProxy.imageInfo.rotationDegrees
-                        )
-                        labeler.process(inputImage)
-                            .addOnSuccessListener { labels ->
-                                val foodLabels = labels
-                                    .filter { IngredientAnalyzer.isFoodIngredient(it.text) }
-                                    .sortedByDescending { it.confidence }
-
-                                val topIngredient = foodLabels.firstOrNull()?.let {
-                                    IngredientAnalyzer.DetectedIngredient(
-                                        name = it.text.replaceFirstChar { char -> char.uppercase() },
-                                        confidence = it.confidence
-                                    )
-                                }
-                                onIngredientDetected(topIngredient)
-                            }
-                            .addOnCompleteListener {
-                                imageProxy.close()
-                            }
-                    } else {
-                        imageProxy.close()
-                    }
+                    // El analyzer TFLite convierte YUV→Bitmap, infiere y cierra el proxy
+                    analyzer.processImageProxy(imageProxy)
                 }
 
                 try {
