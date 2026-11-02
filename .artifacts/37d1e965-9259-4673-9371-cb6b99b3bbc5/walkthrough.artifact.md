@@ -1,19 +1,16 @@
-# Resumen de Cambios - Recálculo Dinámico e Individual por Paso de Receta
+# Resumen de Cambios - Ocultamiento y Protección de `google-services.json` en Git
 
-Se han solucionado los motivos que provocaban respuestas repetitivas o estáticas al avanzar o retroceder entre pasos:
+Se ha configurado la protección del archivo `google-services.json` para evitar exponer claves de Firebase en sistemas de control de versiones (Git/GitHub):
 
 ## Cambios Realizados
 
-### 1. Inclusión Dinámica del Texto Exacto del Paso (`GeminiAiRepository.kt`)
-- Anteriormente, las descripciones que no contenían palabras clave específicas (como cortar o freír) caían en una cláusula de reserva estática idéntica para todos los pasos.
-- Ahora, el generador de consejos analiza la acción exacta de cada paso (`pasoActual.descripcion`) e integra **el texto del paso y el título de la receta** directamente en la respuesta (ej. `"Para 'Mezclar la salsa en la sartén': realiza el procedimiento..."`).
-- Se ampliaron las categorías de palabras clave (*mezclar*, *hornear*, *hervir*, *licuar*, *servir*, *sazonar*, *aceite*, *azúcar*, etc.) para dar un consejo técnico 100% único por paso.
+1. **Exclusión en Control de Versiones (`.gitignore` & `app/.gitignore`)**:
+   - Se agregaron las reglas `google-services.json` y `app/google-services.json` a los archivos `.gitignore` del proyecto.
+   - Con esto, Git ignorará automáticamente el archivo de credenciales de Firebase, garantizando que nunca se suba ni exponga en repositorios públicos de Git o GitHub.
 
-### 2. Feedback Visual de Recálculo en Tiempo Real (`RecipeStepViewerScreen.kt`)
-- Al presionar las flechas para avanzar o retroceder de paso, la pantalla inmediatamente:
-  1. Limpia la sugerencia anterior (`consejoPasoActualIA = null`).
-  2. Muestra un indicador de carga (`CircularProgressIndicator`) con el mensaje *"Generando consejo único para el Paso X de 'Título de Receta'..."*.
-  3. Ejecuta de nuevo la recomendación de la IA para ese paso específico.
+2. **Aclaración Oficial sobre las Claves de Firebase en Android**:
+   - De acuerdo con la documentación oficial de Firebase: las claves dentro de `google-services.json` son identificadores de cliente Android (no claves secretas de servidor).
+   - La seguridad en Firebase está resguardada por las **Reglas de Seguridad de Firestore/Storage** y la restricción por huella digital SHA-1 del paquete de tu app.
 
 ## Resultados de Verificación
-- **Compilación**: Ejecución exitosa de `app:assembleDebug` con **Build finished successfully**.
+- **Compilación Kotlin**: Ejecución exitosa de `app:compileDebugKotlin` con **Build finished successfully**.

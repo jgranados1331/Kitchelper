@@ -22,8 +22,8 @@ class GeminiAiRepository {
 
     private fun obtenerModelos(): List<GenerativeModel> {
         return listOf(
-            GenerativeModel(modelName = "gemini-3.8-flash", apiKey = apiKey),
-            GenerativeModel(modelName = "gemini-3.5-flash-lite", apiKey = apiKey)
+            GenerativeModel(modelName = "gemini-3.5-flash-lite", apiKey = apiKey),
+            GenerativeModel(modelName = "gemini-3.1-flash-lite", apiKey = apiKey)
         )
     }
 
