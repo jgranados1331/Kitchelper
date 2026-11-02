@@ -27,7 +27,19 @@ android {
         versionName = "1.0"
 
         val geminiKey: String = localProperties.getProperty("GEMINI_API_KEY") ?: ""
+        val firebaseKey: String = localProperties.getProperty("FIREBASE_API_KEY") ?: ""
         buildConfigField("String", "GEMINI_API_KEY", "\"$geminiKey\"")
+
+        if (firebaseKey.isNotBlank()) {
+            val googleServicesJsonFile = file("google-services.json")
+            if (googleServicesJsonFile.exists()) {
+                var content = googleServicesJsonFile.readText()
+                if (!content.contains(firebaseKey)) {
+                    content = content.replace(Regex("\"current_key\":\\s*\"[^\"]+\""), "\"current_key\": \"$firebaseKey\"")
+                    googleServicesJsonFile.writeText(content)
+                }
+            }
+        }
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables { useSupportLibrary = true }

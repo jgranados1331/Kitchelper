@@ -1,16 +1,23 @@
-# Resumen de Cambios - Ocultamiento y Protección de `google-services.json` en Git
+# Resumen de Cambios - Sincronización Segura y Protección en Git de la Nueva Clave de Firebase
 
-Se ha configurado la protección del archivo `google-services.json` para evitar exponer claves de Firebase en sistemas de control de versiones (Git/GitHub):
+Se configuró el sistema para proteger y aplicar automáticamente la nueva clave de Firebase desde `local.properties`:
 
-## Cambios Realizados
+## Configuración Aplicada
 
-1. **Exclusión en Control de Versiones (`.gitignore` & `app/.gitignore`)**:
-   - Se agregaron las reglas `google-services.json` y `app/google-services.json` a los archivos `.gitignore` del proyecto.
-   - Con esto, Git ignorará automáticamente el archivo de credenciales de Firebase, garantizando que nunca se suba ni exponga en repositorios públicos de Git o GitHub.
+1. **Sincronización Automática en Gradle (`app/build.gradle.kts`)**:
+   - Al definir la nueva clave en `local.properties` como `FIREBASE_API_KEY=AIzaSyTuNuevaClave...`, Gradle actualizará automáticamente el campo `current_key` en `app/google-services.json` durante el proceso de compilación.
 
-2. **Aclaración Oficial sobre las Claves de Firebase en Android**:
-   - De acuerdo con la documentación oficial de Firebase: las claves dentro de `google-services.json` son identificadores de cliente Android (no claves secretas de servidor).
-   - La seguridad en Firebase está resguardada por las **Reglas de Seguridad de Firestore/Storage** y la restricción por huella digital SHA-1 del paquete de tu app.
+2. **Protección Total en GitHub (`.gitignore`)**:
+   - Tanto `local.properties` como `app/google-services.json` están listados en los archivos `.gitignore` del proyecto y del módulo.
+   - Git ignorará automáticamente ambos archivos, garantizando que tu nueva clave **nunca se suba ni quede expuesta en GitHub**.
+
+## Instrucciones para Aplicar tu Nueva Clave
+1. Abre el archivo local `local.properties` en la raíz de tu proyecto.
+2. Pega tu nueva clave de Firebase reemplazando el valor actual de `FIREBASE_API_KEY`:
+   ```properties
+   FIREBASE_API_KEY=AIzaSyTuClaveNuevaGenerada...
+   ```
+3. Ejecuta la aplicación de forma normal. Gradle inyectará la nueva clave en `google-services.json` manteniendo el archivo 100% oculto de Git.
 
 ## Resultados de Verificación
 - **Compilación Kotlin**: Ejecución exitosa de `app:compileDebugKotlin` con **Build finished successfully**.
