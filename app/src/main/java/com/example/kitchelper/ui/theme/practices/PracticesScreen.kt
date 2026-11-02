@@ -46,7 +46,7 @@ fun PracticesScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(CREMA)
+            .background(MaterialTheme.colorScheme.background)
     ) {
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
@@ -67,21 +67,21 @@ fun PracticesScreen(
                             "Básicos de Cocina",
                             fontFamily = InterFamily,
                             fontSize = 12.sp,
-                            color = Color.Gray
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Text(
                             "PRÁCTICAS BÁSICAS",
                             fontFamily = FrauncesFamily,
                             fontSize = 24.sp,
                             fontWeight = FontWeight.Bold,
-                            color = VERDE_KITCHEN
+                            color = MaterialTheme.colorScheme.primary
                         )
                     }
 
                     Surface(
                         shape = CircleShape,
-                        color = Color.White,
-                        border = BorderStroke(2.dp, VERDE_KITCHEN),
+                        color = MaterialTheme.colorScheme.surface,
+                        border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
                         modifier = Modifier
                             .size(48.dp)
                             .clickable { navController.navigate(Routes.PROFILE) }
@@ -92,7 +92,7 @@ fun PracticesScreen(
                                 fontFamily = FrauncesFamily,
                                 fontSize = 20.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = VERDE_KITCHEN
+                                color = MaterialTheme.colorScheme.primary
                             )
                         }
                     }
@@ -110,13 +110,13 @@ fun PracticesScreen(
                             value = state.searchQuery,
                             onValueChange = { viewModel.buscarPracticas(it) },
                             placeholder = { Text("Buscar técnica o práctica...", fontFamily = InterFamily, fontSize = 13.sp) },
-                            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = Color.Gray) },
+                            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = MaterialTheme.colorScheme.secondary) },
                             singleLine = true,
                             shape = RoundedCornerShape(16.dp),
                             colors = OutlinedTextFieldDefaults.colors(
-                                focusedContainerColor = Color.White,
-                                unfocusedContainerColor = Color.White,
-                                focusedBorderColor = VERDE_KITCHEN,
+                                focusedContainerColor = MaterialTheme.colorScheme.surface,
+                                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                                focusedBorderColor = MaterialTheme.colorScheme.primary,
                                 unfocusedBorderColor = Color.Transparent
                             ),
                             modifier = Modifier.weight(1f)
@@ -124,11 +124,11 @@ fun PracticesScreen(
                         Spacer(modifier = Modifier.width(8.dp))
                         Button(
                             onClick = { navController.navigate(Routes.CREATE_RECIPE) },
-                            colors = ButtonDefaults.buttonColors(containerColor = VERDE_KITCHEN),
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                             shape = RoundedCornerShape(16.dp),
                             contentPadding = PaddingValues(horizontal = 12.dp, vertical = 14.dp)
                         ) {
-                            Text("+ Crear", fontFamily = InterFamily, fontWeight = FontWeight.Bold, color = Color.White)
+                            Text("+ Crear", fontFamily = InterFamily, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimary)
                         }
                     }
                 }
@@ -142,7 +142,7 @@ fun PracticesScreen(
                         fontFamily = InriaSerifFamily,
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
-                        color = GRIS_TEXTO
+                        color = MaterialTheme.colorScheme.onBackground
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     SelectorNivel(
@@ -160,7 +160,7 @@ fun PracticesScreen(
                     fontFamily = InriaSerifFamily,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
-                    color = GRIS_TEXTO
+                    color = MaterialTheme.colorScheme.onBackground
                 )
             }
 
@@ -168,13 +168,13 @@ fun PracticesScreen(
             if (state.isLoading) {
                 item(span = { GridItemSpan(2) }) {
                     Box(modifier = Modifier.height(200.dp), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator(color = VERDE_KITCHEN)
+                        CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                     }
                 }
             } else if (state.practicasFiltradas.isEmpty()) {
                 item(span = { GridItemSpan(2) }) {
                     Box(modifier = Modifier.height(150.dp), contentAlignment = Alignment.Center) {
-                        Text("No se encontraron prácticas técnicas disponibles.", fontFamily = InterFamily, color = Color.Gray)
+                        Text("No se encontraron prácticas técnicas disponibles.", fontFamily = InterFamily, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
             } else {
@@ -205,7 +205,7 @@ fun PracticesScreen(
 fun TarjetaPracticaGrid(practica: PracticaBasica, onClick: () -> Unit) {
     Surface(
         shape = RoundedCornerShape(20.dp),
-        color = Color.White,
+        color = MaterialTheme.colorScheme.surface,
         shadowElevation = 3.dp,
         modifier = Modifier
             .fillMaxWidth()
@@ -230,7 +230,7 @@ fun TarjetaPracticaGrid(practica: PracticaBasica, onClick: () -> Unit) {
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .background(Color(0xFFE0E0E0), RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
+                            .background(MaterialTheme.colorScheme.surface  , RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
                     )
                 }
             }
@@ -241,7 +241,7 @@ fun TarjetaPracticaGrid(practica: PracticaBasica, onClick: () -> Unit) {
                     fontFamily = InriaSerifFamily,
                     fontWeight = FontWeight.Bold,
                     fontSize = 14.sp,
-                    color = GRIS_TEXTO,
+                    color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 2
                 )
 
@@ -251,7 +251,7 @@ fun TarjetaPracticaGrid(practica: PracticaBasica, onClick: () -> Unit) {
                     practica.descripcion,
                     fontFamily = InterFamily,
                     fontSize = 11.sp,
-                    color = Color.Gray,
+                    color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 2
                 )
 
@@ -263,13 +263,13 @@ fun TarjetaPracticaGrid(practica: PracticaBasica, onClick: () -> Unit) {
                 ) {
                     Surface(
                         shape = RoundedCornerShape(10.dp),
-                        color = Color(0xFFEBEBEB)
+                        color = MaterialTheme.colorScheme.surfaceVariant
                     ) {
                         Text(
                             "${practica.tiempoMinutos} min",
                             fontFamily = InterFamily,
                             fontSize = 9.sp,
-                            color = Color.Gray,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                         )
                     }
@@ -277,14 +277,14 @@ fun TarjetaPracticaGrid(practica: PracticaBasica, onClick: () -> Unit) {
                     if (practica.ar?.tieneAR == true) {
                         Surface(
                             shape = RoundedCornerShape(10.dp),
-                            color = Color(0xFFF2E6E6)
+                            color = MaterialTheme.colorScheme.surfaceVariant
                         ) {
                             Text(
                                 "VR",
                                 fontFamily = InterFamily,
                                 fontSize = 9.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFFFF6B4A),
+                                color = MaterialTheme.colorScheme.secondary,
                                 modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                             )
                         }
@@ -292,14 +292,14 @@ fun TarjetaPracticaGrid(practica: PracticaBasica, onClick: () -> Unit) {
 
                     Surface(
                         shape = RoundedCornerShape(10.dp),
-                        color = Color(0xFFE8F0D6)
+                        color = MaterialTheme.colorScheme.surfaceVariant
                     ) {
                         Text(
                             practica.dificultad.ifBlank { "Principiante" },
                             fontFamily = InterFamily,
                             fontSize = 9.sp,
                             fontWeight = FontWeight.Bold,
-                            color = VERDE_KITCHEN,
+                            color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                         )
                     }

@@ -1,6 +1,6 @@
 package com.example.kitchelper.ui.theme.profile
 
-import androidx.compose.foundation.background
+import androidx.compose.foundation.background // en desuso por que arraglaron colores quemados
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -24,7 +24,7 @@ import com.example.kitchelper.ui.theme.InterFamily
 
 // Colores dinámicos del tema según modo Claro / Oscuro
 val VERDE_KITCHEN @Composable get() = MaterialTheme.colorScheme.primary
-val VERDE_CLARO @Composable get() = Color(0xFFC5D86D)
+val VERDE_CLARO @Composable get() = Color(0xFFC5D86D) // en desuso por color quemado
 val CREMA @Composable get() = MaterialTheme.colorScheme.background
 val NARANJA @Composable get() = MaterialTheme.colorScheme.secondary
 val GRIS_TEXTO @Composable get() = MaterialTheme.colorScheme.onSurfaceVariant
@@ -61,7 +61,7 @@ fun CampoTexto(
                 label,
                 fontFamily = InterFamily,
                 fontSize = 13.sp,
-                color = if (enabled) NEGRO_OPCIONES else Color.Gray,
+                color = if (enabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
                 fontWeight = FontWeight.Bold
             )
             if (!enabled) {
@@ -69,7 +69,7 @@ fun CampoTexto(
                 Icon(
                     Icons.Default.Lock,
                     contentDescription = "Protegido",
-                    tint = Color.Gray,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(14.dp)
                 )
             }
@@ -82,8 +82,8 @@ fun CampoTexto(
             singleLine = true,
             shape = RoundedCornerShape(14.dp),
             colors = OutlinedTextFieldDefaults.colors(
-                focusedContainerColor = Color(0xFFEBEBEB),
-                unfocusedContainerColor = Color(0xFFEBEBEB),
+                focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
                 disabledContainerColor = Color(0xFFE0E0E0),
                 focusedBorderColor = Color.Transparent,
                 unfocusedBorderColor = Color.Transparent,
@@ -113,14 +113,14 @@ fun DropdownField(
             label,
             fontFamily = InterFamily,
             fontSize = 13.sp,
-            color = NEGRO_OPCIONES,
+            color = MaterialTheme.colorScheme.onSurface,
             fontWeight = FontWeight.Bold
         )
         Spacer(modifier = Modifier.height(4.dp))
         Box {
             Surface(
                 shape = RoundedCornerShape(14.dp),
-                color = Color(0xFFEBEBEB),
+                color = MaterialTheme.colorScheme.surfaceVariant,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp)
@@ -135,7 +135,7 @@ fun DropdownField(
                     Text(
                         valorSeleccionado.ifBlank { "Selecciona una opción..." },
                         fontFamily = InterFamily,
-                        color = NEGRO_OPCIONES,
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontWeight = FontWeight.Bold,
                         fontSize = 15.sp,
                         modifier = Modifier.weight(1f)
@@ -143,14 +143,14 @@ fun DropdownField(
                     // Ícono desplegable
                     Surface(
                         shape = CircleShape,
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.surface,
                         modifier = Modifier.size(26.dp)
                     ) {
                         Box(contentAlignment = Alignment.Center) {
                             Icon(
                                 Icons.Default.ArrowDownward,
                                 contentDescription = "Desplegar",
-                                tint = NARANJA,
+                                tint = MaterialTheme.colorScheme.secondary,
                                 modifier = Modifier.size(16.dp)
                             )
                         }
@@ -160,7 +160,7 @@ fun DropdownField(
             DropdownMenu(
                 expanded = expandido,
                 onDismissRequest = { expandido = false },
-                modifier = Modifier.background(Color.White)
+
             ) {
                 opciones.forEach { opcion ->
                     DropdownMenuItem(
@@ -170,7 +170,7 @@ fun DropdownField(
                                 fontFamily = InterFamily,
                                 fontSize = 15.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = NEGRO_OPCIONES
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                         },
                         onClick = {
@@ -197,7 +197,7 @@ fun ChipsSeleccionUnica(
             label,
             fontFamily = InterFamily,
             fontSize = 13.sp,
-            color = NEGRO_OPCIONES,
+            color = MaterialTheme.colorScheme.onSurface,
             fontWeight = FontWeight.Bold
         )
         Spacer(modifier = Modifier.height(6.dp))
@@ -214,8 +214,8 @@ fun ChipsSeleccionUnica(
                         selected = seleccionado.equals(opcion, ignoreCase = true),
                         onClick = { onSeleccionChange(opcion) },
                         colors = RadioButtonDefaults.colors(
-                            selectedColor = NARANJA,
-                            unselectedColor = Color.Gray
+                            selectedColor = MaterialTheme.colorScheme.secondary,
+                            unselectedColor = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     )
                     Text(
@@ -223,7 +223,7 @@ fun ChipsSeleccionUnica(
                         fontFamily = InterFamily,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
-                        color = NEGRO_OPCIONES
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
             }
@@ -250,7 +250,7 @@ fun ListaDinamicaDesplegable(
                 label,
                 fontFamily = InterFamily,
                 fontSize = 13.sp,
-                color = NEGRO_OPCIONES,
+                color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Bold
             )
             Spacer(modifier = Modifier.width(6.dp))
@@ -258,7 +258,7 @@ fun ListaDinamicaDesplegable(
             Box {
                 Surface(
                     shape = CircleShape,
-                    color = Color(0xFFEBEBEB),
+                    color = MaterialTheme.colorScheme.surfaceVariant,
                     modifier = Modifier
                         .size(26.dp)
                         .clickable { mostrarMenu = true }
@@ -267,7 +267,7 @@ fun ListaDinamicaDesplegable(
                         Icon(
                             Icons.Default.Add,
                             contentDescription = "Agregar $label",
-                            tint = NARANJA,
+                            tint = MaterialTheme.colorScheme.secondary,
                             modifier = Modifier.size(18.dp)
                         )
                     }
@@ -276,7 +276,6 @@ fun ListaDinamicaDesplegable(
                 DropdownMenu(
                     expanded = mostrarMenu,
                     onDismissRequest = { mostrarMenu = false },
-                    modifier = Modifier.background(Color.White)
                 ) {
                     opcionesComunes.forEach { opcion ->
                         DropdownMenuItem(
@@ -286,7 +285,7 @@ fun ListaDinamicaDesplegable(
                                     fontFamily = InterFamily,
                                     fontSize = 15.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = NEGRO_OPCIONES
+                                    color = MaterialTheme.colorScheme.onSurface
                                 )
                             },
                             onClick = {
@@ -319,12 +318,12 @@ fun ListaDinamicaDesplegable(
                     singleLine = true,
                     shape = RoundedCornerShape(12.dp),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = Color(0xFFEBEBEB),
-                        unfocusedContainerColor = Color(0xFFEBEBEB),
+                        focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
                         focusedBorderColor = Color.Transparent,
                         unfocusedBorderColor = Color.Transparent,
-                        focusedTextColor = NEGRO_OPCIONES,
-                        unfocusedTextColor = NEGRO_OPCIONES
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface
                     ),
                     modifier = Modifier.weight(1f)
                 )
@@ -337,10 +336,10 @@ fun ListaDinamicaDesplegable(
                             mostrarInputOtro = false
                         }
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = VERDE_KITCHEN),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(12.dp)
                 ) {
-                    Text("+", color = Color.White, fontWeight = FontWeight.Bold)
+                    Text("+", color = MaterialTheme.colorScheme.onPrimary, fontWeight = FontWeight.Bold)
                 }
             }
         }
@@ -358,7 +357,7 @@ fun ListaDinamicaDesplegable(
                 Text(
                     item,
                     fontFamily = InterFamily,
-                    color = NARANJA,
+                    color = MaterialTheme.colorScheme.secondary,
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(start = 8.dp)
@@ -366,7 +365,7 @@ fun ListaDinamicaDesplegable(
                 Spacer(modifier = Modifier.width(6.dp))
                 Surface(
                     shape = CircleShape,
-                    color = Color(0xFFEBEBEB),
+                    color = MaterialTheme.colorScheme.surfaceVariant,
                     modifier = Modifier
                         .size(22.dp)
                         .clickable { onEliminar(item) }
@@ -375,7 +374,7 @@ fun ListaDinamicaDesplegable(
                         Icon(
                             Icons.Default.Remove,
                             contentDescription = "Eliminar",
-                            tint = Color.Gray,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.size(14.dp)
                         )
                     }
