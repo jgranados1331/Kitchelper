@@ -7,26 +7,35 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.kitchelper.ui.theme.InterFamily
+
 
 // Colores del componente
 private val VERDE_KITCHEN = Color(0xFF4A6B4A)
 private val NARANJA_ACTIVO = Color(0xFFFF6B4A)
 private val GRIS_INACTIVO = Color.Gray
 
+// val context = LocalContext.current
+// val modoOscuroActivo by com.example.kitchelper.ui.theme.ThemeManager.isDarkTheme.collectAsState()
+
 /**
  * Componente reutilizable de la barra de navegación inferior flotante.
  * Se utiliza en todas las pantallas principales de la aplicación.
+ * MaterialTheme.colorScheme.onSurfaceVariant
  */
 @Composable
 fun BarraNavegacionInferior(
@@ -46,7 +55,7 @@ fun BarraNavegacionInferior(
     ) {
         Surface(
             shape = RoundedCornerShape(30.dp),
-            color = Color.White,
+            color = MaterialTheme.colorScheme.surfaceVariant,
             shadowElevation = 8.dp,
             modifier = Modifier
                 .fillMaxWidth()
@@ -60,26 +69,26 @@ fun BarraNavegacionInferior(
                 NavItem(
                     icon = Icons.Default.Home,
                     label = "INICIO",
-                    color = if (rutaActual == "home") NARANJA_ACTIVO else GRIS_INACTIVO,
+                    color = if (rutaActual == "home") NARANJA_ACTIVO else MaterialTheme.colorScheme.onSurfaceVariant,
                     onClick = onInicioClick
                 )
                 NavItem(
                     icon = Icons.Default.Restaurant,
                     label = "RECETAS",
-                    color = if (rutaActual == "recipes") NARANJA_ACTIVO else GRIS_INACTIVO,
+                    color = if (rutaActual == "recipes") NARANJA_ACTIVO else MaterialTheme.colorScheme.onSurfaceVariant,
                     onClick = onRecetasClick
                 )
                 Spacer(modifier = Modifier.width(50.dp))
                 NavItem(
                     icon = Icons.Default.Bookmark,
                     label = "GUARDADOS",
-                    color = if (rutaActual == "favoritos") NARANJA_ACTIVO else GRIS_INACTIVO,
+                    color = if (rutaActual == "favoritos") NARANJA_ACTIVO else MaterialTheme.colorScheme.onSurfaceVariant,
                     onClick = onGuardadosClick
                 )
                 NavItem(
                     icon = Icons.Default.Person,
                     label = "PERFIL",
-                    color = if (rutaActual == "profile") NARANJA_ACTIVO else GRIS_INACTIVO,
+                    color = if (rutaActual == "profile") NARANJA_ACTIVO else MaterialTheme.colorScheme.onSurfaceVariant,
                     onClick = onPerfilClick
                 )
             }
@@ -88,7 +97,7 @@ fun BarraNavegacionInferior(
         // Botón central flotante
         Surface(
             shape = CircleShape,
-            color = VERDE_KITCHEN,
+            color = MaterialTheme.colorScheme.primary,
             shadowElevation = 8.dp,
             modifier = Modifier
                 .size(70.dp)
@@ -99,7 +108,7 @@ fun BarraNavegacionInferior(
                 Icon(
                     Icons.Default.ArrowUpward,
                     contentDescription = "Cargar o actualizar",
-                    tint = Color.White,
+                    tint = MaterialTheme.colorScheme.onPrimary,
                     modifier = Modifier.size(32.dp)
                 )
             }
