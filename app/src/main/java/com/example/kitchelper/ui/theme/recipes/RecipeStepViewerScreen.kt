@@ -1,3 +1,4 @@
+
 package com.example.kitchelper.ui.theme.recipes
 
 import android.content.Intent
@@ -45,7 +46,6 @@ import com.example.kitchelper.ui.theme.profile.CREMA
 import com.example.kitchelper.ui.theme.profile.GRIS_TEXTO
 import com.example.kitchelper.ui.theme.profile.NARANJA
 import com.example.kitchelper.ui.theme.profile.VERDE_KITCHEN
-import kotlinx.coroutines.delay
 
 @Composable
 fun RecipeStepViewerScreen(recetaId: String, navController: NavController) {
@@ -59,9 +59,7 @@ fun RecipeStepViewerScreen(recetaId: String, navController: NavController) {
     val context = LocalContext.current
     val userId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
 
-    // Carga fresca del perfil de usuario y la receta cada vez que se navega o se ingresa
     LaunchedEffect(recetaId) {
-        isLoading = true
         try {
             val result = RecipeRepository().obtenerReceta(recetaId)
             receta = result.getOrNull()
@@ -79,17 +77,12 @@ fun RecipeStepViewerScreen(recetaId: String, navController: NavController) {
         isLoading = false
     }
 
-    // Efecto reactivo para solicitar a Gemini IA el consejo técnico específico de este paso y esta receta en tiempo real
-    val pasoActualObj = receta?.pasos?.getOrElse(pasoActualIndex) { Paso() }
-    val descPasoActual = pasoActualObj?.descripcion ?: ""
-
-    LaunchedEffect(pasoActualIndex, receta?.id, descPasoActual, usuarioLogueado) {
+    // Efecto para solicitar a Gemini IA el consejo técnico para cada paso específico
+    LaunchedEffect(pasoActualIndex, receta) {
         val currentReceta = receta
         if (currentReceta != null && currentReceta.pasos.isNotEmpty()) {
             val paso = currentReceta.pasos.getOrElse(pasoActualIndex) { currentReceta.pasos.first() }
-            consejoPasoActualIA = null
             isLoadingConsejoPaso = true
-            delay(150) // Breve pausa para asegurar feedback visual de recálculo en tiempo real
             val aiStepRes = GeminiAiRepository().obtenerConsejoPasoASpaso(
                 tituloReceta = currentReceta.titulo,
                 pasoActual = paso,
@@ -181,7 +174,7 @@ fun RecipeStepViewerScreen(recetaId: String, navController: NavController) {
                     ) {
                         Box(contentAlignment = Alignment.Center) {
                             Text(
-                                usuarioLogueado?.nombre?.firstOrNull()?.uppercase() ?: "E",
+                                "E",
                                 fontFamily = FrauncesFamily,
                                 fontSize = 18.sp,
                                 fontWeight = FontWeight.Bold,
@@ -193,7 +186,7 @@ fun RecipeStepViewerScreen(recetaId: String, navController: NavController) {
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // ===== SECCIÓN 1: IMAGEN DEL PASO =====
+                // ===== SECCIÓN 1: IMAGEN DEL PASO A PASO =====
                 Surface(
                     shape = RoundedCornerShape(24.dp),
                     color = Color.White,
@@ -245,7 +238,7 @@ fun RecipeStepViewerScreen(recetaId: String, navController: NavController) {
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // ===== SECCIÓN 2: DESCRIPCIÓN Y NAVEGACIÓN ENTRE PASOS =====
+                // ===== SECCIÓN 2: DESCRIPCIÓN CON FLECHAS LATERALES =====
                 Surface(
                     shape = RoundedCornerShape(24.dp),
                     color = Color.White,
@@ -345,7 +338,7 @@ fun RecipeStepViewerScreen(recetaId: String, navController: NavController) {
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // ===== SECCIÓN 3: RECOMENDACIÓN HIPER-PERSONALIZADA Y ESPECÍFICA DE LA RECETA =====
+                // ===== SECCIÓN 3: RECOMENDACIÓN DE LA IA SEGÚN EL PASO Y PERFIL =====
                 Surface(
                     shape = RoundedCornerShape(20.dp),
                     color = Color(0xFFF2F7EC),
@@ -364,7 +357,7 @@ fun RecipeStepViewerScreen(recetaId: String, navController: NavController) {
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
-                                "Consejo del Chef IA para '${currentReceta.titulo}'",
+                                "Consejo del Chef IA para el Paso ${pasoActualIndex + 1}",
                                 fontFamily = InriaSerifFamily,
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold,
@@ -386,7 +379,7 @@ fun RecipeStepViewerScreen(recetaId: String, navController: NavController) {
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text(
-                                    "Generando consejo único para el Paso ${pasoActualIndex + 1} de '${currentReceta.titulo}'...",
+                                    "Consultando consejo del Chef IA para este paso...",
                                     fontFamily = InterFamily,
                                     fontSize = 12.sp,
                                     color = Color.Gray
@@ -394,7 +387,7 @@ fun RecipeStepViewerScreen(recetaId: String, navController: NavController) {
                             }
                         } else {
                             Text(
-                                consejoPasoActualIA ?: "👨‍🍳 En este Paso ${pasoActualIndex + 1} de '${currentReceta.titulo}': realiza la preparación manteniendo el fuego y la estación de trabajo en orden.",
+                                consejoPasoActualIA ?: "👨‍🍳 Sigue las indicaciones del paso a paso y mantén un fuego constante.",
                                 fontFamily = InterFamily,
                                 fontSize = 13.sp,
                                 color = GRIS_TEXTO,
