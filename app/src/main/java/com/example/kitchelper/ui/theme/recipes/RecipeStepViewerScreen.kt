@@ -1,4 +1,3 @@
-
 package com.example.kitchelper.ui.theme.recipes
 
 import android.content.Intent
@@ -46,6 +45,7 @@ import com.example.kitchelper.ui.theme.profile.CREMA
 import com.example.kitchelper.ui.theme.profile.GRIS_TEXTO
 import com.example.kitchelper.ui.theme.profile.NARANJA
 import com.example.kitchelper.ui.theme.profile.VERDE_KITCHEN
+import kotlinx.coroutines.delay
 
 @Composable
 fun RecipeStepViewerScreen(recetaId: String, navController: NavController) {
@@ -59,7 +59,9 @@ fun RecipeStepViewerScreen(recetaId: String, navController: NavController) {
     val context = LocalContext.current
     val userId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
 
-    LaunchedEffect(recetaId) {
+    // Carga fresca del perfil de usuario y la receta cada vez que se navega o se ingresa
+    LaunchedEffect(recetaId, userId) {
+        isLoading = true
         try {
             val result = RecipeRepository().obtenerReceta(recetaId)
             receta = result.getOrNull()
@@ -67,22 +69,31 @@ fun RecipeStepViewerScreen(recetaId: String, navController: NavController) {
             if (userId.isNotBlank()) {
                 val userRes = UserRepository().obtenerUsuario(userId)
                 usuarioLogueado = userRes.getOrNull()
-
-                if (receta != null && usuarioLogueado != null) {
-                    val aiRes = GeminiAiRepository().generarSugerenciasPersonalizadasReceta(usuarioLogueado!!, receta!!)
-                    sugerenciasIA = aiRes.getOrNull() ?: emptyList()
-                }
             }
         } catch (_: Exception) {}
         isLoading = false
     }
 
-    // Efecto para solicitar a Gemini IA el consejo técnico para cada paso específico
-    LaunchedEffect(pasoActualIndex, receta) {
+    LaunchedEffect(receta?.id, usuarioLogueado) {
+        val r = receta
+        val u = usuarioLogueado
+        if (r != null && u != null) {
+            val aiRes = GeminiAiRepository().generarSugerenciasPersonalizadasReceta(u, r)
+            sugerenciasIA = aiRes.getOrNull() ?: emptyList()
+        }
+    }
+
+    // Efecto reactivo para solicitar a Gemini IA el consejo técnico específico de este paso y esta receta en tiempo real
+    val pasoActualObj = receta?.pasos?.getOrElse(pasoActualIndex) { Paso() }
+    val descPasoActual = pasoActualObj?.descripcion ?: ""
+
+    LaunchedEffect(pasoActualIndex, receta?.id, descPasoActual, usuarioLogueado) {
         val currentReceta = receta
         if (currentReceta != null && currentReceta.pasos.isNotEmpty()) {
             val paso = currentReceta.pasos.getOrElse(pasoActualIndex) { currentReceta.pasos.first() }
+            consejoPasoActualIA = null
             isLoadingConsejoPaso = true
+            delay(150) // Breve pausa para asegurar feedback visual de recálculo en tiempo real
             val aiStepRes = GeminiAiRepository().obtenerConsejoPasoASpaso(
                 tituloReceta = currentReceta.titulo,
                 pasoActual = paso,
@@ -96,11 +107,11 @@ fun RecipeStepViewerScreen(recetaId: String, navController: NavController) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+            .background(CREMA)
     ) {
         if (isLoading) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                CircularProgressIndicator(color = VERDE_KITCHEN)
             }
         } else if (receta == null || receta!!.pasos.isEmpty()) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -132,7 +143,7 @@ fun RecipeStepViewerScreen(recetaId: String, navController: NavController) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Surface(
                             shape = CircleShape,
-                            color = MaterialTheme.colorScheme.primary,
+                            color = VERDE_KITCHEN,
                             modifier = Modifier
                                 .size(40.dp)
                                 .clickable { navController.popBackStack() }
@@ -160,7 +171,7 @@ fun RecipeStepViewerScreen(recetaId: String, navController: NavController) {
                                 fontFamily = FrauncesFamily,
                                 fontSize = 18.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.primary,
+                                color = VERDE_KITCHEN,
                                 maxLines = 1
                             )
                         }
@@ -169,16 +180,16 @@ fun RecipeStepViewerScreen(recetaId: String, navController: NavController) {
                     Surface(
                         shape = CircleShape,
                         color = Color.White,
-                        border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
+                        border = BorderStroke(2.dp, VERDE_KITCHEN),
                         modifier = Modifier.size(44.dp)
                     ) {
                         Box(contentAlignment = Alignment.Center) {
                             Text(
-                                "E",
+                                usuarioLogueado?.nombre?.firstOrNull()?.uppercase() ?: "E",
                                 fontFamily = FrauncesFamily,
                                 fontSize = 18.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.primary
+                                color = VERDE_KITCHEN
                             )
                         }
                     }
@@ -186,7 +197,7 @@ fun RecipeStepViewerScreen(recetaId: String, navController: NavController) {
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // ===== SECCIÓN 1: IMAGEN DEL PASO A PASO =====
+                // ===== SECCIÓN 1: IMAGEN DEL PASO =====
                 Surface(
                     shape = RoundedCornerShape(24.dp),
                     color = Color.White,
@@ -209,17 +220,17 @@ fun RecipeStepViewerScreen(recetaId: String, navController: NavController) {
                             Box(
                                 modifier = Modifier
                                     .fillMaxSize()
-                                    .background(MaterialTheme.colorScheme.surfaceVariant),
+                                    .background(Color(0xFFE0E0E0)),
                                 contentAlignment = Alignment.Center
                             ) {
-                                Text("Sin imagen disponible", fontFamily = InterFamily, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text("Sin imagen disponible", fontFamily = InterFamily, color = Color.Gray)
                             }
                         }
 
                         // Píldora del paso
                         Surface(
                             shape = RoundedCornerShape(12.dp),
-                            color = MaterialTheme.colorScheme.primary,
+                            color = VERDE_KITCHEN,
                             modifier = Modifier
                                 .align(Alignment.TopStart)
                                 .padding(12.dp)
@@ -238,7 +249,7 @@ fun RecipeStepViewerScreen(recetaId: String, navController: NavController) {
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // ===== SECCIÓN 2: DESCRIPCIÓN CON FLECHAS LATERALES =====
+                // ===== SECCIÓN 2: DESCRIPCIÓN Y NAVEGACIÓN ENTRE PASOS =====
                 Surface(
                     shape = RoundedCornerShape(24.dp),
                     color = Color.White,
@@ -262,7 +273,7 @@ fun RecipeStepViewerScreen(recetaId: String, navController: NavController) {
                                 Icon(
                                     Icons.AutoMirrored.Filled.ArrowBack,
                                     contentDescription = "Paso Anterior",
-                                    tint = if (pasoActualIndex > 0) MaterialTheme.colorScheme.primary else Color.LightGray,
+                                    tint = if (pasoActualIndex > 0) VERDE_KITCHEN else Color.LightGray,
                                     modifier = Modifier.size(28.dp)
                                 )
                             }
@@ -272,7 +283,7 @@ fun RecipeStepViewerScreen(recetaId: String, navController: NavController) {
                                 fontFamily = InriaSerifFamily,
                                 fontSize = 18.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.secondary
+                                color = NARANJA
                             )
 
                             IconButton(
@@ -284,7 +295,7 @@ fun RecipeStepViewerScreen(recetaId: String, navController: NavController) {
                                 Icon(
                                     Icons.AutoMirrored.Filled.ArrowForward,
                                     contentDescription = "Paso Siguiente",
-                                    tint = if (pasoActualIndex < pasos.size - 1) MaterialTheme.colorScheme.primary else Color.LightGray,
+                                    tint = if (pasoActualIndex < pasos.size - 1) VERDE_KITCHEN else Color.LightGray,
                                     modifier = Modifier.size(28.dp)
                                 )
                             }
@@ -298,7 +309,7 @@ fun RecipeStepViewerScreen(recetaId: String, navController: NavController) {
                                 .fillMaxWidth()
                                 .height(6.dp)
                                 .clip(RoundedCornerShape(3.dp)),
-                            color = MaterialTheme.colorScheme.primary,
+                            color = VERDE_KITCHEN,
                             trackColor = Color(0xFFE0E0E0)
                         )
 
@@ -324,7 +335,7 @@ fun RecipeStepViewerScreen(recetaId: String, navController: NavController) {
                                         Toast.makeText(context, "No se pudo abrir el video", Toast.LENGTH_SHORT).show()
                                     }
                                 },
-                                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
+                                colors = ButtonDefaults.buttonColors(containerColor = NARANJA),
                                 shape = RoundedCornerShape(14.dp),
                                 modifier = Modifier.fillMaxWidth()
                             ) {
@@ -338,11 +349,11 @@ fun RecipeStepViewerScreen(recetaId: String, navController: NavController) {
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // ===== SECCIÓN 3: RECOMENDACIÓN DE LA IA SEGÚN EL PASO Y PERFIL =====
+                // ===== SECCIÓN 3: RECOMENDACIÓN HIPER-PERSONALIZADA Y ESPECÍFICA DE LA RECETA =====
                 Surface(
                     shape = RoundedCornerShape(20.dp),
                     color = Color(0xFFF2F7EC),
-                    border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary),
+                    border = BorderStroke(1.5.dp, VERDE_KITCHEN),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp)
@@ -351,17 +362,17 @@ fun RecipeStepViewerScreen(recetaId: String, navController: NavController) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(
                                 Icons.Default.AutoAwesome,
-                                contentDescription = "IA",
-                                tint = MaterialTheme.colorScheme.primary,
+                                contentDescription = "IA Mentor",
+                                tint = VERDE_KITCHEN,
                                 modifier = Modifier.size(22.dp)
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
-                                "Consejo del Chef IA para el Paso ${pasoActualIndex + 1}",
+                                "Consejo del Chef IA para '${currentReceta.titulo}'",
                                 fontFamily = InriaSerifFamily,
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.primary
+                                color = VERDE_KITCHEN
                             )
                         }
 
@@ -373,13 +384,13 @@ fun RecipeStepViewerScreen(recetaId: String, navController: NavController) {
                                 modifier = Modifier.padding(vertical = 4.dp)
                             ) {
                                 CircularProgressIndicator(
-                                    color = MaterialTheme.colorScheme.primary,
+                                    color = VERDE_KITCHEN,
                                     modifier = Modifier.size(16.dp),
                                     strokeWidth = 2.dp
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text(
-                                    "Consultando consejo del Chef IA para este paso...",
+                                    "Generando consejo único para el Paso ${pasoActualIndex + 1} de '${currentReceta.titulo}'...",
                                     fontFamily = InterFamily,
                                     fontSize = 12.sp,
                                     color = Color.Gray
@@ -387,7 +398,7 @@ fun RecipeStepViewerScreen(recetaId: String, navController: NavController) {
                             }
                         } else {
                             Text(
-                                consejoPasoActualIA ?: "👨‍🍳 Sigue las indicaciones del paso a paso y mantén un fuego constante.",
+                                consejoPasoActualIA ?: "👨‍🍳 En este Paso ${pasoActualIndex + 1} de '${currentReceta.titulo}': realiza la preparación manteniendo el fuego y la estación de trabajo en orden.",
                                 fontFamily = InterFamily,
                                 fontSize = 13.sp,
                                 color = GRIS_TEXTO,
@@ -405,7 +416,7 @@ fun RecipeStepViewerScreen(recetaId: String, navController: NavController) {
                                 fontFamily = InriaSerifFamily,
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.secondary
+                                color = NARANJA
                             )
                             Spacer(modifier = Modifier.height(4.dp))
                             sugerenciasIA.forEach { sugerencia ->

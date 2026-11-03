@@ -31,6 +31,7 @@ import com.example.kitchelper.ui.theme.practices.PracticesScreen
 import com.example.kitchelper.ui.theme.practices.PracticeDetailScreen
 import com.example.kitchelper.ui.theme.navigation.Routes
 import com.example.kitchelper.ar.ArIngredientScannerScreen
+import com.example.kitchelper.ar.ArWorktableGuideScreen
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import com.example.kitchelper.ui.theme.ThemeManager
@@ -129,37 +130,38 @@ fun AppNavigation() {
 
         // ===== MÓDULO 6: AR =====
         composable(Routes.AR_GUIDE) {
-            PlaceholderScreen("Calibración de la tabla de picar (próximamente)")
+            ArWorktableGuideScreen(
+                onNavigateBack = { navController.popBackStack() }
+            )
         }
         composable(Routes.AR_SCAN) {
             ArIngredientScannerScreen(
-                onNavigateBack = {
-                    navController.popBackStack()
-                },
-                onConfirm = { ingredientes ->
-
-                    navController.previousBackStackEntry
-                        ?.savedStateHandle
-                        ?.set("ar_ingredientes", ingredientes)
-
+                onNavigateBack = { navController.popBackStack() },
+                onConfirm = { lista ->
+                    navController.previousBackStackEntry?.savedStateHandle?.set("ar_ingredientes", lista)
                     navController.popBackStack()
                 }
             )
         }
-
         composable(
             route = Routes.AR_RECIPE,
             arguments = listOf(androidx.navigation.navArgument("recetaId") {})
         ) { backStackEntry ->
             val recetaId = backStackEntry.arguments?.getString("recetaId") ?: ""
-            PlaceholderScreen("AR Receta: $recetaId")
+            ArWorktableGuideScreen(
+                recetaId = recetaId,
+                onNavigateBack = { navController.popBackStack() }
+            )
         }
         composable(
             route = Routes.AR_PRACTICE,
             arguments = listOf(androidx.navigation.navArgument("practicaId") {})
         ) { backStackEntry ->
             val practicaId = backStackEntry.arguments?.getString("practicaId") ?: ""
-            PlaceholderScreen("AR Práctica: $practicaId")
+            ArWorktableGuideScreen(
+                recetaId = practicaId,
+                onNavigateBack = { navController.popBackStack() }
+            )
         }
 
         // ===== MÓDULO 7: CREAR / EDITAR RECETA =====

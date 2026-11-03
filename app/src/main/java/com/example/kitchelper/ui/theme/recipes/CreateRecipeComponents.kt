@@ -40,7 +40,7 @@ fun SeccionFormulario(
 ) {
     Surface(
         shape = RoundedCornerShape(24.dp),
-        color = MaterialTheme.colorScheme.surface,
+        color = Color.White,
         shadowElevation = 2.dp,
         modifier = Modifier
             .fillMaxWidth()
@@ -52,7 +52,7 @@ fun SeccionFormulario(
                 fontFamily = InriaSerifFamily,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.secondary
+                color = NARANJA
             )
             Spacer(modifier = Modifier.height(12.dp))
             contenido()
@@ -76,24 +76,24 @@ fun CampoTextoFormulario(
             label,
             fontFamily = InterFamily,
             fontSize = 12.sp,
-            color = MaterialTheme.colorScheme.onSurface,
+            color = GRIS_TEXTO,
             fontWeight = FontWeight.Medium
         )
         Spacer(modifier = Modifier.height(4.dp))
         OutlinedTextField(
             value = valor,
             onValueChange = onValorChange,
-            placeholder = { Text(placeholder, fontFamily = InterFamily, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface) },
+            placeholder = { Text(placeholder, fontFamily = InterFamily, fontSize = 13.sp, color = Color.Gray) },
             singleLine = singleLine,
             maxLines = maxLines,
             shape = RoundedCornerShape(14.dp),
             colors = OutlinedTextFieldDefaults.colors(
-                focusedContainerColor = MaterialTheme.colorScheme.surface,
-                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                focusedContainerColor = Color(0xFFEBEBEB),
+                unfocusedContainerColor = Color(0xFFEBEBEB),
+                focusedBorderColor = Color.Transparent,
                 unfocusedBorderColor = Color.Transparent,
-                focusedTextColor = MaterialTheme.colorScheme.onSurface,
-                unfocusedTextColor = MaterialTheme.colorScheme.onSurface
+                focusedTextColor = GRIS_TEXTO,
+                unfocusedTextColor = GRIS_TEXTO
             ),
             keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
             modifier = Modifier.fillMaxWidth()
@@ -121,7 +121,7 @@ fun SelectorImagenKit(
             label,
             fontFamily = InterFamily,
             fontSize = 12.sp,
-            color = MaterialTheme.colorScheme.onBackground,
+            color = GRIS_TEXTO,
             fontWeight = FontWeight.Medium
         )
         Spacer(modifier = Modifier.height(6.dp))
@@ -132,7 +132,7 @@ fun SelectorImagenKit(
                     .fillMaxWidth()
                     .height(150.dp)
                     .clip(RoundedCornerShape(14.dp))
-                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                    .background(Color(0xFFEBEBEB))
             ) {
                 AsyncImage(
                     model = imagenUrl,
@@ -151,7 +151,7 @@ fun SelectorImagenKit(
                     Icon(
                         Icons.Default.CloudUpload,
                         contentDescription = "Cambiar imagen",
-                        tint = MaterialTheme.colorScheme.secondary,
+                        tint = Color.White,
                         modifier = Modifier.padding(6.dp).size(18.dp)
                     )
                 }
@@ -159,7 +159,7 @@ fun SelectorImagenKit(
         } else {
             Surface(
                 shape = RoundedCornerShape(14.dp),
-                color = MaterialTheme.colorScheme.surfaceVariant,
+                color = Color(0xFFEBEBEB),
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable { launcher.launch(mimeTypeFilter) }
@@ -172,7 +172,7 @@ fun SelectorImagenKit(
                     Icon(
                         Icons.Default.Image,
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.secondary,
+                        tint = NARANJA,
                         modifier = Modifier.size(22.dp)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
@@ -181,7 +181,7 @@ fun SelectorImagenKit(
                         fontFamily = InterFamily,
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary
+                        color = VERDE_KITCHEN
                     )
                 }
             }
@@ -200,7 +200,7 @@ fun ItemIngredienteForm(
 ) {
     Surface(
         shape = RoundedCornerShape(16.dp),
-        color = MaterialTheme.colorScheme.surface,
+        color = Color(0xFFF9F9F9),
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp)
@@ -259,7 +259,7 @@ fun ItemPasoForm(
 ) {
     Surface(
         shape = RoundedCornerShape(16.dp),
-        color = MaterialTheme.colorScheme.surface,
+        color = Color(0xFFF9F9F9),
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 6.dp)
@@ -275,13 +275,13 @@ fun ItemPasoForm(
                     fontFamily = InriaSerifFamily,
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
+                    color = VERDE_KITCHEN
                 )
                 IconButton(onClick = onEliminar) {
                     Icon(
                         Icons.Default.Delete,
                         contentDescription = "Eliminar paso",
-                        tint = Color.Red,
+                        tint = Color.Gray,
                         modifier = Modifier.size(20.dp)
                     )
                 }
@@ -323,15 +323,11 @@ fun ItemPasoForm(
 @Composable
 fun SeccionARForm(
     incluyeAR: Boolean,
-    onToggleAR: (Boolean) -> Unit,
-    instruccionAR: String,
-    onInstruccionChange: (String) -> Unit,
-    modelo3DUrl: String,
-    onModelo3DSeleccionado: (Uri) -> Unit
+    onToggleAR: (Boolean) -> Unit
 ) {
     Surface(
         shape = RoundedCornerShape(20.dp),
-        color = MaterialTheme.colorScheme.surface,
+        color = Color(0xFFF2F7EC),
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp)
@@ -344,7 +340,7 @@ fun SeccionARForm(
                 Icon(
                     Icons.Default.ViewInAr,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
+                    tint = VERDE_KITCHEN,
                     modifier = Modifier.size(26.dp)
                 )
                 Spacer(modifier = Modifier.width(10.dp))
@@ -354,38 +350,19 @@ fun SeccionARForm(
                         fontFamily = InriaSerifFamily,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = VERDE_KITCHEN
                     )
                     Text(
                         "Habilita experiencia 3D en la cocina",
                         fontFamily = InterFamily,
                         fontSize = 11.sp,
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = Color.Gray
                     )
                 }
                 Switch(
                     checked = incluyeAR,
                     onCheckedChange = onToggleAR,
-                    colors = SwitchDefaults.colors(checkedThumbColor = Color.White, checkedTrackColor = MaterialTheme.colorScheme.primary)
-                )
-            }
-
-            if (incluyeAR) {
-                Spacer(modifier = Modifier.height(12.dp))
-                CampoTextoFormulario(
-                    label = "Instrucción de Calibración AR",
-                    valor = instruccionAR,
-                    onValorChange = onInstruccionChange,
-                    placeholder = "Ej. Apunta la cámara a tu tabla de picar..."
-                )
-                Spacer(modifier = Modifier.height(10.dp))
-
-                SelectorImagenKit(
-                    label = "Modelo 3D (.glb / .gltf) a ImageKit.io (Opcional)",
-                    imagenUrl = modelo3DUrl,
-                    onImagenSeleccionada = onModelo3DSeleccionado,
-                    mimeTypeFilter = "*/*",
-                    botonTexto = if (modelo3DUrl.isNotBlank()) "Modelo 3D cargado en ImageKit" else "+ Cargar modelo 3D (.glb)"
+                    colors = SwitchDefaults.colors(checkedThumbColor = Color.White, checkedTrackColor = VERDE_KITCHEN)
                 )
             }
         }

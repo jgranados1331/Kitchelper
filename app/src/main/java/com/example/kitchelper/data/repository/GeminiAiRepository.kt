@@ -22,8 +22,9 @@ class GeminiAiRepository {
 
     private fun obtenerModelos(): List<GenerativeModel> {
         return listOf(
-            GenerativeModel(modelName = "gemini-3.5-flash-lite", apiKey = apiKey),
-            GenerativeModel(modelName = "gemini-3.1-flash-lite", apiKey = apiKey)
+            GenerativeModel(modelName = "gemini-2.0-flash", apiKey = apiKey),
+            GenerativeModel(modelName = "gemini-1.5-flash", apiKey = apiKey),
+            GenerativeModel(modelName = "gemini-1.5-flash-8b", apiKey = apiKey)
         )
     }
 
@@ -80,45 +81,61 @@ class GeminiAiRepository {
     }
 
     /**
-     * Generador dinámico local de consejos por paso
+     * Generador dinámico local de consejos por paso adaptados al perfil del usuario
      */
     private fun generarConsejoPasoLocal(tituloReceta: String, pasoActual: Paso, usuario: Usuario): String {
-        val nivel = usuario.informacionCulinaria.experticia.ifBlank { "Principiante" }
+        val culinaria = usuario.informacionCulinaria
+        val salud = usuario.informacionSalud
+        val nivel = culinaria.experticia.ifBlank { "Principiante" }
         val descOriginal = pasoActual.descripcion.trim().removeSuffix(".")
         val descLower = descOriginal.lowercase()
         val numPaso = pasoActual.orden
 
-        return buildString {
-            append("👨‍🍳 Consejo para '$tituloReceta' - Paso $numPaso ($nivel):\n")
+        val tieneAlergiaLacteos = salud.alergias.any { it.contains("lactosa", ignoreCase = true) || it.contains("lácteos", ignoreCase = true) || it.contains("leche", ignoreCase = true) }
+        val tieneAlergiaGluten = salud.alergias.any { it.contains("gluten", ignoreCase = true) || it.contains("trigo", ignoreCase = true) }
+        val tieneHipertension = salud.problemasSalud.any { it.contains("hipertensión", ignoreCase = true) || it.contains("presión", ignoreCase = true) || it.contains("tensión", ignoreCase = true) }
+        val tieneDiabetes = salud.problemasSalud.any { it.contains("diabetes", ignoreCase = true) || it.contains("glucosa", ignoreCase = true) || it.contains("azúcar", ignoreCase = true) }
+        val esFitness = salud.tipoAlimentacion.equals("Fitness", ignoreCase = true)
 
+        return buildString {
             when {
+                (descLower.contains("sal") || descLower.contains("sazona") || descLower.contains("condiment")) && tieneHipertension -> {
+                    append("⚠️ Por tu salud (control de tensión/sodio) en Paso $numPaso: reduce o evita añadir sal al '$descOriginal'. Usa especias naturales como ajo, orégano o pimienta.")
+                }
+                (descLower.contains("azúcar") || descLower.contains("azucar") || descLower.contains("endulza")) && (tieneDiabetes || (culinaria.endulzante.isNotBlank() && !culinaria.endulzante.equals("Azúcar", ignoreCase = true))) -> {
+                    val endulzanteUso = if (culinaria.endulzante.isNotBlank() && !culinaria.endulzante.equals("Azúcar", ignoreCase = true)) culinaria.endulzante else "estevia o eritritol"
+                    append("💡 En Paso $numPaso ($descOriginal): según tu perfil, sustituye el azúcar por $endulzanteUso para mantener tus niveles adecuados.")
+                }
+                (descLower.contains("leche") || descLower.contains("queso") || descLower.contains("crema") || descLower.contains("mantequilla")) && tieneAlergiaLacteos -> {
+                    append("⚠️ Alerta al '$descOriginal': Recuerda utilizar opciones deslactosadas o bebida vegetal para evitar alérgenos de tu perfil.")
+                }
+                (descLower.contains("harina") || descLower.contains("pan") || descLower.contains("trigo")) && tieneAlergiaGluten -> {
+                    append("⚠️ Alerta al '$descOriginal': Utiliza harina de avena certificada, almendras o maíz sin gluten según tu registro.")
+                }
+                (descLower.contains("aceite") || descLower.contains("freír") || descLower.contains("fría") || descLower.contains("sartén")) && esFitness -> {
+                    append("💡 Para tu alimentación Fitness al '$descOriginal': usa la freidora de aire o aceite en aerosol a fuego controlado.")
+                }
                 descLower.contains("corta") || descLower.contains("pica") || descLower.contains("reban") || descLower.contains("troce") || descLower.contains("pel") -> {
                     if (nivel.equals("Principiante", ignoreCase = true)) {
-                        append("Para '$descOriginal': asegura tu tabla con un paño húmedo debajo y utiliza el 'agarre en garra' doblando las yemas de tus dedos hacia adentro para cortar sin riesgo.")
+                        append("👨‍🍳 Consejo ($nivel) para '$descOriginal': coloca un paño húmedo bajo tu tabla y usa el agarre en garra con los dedos hacia adentro para cortar con seguridad.")
                     } else {
-                        append("Para '$descOriginal': mantén cortes parejos e iguales para garantizar una cocción 100% uniforme en la preparación.")
+                        append("👨‍🍳 Consejo ($nivel) para '$descOriginal': realiza cortes uniformes para garantizar una cocción perfecta en cada pieza.")
                     }
                 }
                 descLower.contains("sal") || descLower.contains("sazona") || descLower.contains("condiment") || descLower.contains("pimienta") || descLower.contains("especi") -> {
-                    append("Al '$descOriginal': incorpora los condimentos gradualmente y prueba la preparación para balancear los sabores.")
+                    append("👨‍🍳 Al '$descOriginal': sazona gradualmente y prueba la preparación para equilibrar los sabores según tu gusto (${culinaria.nivelSalado.ifBlank { "equilibrado" }}).")
                 }
                 descLower.contains("aceite") || descLower.contains("freír") || descLower.contains("fría") || descLower.contains("fuego") || descLower.contains("sartén") || descLower.contains("sarten") || descLower.contains("sofre") || descLower.contains("dora") -> {
-                    append("Para '$descOriginal': precalienta la sartén 1 minuto a fuego medio antes de poner la grasa para lograr un dorado uniforme.")
-                }
-                descLower.contains("azúcar") || descLower.contains("azucar") || descLower.contains("endulza") || descLower.contains("miel") -> {
-                    append("Al '$descOriginal': disuelve el endulzante a fuego medio-bajo para integrarlo bien sin quemarlo.")
+                    append("👨‍🍳 Para '$descOriginal': precalienta el recipiente 1 minuto antes de agregar la materia grasa para sellar los sabores.")
                 }
                 descLower.contains("mezcla") || descLower.contains("bat") || descLower.contains("incorpor") || descLower.contains("remuev") || descLower.contains("revolv") -> {
-                    append("Para '$descOriginal': realiza movimientos envolventes desde los bordes hacia el centro del recipiente para mantener una textura fluida e intoda.")
+                    append("👨‍🍳 Para '$descOriginal': integra con movimientos suaves de afuera hacia adentro para conservar la textura óptima.")
                 }
                 descLower.contains("horn") || descLower.contains("gratin") -> {
-                    append("Al '$descOriginal': precalienta el horno con anticipación y ubica la bandeja en la rejilla central para una distribución homogénea del calor.")
-                }
-                descLower.contains("herv") || descLower.contains("cocin") || descLower.contains("olla") || descLower.contains("agua") || descLower.contains("caldo") -> {
-                    append("Para '$descOriginal': mantén la olla tapada hasta que hierva para conservar los aromas y luego ajusta a fuego medio.")
+                    append("👨‍🍳 Al '$descOriginal': asegúrate de precalentar el horno y usar la rejilla central para una cocción homogénea.")
                 }
                 else -> {
-                    append("En la acción de '$descOriginal': realiza el procedimiento a fuego adecuado y supervisa de cerca los cambios de aroma y textura hasta alcanzar el punto óptimo.")
+                    append("👨‍🍳 Consejo ($nivel) para '$descOriginal' en '$tituloReceta': supervisa la textura y temperatura para asegurar un resultado acorde a tus preferencias.")
                 }
             }
         }
@@ -164,34 +181,51 @@ class GeminiAiRepository {
     }
 
     /**
-     * Generar un consejo técnico y motivador adaptado EXCLUSIVAMENTE a la descripción de CADA PASO individual.
+     * Generar un consejo técnico y motivador adaptado EXCLUSIVAMENTE a la descripción de CADA PASO individual y al PERFIL COMPLETO del usuario.
      */
     suspend fun obtenerConsejoPasoASpaso(
         tituloReceta: String,
         pasoActual: Paso,
         usuario: Usuario
     ): Result<String> = withContext(Dispatchers.IO) {
-        val nivel = usuario.informacionCulinaria.experticia.ifBlank { "Principiante" }
+        val culinaria = usuario.informacionCulinaria
+        val salud = usuario.informacionSalud
+
+        val nivel = culinaria.experticia.ifBlank { "Principiante" }
+        val tipoAlimentacion = salud.tipoAlimentacion.ifBlank { "Normal" }
+        val endulzante = culinaria.endulzante.ifBlank { "Azúcar" }
+        val alergiasStr = salud.alergias.filter { it.isNotBlank() }.joinToString(", ")
+        val problemasStr = salud.problemasSalud.filter { it.isNotBlank() }.joinToString(", ")
+        val restriccionesStr = salud.restricciones.filter { it.isNotBlank() }.joinToString(", ")
+
         val descOriginal = pasoActual.descripcion.trim().removeSuffix(".")
         val numPaso = pasoActual.orden
 
         val prompt = """
-            Eres el mentor de cocina inteligente de KitchenPer. Genera un consejo de cocina ÚNICO y sumamente personalizado para el Paso $numPaso de la receta "$tituloReceta".
+            Eres el mentor de cocina inteligente de KitchenPer en Realidad Aumentada y Guía en Vivo. Genera un consejo de cocina ÚNICO y altamente personalizado para el Paso $numPaso de la receta "$tituloReceta".
 
             DATOS DEL PASO $numPaso DE "$tituloReceta":
             - Acción a realizar: "$descOriginal"
 
             PERFIL DEL USUARIO:
             - Nivel de Experticia: $nivel
+            - Tipo de Alimentación: $tipoAlimentacion
+            - Endulzante preferido: $endulzante
+            - Alergias declaradas: ${alergiasStr.ifBlank { "Ninguna" }}
+            - Afecciones / Salud: ${problemasStr.ifBlank { "Ninguno" }}
+            - Restricciones alimentarias: ${restriccionesStr.ifBlank { "Ninguna" }}
+            - Preferencias de sabor: Salado (${culinaria.nivelSalado.ifBlank { "Normal" }}), Dulce (${culinaria.nivelDulce.ifBlank { "Normal" }}), Picante (${culinaria.picante.ifBlank { "No" }})
 
             INSTRUCCIONES OBLIGATORIAS:
             1. MENCIONA EXPLÍCITAMENTE la acción "$descOriginal" y la receta "$tituloReceta".
-            2. Genera un consejo de 2 frases breves, fresco y completamente diferente a otros pasos.
-            3. Inicia la respuesta con 👨‍🍳.
+            2. Si la acción o ingredientes del paso chocan con las alergias, salud (ej: hipertensión -> menos sal, diabetes -> usar $endulzante) o alimentación del usuario, ALERTA o sugiere la alternativa directamente.
+            3. Si es principiante, ofrece un tip técnico de seguridad o precisión. Si es avanzado/intermedio, sugiere un tip de técnica profesional.
+            4. Responde con 2 frases breves y directas.
+            5. Inicia la respuesta con 👨‍🍳 (o ⚠️ si es una advertencia de salud/alérgeno).
         """.trimIndent()
 
         Log.d(TAG, "=========================================================")
-        Log.d(TAG, "🤖 [GEMINI PASO A PASO] Solicitando consejo para Paso $numPaso de '$tituloReceta' (Acción: '$descOriginal')")
+        Log.d(TAG, "🤖 [GEMINI PASO A PASO] Solicitando consejo personalizado para Paso $numPaso de '$tituloReceta' (Perfil: $nivel, Salud: $problemasStr, Alergias: $alergiasStr)")
 
         try {
             val resultadoIA = ejecutarConsultaGemini(prompt)
@@ -224,24 +258,31 @@ class GeminiAiRepository {
         val restriccionesStr = salud.restricciones.filter { it.isNotBlank() }.joinToString(", ")
         val problemasStr = salud.problemasSalud.filter { it.isNotBlank() }.joinToString(", ")
         val ingredientesStr = receta.ingredientes.joinToString(", ") { "${it.nombre} (${it.cantidad})" }
+        val pasosStr = receta.pasos.take(4).joinToString("; ") { "Paso ${it.orden}: ${it.descripcion}" }
 
         val prompt = """
-            Eres el chef inteligente de KitchenPer. Analiza la receta "${receta.titulo}" y compárala con el perfil del usuario.
+            Eres el chef mentor inteligente de KitchenPer. Tu función es comparar minuciosamente la receta "${receta.titulo}" con el perfil del usuario y darle de 2 a 4 recomendaciones directas de adaptación o sustitución.
 
-            PERFIL DEL USUARIO:
+            PERFIL COMPLETO DEL USUARIO:
             - Nivel de Experticia: ${culinaria.experticia.ifBlank { "Principiante" }}
+            - Tipo de Alimentación: ${salud.tipoAlimentacion.ifBlank { "Normal" }}
             - Endulzante preferido: ${culinaria.endulzante.ifBlank { "Azúcar" }}
-            - Tipo de alimentación: ${salud.tipoAlimentacion.ifBlank { "Normal" }}
+            - Nivel de Salado / Sabor: ${culinaria.nivelSalado.ifBlank { "Equilibrado" }} (Dulce: ${culinaria.nivelDulce.ifBlank { "Normal" }}, Picante: ${culinaria.picante.ifBlank { "No" }})
+            - Condimento preferido: ${culinaria.condimento.ifBlank { "Natural" }}
             - Alergias declaradas: ${alergiasStr.ifBlank { "Ninguna" }}
-            - Problemas de salud: ${problemasStr.ifBlank { "Ninguno" }}
+            - Afecciones / Problemas de Salud: ${problemasStr.ifBlank { "Ninguno" }}
             - Restricciones alimentarias: ${restriccionesStr.ifBlank { "Ninguna" }}
 
-            INGREDIENTES DE LA RECETA:
-            $ingredientesStr
+            DATOS DE LA RECETA "${receta.titulo}":
+            - Ingredientes: $ingredientesStr
+            - Pasos de preparación: $pasosStr
 
-            INSTRUCCIONES:
-            Identifica si algún ingrediente de "${receta.titulo}" contradice las preferencias o salud del usuario.
-            Devuelve de 1 a 3 recomendaciones de sustitución directas mencionando la receta. Cada sugerencia debe empezar con el ícono 💡 o ⚠️.
+            INSTRUCCIONES OBLIGATORIAS:
+            1. Compara cada ingrediente y paso de la receta con las alergias, problemas de salud, tipo de alimentación y gustos del usuario.
+            2. Genera entre 2 y 4 recomendaciones o alertas hiper-personalizadas.
+            3. Si hay alergia o condición de salud (ej: hipertensión, diabetes, lactosa, gluten), incluye una advertencia que inicie con ⚠️.
+            4. Si hay sugerencia de sabor, técnica o sustitución conveniente (ej: endulzante preferido, técnica fitness, o consejo según su nivel ${culinaria.experticia}), incluye una viñeta que inicie con 💡.
+            5. Responde ÚNICAMENTE con los puntos de recomendación. Cada punto en una nueva línea.
         """.trimIndent()
 
         Log.d(TAG, "=========================================================")
@@ -250,15 +291,29 @@ class GeminiAiRepository {
         try {
             val resultadoIA = ejecutarConsultaGemini(prompt)
             if (!resultadoIA.isNullOrBlank()) {
-                val lineas = resultadoIA.lines()
-                    .map { it.trim() }
-                    .filter { it.isNotBlank() && (it.startsWith("💡") || it.startsWith("⚠️") || it.startsWith("-") || it.startsWith("*")) }
-                    .map { it.removePrefix("- ").removePrefix("* ") }
+                val lineasLimpias = resultadoIA.lines()
+                    .map { line ->
+                        line.trim()
+                            .replace(Regex("^(?:\\d+\\.|[\\-*•]|\\*\\*\\d+\\.\\*\\*|\\*\\*)\\s*"), "")
+                            .replace(Regex("^\\*\\*|\\*\\*$"), "")
+                            .trim()
+                    }
+                    .filter { it.isNotBlank() && it.length > 6 }
+                    .map { line ->
+                        when {
+                            line.startsWith("💡") || line.startsWith("⚠️") -> line
+                            line.lowercase().contains("alerta") || line.lowercase().contains("riesgo") ||
+                            line.lowercase().contains("alergia") || line.lowercase().contains("evita") ||
+                            line.lowercase().contains("precaución") || line.lowercase().contains("intoleran") -> "⚠️ $line"
+                            else -> "💡 $line"
+                        }
+                    }
 
-                if (lineas.isNotEmpty()) {
-                    Result.success(lineas)
+                if (lineasLimpias.isNotEmpty()) {
+                    Result.success(lineasLimpias)
                 } else {
-                    Result.success(listOf("💡 Esta receta es adecuada para tu perfil culinario."))
+                    val fallback = generarSugerenciasLocales(usuario, receta)
+                    Result.success(fallback)
                 }
             } else {
                 val fallback = generarSugerenciasLocales(usuario, receta)
@@ -277,25 +332,75 @@ class GeminiAiRepository {
         val salud = usuario.informacionSalud
         val consejosLocales = mutableListOf<String>()
 
-        val endulzante = culinaria.endulzante
-        if (endulzante.isNotBlank() && !endulzante.equals("Azúcar", ignoreCase = true) &&
-            receta.ingredientes.any { it.nombre.contains("azúcar", ignoreCase = true) || it.nombre.contains("azucar", ignoreCase = true) }) {
-            consejosLocales.add("💡 En '${receta.titulo}': Tu perfil indica preferencia por $endulzante. Puedes sustituir el azúcar tradicional por $endulzante al gusto.")
+        val titulo = receta.titulo
+        val ingList = receta.ingredientes
+
+        val tieneHipertension = salud.problemasSalud.any { it.contains("hipertensión", ignoreCase = true) || it.contains("presión", ignoreCase = true) || it.contains("tensión", ignoreCase = true) || it.contains("sodio", ignoreCase = true) }
+        val tieneDiabetes = salud.problemasSalud.any { it.contains("diabetes", ignoreCase = true) || it.contains("glucosa", ignoreCase = true) || it.contains("azúcar", ignoreCase = true) }
+        val esFitness = salud.tipoAlimentacion.equals("Fitness", ignoreCase = true)
+        val esVeganoOVegetariano = salud.tipoAlimentacion.contains("Vegan", ignoreCase = true) || salud.tipoAlimentacion.contains("Vegetar", ignoreCase = true)
+        val endulzanteUso = if (culinaria.endulzante.isNotBlank() && !culinaria.endulzante.equals("Azúcar", ignoreCase = true)) culinaria.endulzante else "estevia o eritritol"
+
+        // 1. Sal / Sodio -> SOLAMENTE si el usuario tiene Hipertensión Y la receta contiene sal
+        val ingSal = ingList.find { it.nombre.lowercase().contains("sal") }
+        if (tieneHipertension && ingSal != null) {
+            consejosLocales.add("⚠️ Por tu perfil de hipertensión/sodio: reemplaza ${ingSal.cantidad} de ${ingSal.nombre} en $titulo por especias naturales (ajo, comino, orégano).")
         }
 
-        if (salud.tipoAlimentacion.equals("Fitness", ignoreCase = true)) {
-            consejosLocales.add("💡 Para '${receta.titulo}': Para mantener tu perfil Fitness, te recomendamos usar freidora de aire o aceite de oliva en aerosol.")
+        // 2. Ketchup / Salsas Procesadas -> SOLAMENTE si la receta REALMENTE contiene ketchup o salsa procesada
+        val ingKetchup = ingList.find { it.nombre.lowercase().contains("ketchup") || it.nombre.lowercase().contains("salsa de tomate") || it.nombre.lowercase().contains("mayonesa") }
+        if (ingKetchup != null && (tieneHipertension || esFitness || tieneDiabetes)) {
+            consejosLocales.add("💡 Para $titulo: sustituye ${ingKetchup.cantidad} de ${ingKetchup.nombre} por tomate natural triturado para reducir sodio y azúcares procesados.")
         }
 
-        if (salud.alergias.any { it.contains("lactosa", ignoreCase = true) || it.contains("lácteos", ignoreCase = true) } &&
-            receta.ingredientes.any { it.nombre.contains("leche", ignoreCase = true) || it.nombre.contains("queso", ignoreCase = true) || it.nombre.contains("crema", ignoreCase = true) }) {
-            consejosLocales.add("⚠️ En '${receta.titulo}': Notamos alergia/intolerancia a lácteos en tu perfil. Te sugerimos sustituir lácteos por versiones deslactosada o vegetal.")
+        // 3. Arroz / Carbohidratos -> SOLAMENTE si la receta contiene arroz/pasta/papa Y el usuario es Fitness
+        val ingCarbo = ingList.find { it.nombre.lowercase().contains("arroz") || it.nombre.lowercase().contains("papa") || it.nombre.lowercase().contains("pasta") }
+        if (ingCarbo != null && esFitness) {
+            consejosLocales.add("💡 Para tu perfil Fitness en $titulo: cambia ${ingCarbo.cantidad} de ${ingCarbo.nombre} por versión integral o aumenta la porción de vegetales.")
         }
 
+        // 4. Lácteos -> SOLAMENTE si el usuario tiene Alergia/Intolerancia a Lácteos Y la receta contiene lácteos
+        val ingLacteos = ingList.find { it.nombre.lowercase().contains("leche") || it.nombre.lowercase().contains("queso") || it.nombre.lowercase().contains("crema") || it.nombre.lowercase().contains("mantequilla") || it.nombre.lowercase().contains("yogur") }
+        val tieneLacteosAlergia = salud.alergias.any { it.contains("lactosa", ignoreCase = true) || it.contains("lácteos", ignoreCase = true) || it.contains("leche", ignoreCase = true) }
+        if (tieneLacteosAlergia && ingLacteos != null) {
+            consejosLocales.add("⚠️ Alerta por tu intolerancia/alergia a lácteos: reemplaza ${ingLacteos.cantidad} de ${ingLacteos.nombre} en $titulo por bebidas/versiones vegetales o sin lactosa.")
+        }
+
+        // 5. Gluten / Trigo -> SOLAMENTE si el usuario tiene Alergia a Gluten Y la receta contiene gluten/harina
+        val ingGluten = ingList.find { it.nombre.lowercase().contains("harina") || it.nombre.lowercase().contains("pan") || it.nombre.lowercase().contains("trigo") }
+        val tieneGlutenAlergia = salud.alergias.any { it.contains("gluten", ignoreCase = true) || it.contains("trigo", ignoreCase = true) }
+        if (tieneGlutenAlergia && ingGluten != null) {
+            consejosLocales.add("⚠️ Alerta por tu intolerancia al gluten: sustituye ${ingGluten.cantidad} de ${ingGluten.nombre} en $titulo por harina de avena sin gluten o de almendras.")
+        }
+
+        // 6. Proteína Animal en Dieta Vegana/Vegetariana -> SOLAMENTE si usuario es Vegano/Vegetariano Y receta contiene carne/pollo/pescado
+        val ingCarne = ingList.find { it.nombre.lowercase().contains("pollo") || it.nombre.lowercase().contains("carne") || it.nombre.lowercase().contains("cerdo") || it.nombre.lowercase().contains("pescado") }
+        if (esVeganoOVegetariano && ingCarne != null) {
+            consejosLocales.add("💡 Para tu alimentación ${salud.tipoAlimentacion}: reemplaza ${ingCarne.cantidad} de ${ingCarne.nombre} en $titulo por tofu, seitán o legumbres.")
+        }
+
+        // 7. Azúcar -> SOLAMENTE si la receta contiene Azúcar/Panela/Miel Y el usuario es Diabético o prefiere Endulzante
+        val ingAzucar = ingList.find { it.nombre.lowercase().contains("azúcar") || it.nombre.lowercase().contains("azucar") || it.nombre.lowercase().contains("panela") || it.nombre.lowercase().contains("miel") }
+        if (ingAzucar != null && (tieneDiabetes || (!culinaria.endulzante.equals("Azúcar", ignoreCase = true) && culinaria.endulzante.isNotBlank()))) {
+            consejosLocales.add("💡 Sustituye ${ingAzucar.cantidad} de ${ingAzucar.nombre} en $titulo por $endulzanteUso según tus preferencias de salud.")
+        }
+
+        // 8. Recomendación por Nivel de Experticia o Compatibilidad General si no hay conflictos
+        val experticia = culinaria.experticia.ifBlank { "Principiante" }
         if (consejosLocales.isEmpty()) {
-            consejosLocales.add("💡 La receta '${receta.titulo}' se ajusta perfectamente a tu perfil culinario de nivel ${culinaria.experticia.ifBlank { "Principiante" }}.")
+            when {
+                experticia.equals("Principiante", ignoreCase = true) -> {
+                    consejosLocales.add("💡 La receta '$titulo' se ajusta a tu perfil. Tip para principiantes: mide todos los ingredientes sobre tu mesa antes de encender el fuego.")
+                }
+                experticia.equals("Avanzado", ignoreCase = true) || experticia.equals("Intermedio", ignoreCase = true) -> {
+                    consejosLocales.add("💡 Esta receta de '$titulo' es ideal para tu nivel $experticia. Puedes ajustar los tiempos de dorado y sazonado para resaltar sabores.")
+                }
+                else -> {
+                    consejosLocales.add("💡 La receta '$titulo' es totalmente compatible con tu perfil nutricional y preferencias.")
+                }
+            }
         }
 
-        return consejosLocales
+        return consejosLocales.take(3)
     }
 }
