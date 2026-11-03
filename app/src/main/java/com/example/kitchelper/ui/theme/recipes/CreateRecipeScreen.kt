@@ -29,6 +29,7 @@ import com.example.kitchelper.ui.theme.profile.CREMA
 import com.example.kitchelper.ui.theme.profile.DropdownField
 import com.example.kitchelper.ui.theme.profile.GRIS_TEXTO
 import com.example.kitchelper.ui.theme.profile.VERDE_KITCHEN
+import com.example.kitchelper.ui.theme.home.GuiaInteractivaAR
 import com.example.kitchelper.ui.theme.navigation.Routes
 import kotlinx.coroutines.flow.MutableStateFlow
 
@@ -84,7 +85,7 @@ fun CreateRecipeScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(CREMA)
+            .background(MaterialTheme.colorScheme.background)
     ) {
         Column(
             modifier = Modifier
@@ -101,7 +102,7 @@ fun CreateRecipeScreen(
             ) {
                 Surface(
                     shape = CircleShape,
-                    color = VERDE_KITCHEN,
+                    color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier
                         .size(44.dp)
                         .clickable { navController.popBackStack() }
@@ -110,7 +111,7 @@ fun CreateRecipeScreen(
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Atrás",
-                            tint = Color.White,
+                            tint = MaterialTheme.colorScheme.onPrimary,
                             modifier = Modifier.size(20.dp)
                         )
                     }
@@ -122,13 +123,13 @@ fun CreateRecipeScreen(
                         fontFamily = FrauncesFamily,
                         fontSize = 22.sp,
                         fontWeight = FontWeight.Bold,
-                        color = GRIS_TEXTO
+                        color = MaterialTheme.colorScheme.primary
                     )
                     Text(
                         if (state.esPracticaBasica) "Comparte una técnica o práctica básica" else "Comparte tu receta con la comunidad",
                         fontFamily = InterFamily,
                         fontSize = 12.sp,
-                        color = Color.Gray
+                        color = MaterialTheme.colorScheme.onBackground
                     )
                 }
             }
@@ -145,8 +146,8 @@ fun CreateRecipeScreen(
                     onClick = { viewModel.toggleEsPracticaBasica(false) },
                     label = { Text("Receta", fontFamily = InterFamily, fontWeight = FontWeight.Bold) },
                     colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = VERDE_KITCHEN,
-                        selectedLabelColor = Color.White
+                        selectedContainerColor = MaterialTheme.colorScheme.primary,
+                        selectedLabelColor = MaterialTheme.colorScheme.onPrimary
                     ),
                     modifier = Modifier.weight(1f)
                 )
@@ -155,8 +156,8 @@ fun CreateRecipeScreen(
                     onClick = { viewModel.toggleEsPracticaBasica(true) },
                     label = { Text("Práctica Básica", fontFamily = InterFamily, fontWeight = FontWeight.Bold) },
                     colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = VERDE_KITCHEN,
-                        selectedLabelColor = Color.White
+                        selectedContainerColor = MaterialTheme.colorScheme.primary,
+                        selectedLabelColor = MaterialTheme.colorScheme.onPrimary
                     ),
                     modifier = Modifier.weight(1f)
                 )
@@ -232,16 +233,7 @@ fun CreateRecipeScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // ===== TARJETA 2: OPCIONES DE REALIDAD AUMENTADA (AR - OPCIONAL) =====
-            SeccionFormulario(titulo = "Experiencia AR / VR (Opcional)") {
-                SeccionARForm(
-                    incluyeAR = state.incluyeAR,
-                    onToggleAR = viewModel::toggleIncluyeAR
-                )
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-            // ===== TARJETA 3: INGREDIENTES (CON IMAGEN POR INGREDIENTE) =====
+            // ===== TARJETA 2: INGREDIENTES (CON IMAGEN POR INGREDIENTE) =====
             SeccionFormulario(titulo = "Ingredientes") {
                 state.ingredientes.forEach { item ->
                     ItemIngredienteForm(
@@ -258,7 +250,7 @@ fun CreateRecipeScreen(
                 OutlinedButton(
                     onClick = { viewModel.agregarIngrediente() },
                     shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = VERDE_KITCHEN),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.primary),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
@@ -270,7 +262,7 @@ fun CreateRecipeScreen(
                     Button(
                         onClick = { navController.navigate(Routes.AR_SCAN) },
                         shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = VERDE_KITCHEN),
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text("Escanear ingredientes con AR", fontFamily = InterFamily, fontWeight = FontWeight.Bold)
@@ -280,7 +272,7 @@ fun CreateRecipeScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // ===== TARJETA 4: PASOS DE PREPARACIÓN (CON IMAGEN Y VIDEO POR PASO) =====
+            // ===== TARJETA 3: PASOS DE PREPARACIÓN (CON IMAGEN Y VIDEO POR PASO) =====
             SeccionFormulario(titulo = "Pasos de Preparación") {
                 state.pasos.forEach { item ->
                     ItemPasoForm(
@@ -297,13 +289,27 @@ fun CreateRecipeScreen(
                 OutlinedButton(
                     onClick = { viewModel.agregarPaso() },
                     shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = VERDE_KITCHEN),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.primary),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
                     Spacer(modifier = Modifier.width(6.dp))
                     Text("Agregar Paso", fontFamily = InterFamily, fontWeight = FontWeight.Bold)
                 }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // ===== TARJETA 4: OPCIONES DE REALIDAD AUMENTADA (AR - OPCIONAL) =====
+            SeccionFormulario(titulo = "Experiencia AR / VR (Opcional)") {
+                SeccionARForm(
+                    incluyeAR = state.incluyeAR,
+                    onToggleAR = viewModel::toggleIncluyeAR,
+                    instruccionAR = state.instruccionAR,
+                    onInstruccionChange = viewModel::actualizarInstruccionAR,
+                    modelo3DUrl = state.modelo3DUrlAR,
+                    onModelo3DSeleccionado = { uri -> viewModel.subirModelo3DAR(context, uri) }
+                )
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -325,26 +331,26 @@ fun CreateRecipeScreen(
                 onClick = { viewModel.guardarReceta() },
                 enabled = !state.isSaving && !state.isUploading,
                 shape = RoundedCornerShape(30.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = VERDE_KITCHEN),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
                     .height(56.dp)
             ) {
                 if (state.isSaving || state.isUploading) {
-                    CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
+                    CircularProgressIndicator(color = MaterialTheme.colorScheme.surfaceVariant, modifier = Modifier.size(24.dp))
                     Spacer(modifier = Modifier.width(10.dp))
                     Text(
                         state.uploadProgressMessage ?: "Guardando receta...",
                         fontFamily = InterFamily,
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontSize = 14.sp
                     )
                 } else {
                     Text(
                         "Publicar Receta",
                         fontFamily = InterFamily,
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.onPrimary,
                         fontWeight = FontWeight.Bold,
                         fontSize = 16.sp
                     )
