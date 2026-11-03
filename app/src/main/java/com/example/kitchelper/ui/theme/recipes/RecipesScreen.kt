@@ -203,7 +203,7 @@ fun RecipesScreen(
                             // BOTON DE ESCANER IA
                             Button(
                                 onClick = {
-                                    navController.navigate(Routes.AR_SCAN)
+                                    //navController.navigate(Routes.AR_SCAN)
                                 },
                                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                                 shape = RoundedCornerShape(16.dp),

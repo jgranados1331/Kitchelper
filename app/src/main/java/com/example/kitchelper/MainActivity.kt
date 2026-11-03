@@ -133,13 +133,18 @@ fun AppNavigation() {
         }
         composable(Routes.AR_SCAN) {
             ArIngredientScannerScreen(
-                onNavigateBack = { navController.popBackStack() },
-                onConfirm = { lista -> /* ... */ }
-            )
-        }
+                onNavigateBack = {
+                    navController.popBackStack()
+                },
+                onConfirm = { ingredientes ->
 
-        composable(Routes.AR_GUIDE) {
-            PlaceholderScreen("Calibración de la tabla de picar") // pendiente
+                    navController.previousBackStackEntry
+                        ?.savedStateHandle
+                        ?.set("ar_ingredientes", ingredientes)
+
+                    navController.popBackStack()
+                }
+            )
         }
 
         composable(

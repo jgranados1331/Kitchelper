@@ -59,7 +59,7 @@ fun ArIngredientScannerScreen(
 ) {
     val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsState()
-    var showDecisionDialog by remember { mutableStateOf(false) }
+
 
     var hasCameraPermission by remember {
         mutableStateOf(
@@ -132,39 +132,7 @@ fun ArIngredientScannerScreen(
         }
     }
 
-    // Diálogo de decisión post-escaneo (Receta Existente vs Receta Improvisada con IA)
-    if (showDecisionDialog) {
-        AlertDialog(
-            onDismissRequest = { showDecisionDialog = false },
-            title = { Text("Ingredientes Escaneados con IA", fontWeight = FontWeight.Bold) },
-            text = { Text("Tienes ${uiState.savedIngredients.size} ingredientes listos. ¿Cómo deseas proceder?") },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        showDecisionDialog = false
-                        // Pasar señal de receta improvisada con IA (ej. anteponiendo prefijo o gestionando en ViewModel)
-                        onConfirm(uiState.savedIngredients)
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF6B4A)),
-                    shape = RoundedCornerShape(16.dp)
-                ) {
-                    Text("✦ Receta Improvisada con IA", color = Color.White, fontWeight = FontWeight.Bold)
-                }
-            },
-            dismissButton = {
-                OutlinedButton(
-                    onClick = {
-                        showDecisionDialog = false
-                        onConfirm(uiState.savedIngredients)
-                    },
-                    shape = RoundedCornerShape(16.dp)
-                ) {
-                    Text("Usar en Receta")
-                }
-            },
-            shape = RoundedCornerShape(20.dp)
-        )
-    }
+    // Se elimino Diálogo de decisión post-escaneo (vs Receta Improvisada con IA)
 
     Scaffold(
         topBar = {
@@ -260,6 +228,43 @@ fun ArIngredientScannerScreen(
                     .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                val cantidadRegistrada = uiState.savedIngredients.size
+                val minimoIngredientes = 3
+
+                Surface(
+                    shape = RoundedCornerShape(16.dp),
+                    color = Color.Black.copy(alpha = 0.85f),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 12.dp)
+                ) {
+                    Column(
+                        modifier = Modifier.padding(14.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = if (cantidadRegistrada < minimoIngredientes) {
+                                "Escanea y registra mínimo 3 ingredientes para generar o crear una receta."
+                            } else {
+                                "¡Ya tienes los ingredientes necesarios para tu receta!"
+                            },
+                            color = Color.White,
+                            fontWeight = FontWeight.SemiBold,
+                            textAlign = TextAlign.Center
+                        )
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        Text(
+                            text = "$cantidadRegistrada de $minimoIngredientes ingredientes mínimos",
+                            color = if (cantidadRegistrada >= minimoIngredientes) {
+                                Color.Green
+                            } else {
+                                Color.LightGray
+                            }
+                        )
+                    }
+                }
                 Surface(
                     shape = RoundedCornerShape(16.dp),
                     color = Color.Black.copy(alpha = 0.8f),
@@ -304,7 +309,7 @@ fun ArIngredientScannerScreen(
                 }
 
                 AnimatedVisibility(
-                    visible = uiState.savedIngredients.isNotEmpty(),
+                    visible = uiState.savedIngredients.size >= 3,
                     enter = fadeIn(),
                     exit = fadeOut()
                 ) {
@@ -360,29 +365,28 @@ fun ArIngredientScannerScreen(
                         fontWeight = FontWeight.SemiBold
                     )
                 }
-
-                AnimatedVisibility(
-                    visible = uiState.savedIngredients.isNotEmpty(),
-                    enter = fadeIn(),
-                    exit = fadeOut()
+                          // Agregar boton para ingresar los ingredientes escaneados
+                Button(
+                    onClick = {
+                        if (uiState.savedIngredients.size >= 3) {
+                            onConfirm(uiState.savedIngredients.toList())
+                        }
+                    },
+                    enabled = uiState.savedIngredients.size >= 3,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp)
+                        .height(54.dp),
+                    shape = RoundedCornerShape(28.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF4A6B4A),
+                        disabledContainerColor = Color.Gray
+                    )
                 ) {
-                    Button(
-                        onClick = { showDecisionDialog = true },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 8.dp)
-                            .height(54.dp),
-                        shape = RoundedCornerShape(28.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4A6B4A))
-                    ) {
-                        Icon(imageVector = Icons.Default.Check, contentDescription = null)
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = "Usar ${uiState.savedIngredients.size} ingredientes en la receta",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                    }
+                    Text(
+                        text = "Agregar ingredientes a la receta",
+                        fontWeight = FontWeight.SemiBold
+                    )
                 }
             }
         }
