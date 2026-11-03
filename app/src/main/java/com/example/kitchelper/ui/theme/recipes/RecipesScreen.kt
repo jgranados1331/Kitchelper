@@ -190,7 +190,7 @@ fun RecipesScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            if (state.soloMisRecetas) "Mis Recetas Creadas" else "Todas las recetas",
+                            if (state.soloMisRecetas) "Mis Recetas" else "Todas las recetas",
                             fontFamily = InriaSerifFamily,
                             fontSize = 19.sp,
                             fontWeight = FontWeight.Bold,

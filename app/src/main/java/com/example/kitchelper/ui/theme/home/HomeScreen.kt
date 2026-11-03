@@ -79,12 +79,15 @@ fun HomeScreen(
             }
 
             // 4. Bloque 3: Guía interactiva en VR y Selector de Nivel
+            // Bloque comentado para evaluar si es necesario borrarlo para mejorar la IU
+            /**
             item {
                 GuiaInteractivaAR(
                     onCalibrarClick = { navController.navigate(Routes.AR_GUIDE) },
                     onVistaARClick = { navController.navigate(Routes.AR_GUIDE) }
                 )
             }
+            **/
 
             item {
                 SelectorNivel(

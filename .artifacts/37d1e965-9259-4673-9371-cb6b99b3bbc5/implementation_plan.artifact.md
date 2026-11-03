@@ -1,35 +1,38 @@
-# Plan: Mejora del Reconocimiento de Ingredientes ARCore y Diálogo de Selección (Receta Existente vs Receta Improvisada con IA)
+# Plan: Personalización Inteligente del Paso a Paso Guiado con IA (Experticia, Salud y Preferencias)
 
-Este plan detalla las mejoras al escáner ARCore / IA:
-1. **Mejorar el Reconocimiento**: Ampliar el catálogo de tokens en `IngredientAnalyzer.kt` y ajustar el umbral de confianza a `0.45f` para una detección más fluida y precisa.
-2. **Flujo Post-Escaneo (Diálogo de Decisión)**: Al presionar el botón "Usar X ingredientes en la receta" en `ArIngredientScannerScreen.kt`, mostrar un diálogo con dos opciones:
-   - **Buscar receta existente**: Buscar en el repositorio de recetas si alguna contiene los ingredientes escaneados.
-   - **Receta improvisada con IA**: Generar una receta improvisada basada en los ingredientes escaneados (prellenando el flujo de creación de receta con título, ingredientes y pasos sugeridos por IA).
+Este plan detalla el ajuste de los prompts y de la lógica de recomendación en el repositorio de IA (`GeminiAiRepository.kt`) y la pantalla de paso a paso (`RecipeStepViewerScreen.kt`), con el objetivo de adaptar de forma hiper-personalizada la guía interactiva para cada usuario según su clasificación completa en Firestore.
 
 ## User Review Required
 
 > [!IMPORTANT]
-> - **Diálogo Interactivo Post-Escaneo**: Se añadirá un diálogo al confirmar los ingredientes escaneados para que el usuario elija entre buscar una receta existente o crear una receta improvisada con IA.
+> - **Inclusión Completa del Perfil del Usuario**: Los prompts de Gemini IA para cada paso de la receta analizarán en tiempo real:
+>   1. **Experticia** (Principiante, Intermedio, Avanzado).
+>   2. **Salud y Nutrición** (Alergias, afecciones como tensión alta/diabetes, tipo de alimentación como Fitness/Vegana).
+>   3. **Preferencias Culinarias** (Nivel de salado, dulce, picante, condimentos y endulzante preferido).
+> - **Motor de Respaldo Local (Offline / Fallback)**: Se mejorará la lógica local para que, incluso sin conexión a la API de Gemini, genere consejos técnicos personalizados según las alergias, afecciones y nivel de experticia del usuario.
 
 ## Proposed Changes
 
-### Escáner AR / IA (`ar/`)
+### Repositorio de IA (`data/repository/`)
 
-#### [MODIFY] [IngredientAnalyzer.kt](file:///C:/Users/johan/OneDrive/Documents/universidad/Kitchelper/Kitchelper/app/src/main/java/com/example/kitchelper/ar/IngredientAnalyzer.kt)
-- Reducir el umbral de confianza por defecto a `0.45f` para mayor sensibilidad de reconocimiento.
-- Ampliar la whitelist de `INGREDIENT_TOKENS` y `SPANISH_NAMES` con más variedades culinarias.
-
-#### [MODIFY] [ArIngredientScannerScreen.kt](file:///C:/Users/johan/OneDrive/Documents/universidad/Kitchelper/Kitchelper/app/src/main/java/com/example/kitchelper/ar/ArIngredientScannerScreen.kt)
-- Añadir un estado de diálogo al presionar el botón de confirmación de ingredientes.
-- Opción 1: Buscar receta existente (filtrando por ingredientes).
-- Opción 2: Generar receta improvisada (creando un borrador en `CreateRecipeScreen` con los ingredientes escaneados y título/pasos generados).
+#### [MODIFY] [GeminiAiRepository.kt](file:///C:/Users/johan/OneDrive/Documents/universidad/Kitchelper/Kitchelper/app/src/main/java/com/example/kitchelper/data/repository/GeminiAiRepository.kt)
+- Reestructurar la función `obtenerConsejoPasoASpaso(tituloReceta, pasoActual, usuario)` para integrar:
+  - Prompt enriquecido con datos completos de salud (`alergias`, `problemasSalud`, `tipoAlimentacion`), experticia (`experticia`) y preferencias de sabor (`nivelSalado`, `nivelDulce`, `endulzante`, `nivelCondimento`).
+  - Lógica de fallback inteligente enriquecida con reglas personalizadas por afección de salud (ej. reducción de sodio para hipertensión, técnica con cuchillo/temperatura para principiantes, sustitución para intolerancias).
 
 ---
+
+### Visualizador de Paso a Paso (`ui/theme/recipes/`)
+
+#### [MODIFY] [RecipeStepViewerScreen.kt](file:///C:/Users/johan/OneDrive/Documents/universidad/Kitchelper/Kitchelper/app/src/main/java/com/example/kitchelper/ui/theme/recipes/RecipeStepViewerScreen.kt)
+- Ajustar la sección de recomendaciones de la IA para presentar:
+  - **👨‍🍳 Consejo del Chef Personalizado** (adaptado al nivel y acción del paso).
+  - **⚠️ Alerta de Salud / Ajuste Culinario** (si el paso involucra sal, frituras, azúcar o alérgenos declarados en el perfil del usuario).
 
 ## Verification Plan
 
 ### Automated Tests
-- Compilación del proyecto (`gradle_build`) para verificar cero errores de compilación.
+- Compilación del proyecto (`gradle_build`) para verificar cero errores sintácticos o de tipos.
 
 ### Manual Verification
-- Probar el escaneo AR en la app y verificar que al confirmar aparezca el diálogo para elegir entre receta existente o receta improvisada con IA.
+- Probar el visualizador de paso a paso con diferentes usuarios (ej. un usuario principiante con hipertensión vs un usuario avanzado fitness) y comprobar cómo se personaliza el consejo y la adaptación del paso en tiempo real.

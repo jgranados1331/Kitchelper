@@ -1,17 +1,23 @@
-# Resumen de Cambios - Mejora de Reconocimiento AR y Diálogo IA Post-Escaneo
+# Resumen de Cambios - Sincronización Segura y Protección en Git de la Nueva Clave de Firebase
 
-Se han implementado exitosamente las mejoras solicitadas en el escáner ARCore / IA:
+Se configuró el sistema para proteger y aplicar automáticamente la nueva clave de Firebase desde `local.properties`:
 
-## Cambios Realizados
+## Configuración Aplicada
 
-### 1. Optimización del Reconocimiento de Ingredientes (`IngredientAnalyzer.kt`)
-- Se ajustó el umbral de confianza de ML Kit a **`0.45f`** (anteriormente `0.55f`), lo que proporciona mayor sensibilidad y velocidad al enfocar y detectar ingredientes en tiempo real.
-- Se refinó el filtrado con la whitelist de tokens de ingredientes y su correspondiente traducción al español.
+1. **Sincronización Automática en Gradle (`app/build.gradle.kts`)**:
+   - Al definir la nueva clave en `local.properties` como `FIREBASE_API_KEY=AIzaSyTuNuevaClave...`, Gradle actualizará automáticamente el campo `current_key` en `app/google-services.json` durante el proceso de compilación.
 
-### 2. Flujo de Decisión Post-Escaneo con IA (`ArIngredientScannerScreen.kt`)
-- Al pulsar el botón para utilizar los ingredientes escaneados (`"Usar X ingredientes en la receta"`), ahora se despliega un **diálogo interactivo** que ofrece dos opciones:
-  1. **Usar en Receta**: Envía los ingredientes directamente al flujo de creación/búsqueda de receta normal.
-  2. **✦ Receta Improvisada con IA**: Activa la creación inteligente de una receta creativa improvisada basada en los ingredientes escaneados.
+2. **Protección Total en GitHub (`.gitignore`)**:
+   - Tanto `local.properties` como `app/google-services.json` están listados en los archivos `.gitignore` del proyecto y del módulo.
+   - Git ignorará automáticamente ambos archivos, garantizando que tu nueva clave **nunca se suba ni quede expuesta en GitHub**.
+
+## Instrucciones para Aplicar tu Nueva Clave
+1. Abre el archivo local `local.properties` en la raíz de tu proyecto.
+2. Pega tu nueva clave de Firebase reemplazando el valor actual de `FIREBASE_API_KEY`:
+   ```properties
+   FIREBASE_API_KEY=AIzaSyTuClaveNuevaGenerada...
+   ```
+3. Ejecuta la aplicación de forma normal. Gradle inyectará la nueva clave en `google-services.json` manteniendo el archivo 100% oculto de Git.
 
 ## Resultados de Verificación
-- **Compilación**: Ejecución exitosa de `app:assembleDebug` con **Build finished successfully**.
+- **Compilación Kotlin**: Ejecución exitosa de `app:compileDebugKotlin` con **Build finished successfully**.

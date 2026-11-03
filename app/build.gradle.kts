@@ -1,4 +1,11 @@
-// app/build.gradle.kts
+import java.util.Properties
+
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localProperties.load(localPropertiesFile.inputStream())
+}
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -19,6 +26,21 @@ android {
         versionCode = 1
         versionName = "1.0"
 
+        val geminiKey: String = localProperties.getProperty("GEMINI_API_KEY") ?: ""
+        val firebaseKey: String = localProperties.getProperty("FIREBASE_API_KEY") ?: ""
+        buildConfigField("String", "GEMINI_API_KEY", "\"$geminiKey\"")
+
+        if (firebaseKey.isNotBlank()) {
+            val googleServicesJsonFile = file("google-services.json")
+            if (googleServicesJsonFile.exists()) {
+                var content = googleServicesJsonFile.readText()
+                if (!content.contains(firebaseKey)) {
+                    content = content.replace(Regex("\"current_key\":\\s*\"[^\"]+\""), "\"current_key\": \"$firebaseKey\"")
+                    googleServicesJsonFile.writeText(content)
+                }
+            }
+        }
+
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables { useSupportLibrary = true }
     }
@@ -38,11 +60,16 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
+        mlModelBinding = true
     }
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
+    }
+    androidResources {
+        noCompress += "tflite"
     }
 }
 
@@ -68,7 +95,7 @@ dependencies {
 
     // Hilt (Inyección de Dependencias)
     implementation(libs.hilt.android)
-    ksp(libs.hilt.compiler) // Usa KSP en lugar de KAPT para mejor rendimiento
+    ksp(libs.hilt.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
 
     // Firebase (BOM)
@@ -80,9 +107,10 @@ dependencies {
     // ARCore, SceneView, ML Kit y CameraX
     implementation(libs.sceneview.ar)
     implementation(libs.arcore)
-    implementation(libs.mlkit.image.labeling)
+    implementation(libs.tensorflow.lite)
+    implementation(libs.tensorflow.lite.support)
 
-    // CameraX (Fallback para dispositivos no compatibles con ARCore)
+    // CameraX
     implementation(libs.androidx.camera.camera2)
     implementation(libs.androidx.camera.lifecycle)
     implementation(libs.androidx.camera.view)
