@@ -31,7 +31,6 @@ import com.example.kitchelper.ui.theme.practices.PracticesScreen
 import com.example.kitchelper.ui.theme.practices.PracticeDetailScreen
 import com.example.kitchelper.ui.theme.navigation.Routes
 import com.example.kitchelper.ar.ArIngredientScannerScreen
-import com.example.kitchelper.ar.ArWorktableGuideScreen
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import com.example.kitchelper.ui.theme.ThemeManager
@@ -130,9 +129,7 @@ fun AppNavigation() {
 
         // ===== MÓDULO 6: AR =====
         composable(Routes.AR_GUIDE) {
-            ArWorktableGuideScreen(
-                onNavigateBack = { navController.popBackStack() }
-            )
+            PlaceholderScreen("Calibración de la tabla de picar (próximamente)")
         }
         composable(Routes.AR_SCAN) {
             ArIngredientScannerScreen(
@@ -155,20 +152,14 @@ fun AppNavigation() {
             arguments = listOf(androidx.navigation.navArgument("recetaId") {})
         ) { backStackEntry ->
             val recetaId = backStackEntry.arguments?.getString("recetaId") ?: ""
-            ArWorktableGuideScreen(
-                recetaId = recetaId,
-                onNavigateBack = { navController.popBackStack() }
-            )
+            PlaceholderScreen("AR Receta: $recetaId")
         }
         composable(
             route = Routes.AR_PRACTICE,
             arguments = listOf(androidx.navigation.navArgument("practicaId") {})
         ) { backStackEntry ->
             val practicaId = backStackEntry.arguments?.getString("practicaId") ?: ""
-            ArWorktableGuideScreen(
-                recetaId = practicaId,
-                onNavigateBack = { navController.popBackStack() }
-            )
+            PlaceholderScreen("AR Práctica: $practicaId")
         }
 
         // ===== MÓDULO 7: CREAR / EDITAR RECETA =====
