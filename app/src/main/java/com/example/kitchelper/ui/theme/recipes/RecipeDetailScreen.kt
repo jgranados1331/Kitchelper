@@ -384,7 +384,11 @@ fun RecipeDetailScreen(recetaId: String, navController: NavController) {
                             selected = tabSeleccionada == "Realidad AR",
                             onClick = {
                                 tabSeleccionada = "Realidad AR"
-                                navController.navigate(Routes.AR_GUIDE)
+                                if (currentReceta.id.isNotBlank()) {
+                                    navController.navigate("ar_recipe/${currentReceta.id}")
+                                } else {
+                                    navController.navigate(Routes.AR_GUIDE)
+                                }
                             },
                             label = { Text("Realidad AR", fontFamily = InterFamily, fontWeight = FontWeight.Bold) },
                             colors = FilterChipDefaults.filterChipColors(

@@ -17,6 +17,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.PlayCircle
+import androidx.compose.material.icons.filled.ViewInAr
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -166,20 +167,39 @@ fun RecipeStepViewerScreen(recetaId: String, navController: NavController) {
                         }
                     }
 
-                    Surface(
-                        shape = CircleShape,
-                        color = Color.White,
-                        border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
-                        modifier = Modifier.size(44.dp)
-                    ) {
-                        Box(contentAlignment = Alignment.Center) {
-                            Text(
-                                "E",
-                                fontFamily = FrauncesFamily,
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.primary
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        IconButton(
+                            onClick = {
+                                if (currentReceta.id.isNotBlank()) {
+                                    navController.navigate("ar_recipe/${currentReceta.id}")
+                                } else {
+                                    navController.navigate("ar_guide")
+                                }
+                            }
+                        ) {
+                            Icon(
+                                Icons.Default.ViewInAr,
+                                contentDescription = "Modo AR",
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(26.dp)
                             )
+                        }
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Surface(
+                            shape = CircleShape,
+                            color = Color.White,
+                            border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
+                            modifier = Modifier.size(44.dp)
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Text(
+                                    usuarioLogueado?.nombre?.firstOrNull()?.uppercase() ?: "E",
+                                    fontFamily = FrauncesFamily,
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                            }
                         }
                     }
                 }
